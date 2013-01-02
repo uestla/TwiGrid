@@ -111,14 +111,17 @@ $(function () {
 
 					if (flashes.length) {
 						var maxOffset = -1,
-							docOffset = $('html').scrollTop() || $('body').scrollTop();;
+							docOffset = $('html').scrollTop() || $('body').scrollTop();
+
 						flashes.each(function (key, val) {
 							if ((offset = $(val).offset().top) > maxOffset) { maxOffset = offset; }
 						});
 
-						if (maxOffset > -1 && docOffset > maxOffset) { $('html, body').animate({
+						if (maxOffset > -1 && docOffset > maxOffset) {
+							$('html, body').animate({
 								scrollTop: maxOffset
-						}, 512); }
+							}, 512);
+						}
 					}
 				});
 			}
