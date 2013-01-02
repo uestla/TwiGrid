@@ -1,0 +1,228 @@
+{**
+ * Default DataGrid template
+ *
+ * @param  Nette\Application\UI\Form  $form
+ * @param  array                      $columns
+ * @param  int                        $columnCount number of table columns
+ * @param  \ArrayIterator             $filterButtons
+ * @param  bool                       $isFiltered
+ * @param  array|\Traversable         $data
+ * @param  int                        $dataCount
+ * @param  array                      $actions
+ * @param  array                      $flashes
+ *}
+
+
+<div n:snippet="" class="twigrid">
+
+{include #container}
+
+</div>
+
+
+
+{* === DATAGRID CONTAINER ELEMENT ============================================ *}
+
+{define container}
+
+	{? }{form $form, class => ajax}
+
+	{if $form->hasErrors()}
+		<div class="alert alert-error hidable" n:foreach="$form->errors as $error">{$error}</div>
+	{/if}
+
+		<table class="table table-striped table-bordered table-hover">
+
+{include #header|indent:2}
+
+{include #body|indent:2}
+
+{include #footer|indent:2}
+
+		</table>
+
+	{? }{/form}
+
+{/define}
+
+
+
+{* === ... ============================================ *}
+
+{define header}
+
+	<thead>
+
+		<tr>
+			<th rowspan="2" n:if="$actions !== NULL && ($isFiltered || $dataCount)">&nbsp;</th>
+
+		{foreach $columns as $name => $column}
+{include #header-cell, name => $name, column => $column |indent:2}
+		{/foreach}
+
+			<th n:if="isset($form[filters]) && ($isFiltered || $dataCount)">&nbsp;</th>
+		</tr>
+
+		<tr n:if="isset($form[filters]) && ($isFiltered || $dataCount)">
+		{foreach $columns as $name => $column}
+{include #filter-cell, name => $name, column => $column |indent:2}
+		{/foreach}
+
+			<th>
+{include #filter-buttons |indent:3}
+			</th>
+		</tr>
+
+	</thead>
+
+{/define}
+
+
+
+{* === ... ============================================ *}
+
+{define header-cell}
+
+	<th>
+	{if $column->sortable}
+		<a n:href="sort!,
+				orderBy => !$column->orderedBy || !$column->orderedDesc ? $name : NULL,
+				orderDesc => $column->orderedBy && !$column->orderedDesc"
+			n:class="ajax">
+{include #header-label, column => $column |indent:2}
+		</a>
+
+	{else}
+{include #header-label, column => $column |indent:1}
+	{/if}
+
+		<i n:class="$column->orderedDesc ? icon-chevron-down : icon-chevron-up" n:if="$column->orderedBy"></i>
+	</th>
+
+{/define}
+
+
+
+{* === ... ============================================ *}
+
+{define filter-cell}
+
+	<th>
+	{ifset $form["filters-criteria-$name"]}
+		{? }{input $form["filters-criteria-$name"]}
+	{else}
+		&nbsp;
+	{/ifset}
+	</th>
+
+{/define}
+
+
+
+{* === ... ============================================ *}
+
+{define filter-buttons}
+	<div class="btn-group">
+	{foreach $filterButtons as $name => $button}
+		{? }{input $button, class => btn}
+	{/foreach}
+	</div>
+{/define}
+
+
+
+{* === ... ============================================ *}
+
+{define header-label}
+	{$column->label}
+{/define}
+
+
+
+{* === ... ============================================ *}
+
+{define body}
+
+	<tbody>
+
+	{if $dataCount}
+		<tr n:foreach="$data as $row">
+
+		{if $actions !== NULL}
+			{var $inputName = $template->primariesToString($row)}
+			<td>{input actions-records-$inputName}</td>
+		{/if}
+
+		{foreach $columns as $name => $column}
+{include #body-cell, column => $column, value => $row->$name |indent:2}
+		{/foreach}
+
+			<td n:ifset="$form[filters]">&nbsp;</td>
+
+		</tr>
+
+	{else}
+		<tr class="warning">
+			<td colspan="{$columnCount}">Žádná data.</td>
+		</tr>
+	{/if}
+
+	</tbody>
+
+{/define}
+
+
+
+{* === ... ============================================ *}
+
+{define body-cell}
+	<td>{$value}</td>
+{/define}
+
+
+
+{* === ... ============================================ *}
+
+{define footer}
+
+	<tfoot n:if="$actions !== NULL && $dataCount">
+
+		<td colspan="{$columnCount}">
+{include #action-buttons |indent:2}
+		</td>
+
+	</tfoot>
+
+{/define}
+
+
+
+{* === ... ============================================ *}
+
+{define action-buttons}
+
+{include #action-buttons-label}
+
+	<div class="btn-group">
+	{foreach $actions as $name => $action}
+{include #action-button, name => $name, action => $action |indent:1}
+	{/foreach}
+	</div>
+
+{/define}
+
+
+
+{* === ... ============================================ *}
+
+{define action-buttons-label}
+	<label class="action-buttons-label">Označené:</label>
+{/define}
+
+
+
+{* === ... ============================================ *}
+
+{define action-button}
+	{? }{input actions-buttons-$name, class => btn, data-confirm => $action[confirmation]}
+{/define}
