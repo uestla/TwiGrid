@@ -1,0 +1,24 @@
+.twigrid thead th {
+	background: #eee;
+	white-space: nowrap;
+}
+
+.twigrid th, .twigrid td {
+	vertical-align: middle;
+}
+
+select, .twigrid input[type="text"], .twigrid input[type="date"] {
+	display: block;
+	margin: 0;
+	width: 100%;
+	height: 100%;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.twigrid .action-buttons-label {
+	float: left;
+	display: block;
+	margin: 0.4% 0.8% 0.4% 0;
+}
