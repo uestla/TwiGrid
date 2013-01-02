@@ -13,6 +13,7 @@
 namespace TwiGrid;
 
 use Nette;
+use Nette\Callback;
 use Nette\Application\UI;
 use Nette\Templating\IFileTemplate;
 use Nette\Forms\Controls\SubmitButton;
@@ -35,7 +36,7 @@ class DataGrid extends UI\Control
 	/** @persistent array */
 	public $filters = array();
 
-	/** @var Nette\Callback */
+	/** @var Callback */
 	protected $filterContainerFactory = NULL;
 
 
@@ -45,7 +46,7 @@ class DataGrid extends UI\Control
 	/** @var string|array */
 	protected $primaryKey = NULL;
 
-	/** @var Nette\Callback */
+	/** @var Callback */
 	protected $dataLoader = NULL;
 
 	/** @var array|\Traversable */
@@ -56,7 +57,16 @@ class DataGrid extends UI\Control
 	// === actions ===========
 
 	/** @var array */
-	protected $actions = NULL;
+	protected $rowActions = NULL;
+
+	/** @var array */
+	protected $groupActions = NULL;
+
+	/** @var Nette\Http\Session */
+	protected $sessionContainer;
+
+	/** @var Nette\Http\SessionSection */
+	protected $session;
 
 
 
@@ -70,6 +80,60 @@ class DataGrid extends UI\Control
 	// === constants ===========
 
 	const PRIMARY_SEPARATOR = '-';
+
+
+
+	// === LIFE CYCLE ======================================================
+
+	/**
+	 * @param  Nette\Http\Session
+	 */
+	function __construct(Nette\Http\Session $s)
+	{
+		parent::__construct();
+		$this->sessionContainer = $s;
+	}
+
+
+
+	/**
+	 * @param  Nette\ComponentModel\IComponent
+	 * @return void
+	 */
+	protected function attached($presenter)
+	{
+		parent::attached($presenter);
+		$this->invalidateControl();
+		$this->session = $this->sessionContainer->getSection( __CLASS__ . '-' . $this->name );
+	}
+
+
+
+	/**
+	 * @param  array
+	 * @return void
+	 */
+	function loadState(array $params)
+	{
+		parent::loadState($params);
+		$this->orderBy !== NULL && $this[ $this->orderBy ]->setOrderedBy( TRUE, $this->orderDesc );
+	}
+
+
+
+	/** @return void */
+	function handleSort()
+	{
+		$this->refreshState();
+	}
+
+
+
+	/** @return void */
+	protected function refreshState()
+	{
+		!$this->presenter->isAjax() && $this->redirect('this');
+	}
 
 
 
@@ -110,14 +174,13 @@ class DataGrid extends UI\Control
 	 * @param  string
 	 * @param  mixed
 	 * @param  string|NULL
-	 * @return DataGrid
 	 */
-	function addGroupAction($name, $label, $callback, $confirmation = NULL)
+	function addRowAction($name, $label, $callback, $confirmation = NULL)
 	{
-		$this->actions === NULL && ( $this->actions = array() );
-		$this->actions[$name] = array(
+		$this->rowActions === NULL && ( $this->rowActions = array() );
+		$this->rowActions[$name] = array(
 			'label' => (string) $label,
-			'callback' => Nette\Callback::create( $callback ),
+			'callback' => Callback::create($callback),
 			'confirmation' => $confirmation,
 		);
 		return $this;
@@ -125,47 +188,40 @@ class DataGrid extends UI\Control
 
 
 
-	// === LIFE CYCLE ======================================================
-
 	/**
-	 * @param  Nette\ComponentModel\IComponent
-	 * @return void
+	 * @param  string
+	 * @param  string
+	 * @param  string
 	 */
-	protected function attached($presenter)
+	function handleRowAction($action, $primary, $token)
 	{
-		parent::attached($presenter);
-		$this->invalidateControl();
-	}
+		if ($token === $this->session->csrfToken) {
+			unset($this->session->csrfToken);
+			$this->rowActions[$action]['callback']->invokeArgs( array( $this->stringToPrimaries( $primary ) ) );
 
-
-
-	/**
-	 * @param  array
-	 * @return void
-	 */
-	function loadState(array $params)
-	{
-		parent::loadState($params);
-
-		if ($this->orderBy !== NULL) {
-			$this[ $this->orderBy ]->setOrderedBy( TRUE, $this->orderDesc );
+		} else {
+			// ...
 		}
 	}
 
 
 
-	/** @return void */
-	function handleSort()
+	/**
+	 * @param  string
+	 * @param  string
+	 * @param  mixed
+	 * @param  string|NULL
+	 * @return DataGrid
+	 */
+	function addGroupAction($name, $label, $callback, $confirmation = NULL)
 	{
-		$this->refreshState();
-	}
-
-
-
-	/** @return void */
-	protected function refreshState()
-	{
-		!$this->presenter->isAjax() && $this->redirect('this');
+		$this->groupActions === NULL && ( $this->groupActions = array() );
+		$this->groupActions[$name] = array(
+			'label' => (string) $label,
+			'callback' => Callback::create( $callback ),
+			'confirmation' => $confirmation,
+		);
+		return $this;
 	}
 
 
@@ -178,7 +234,7 @@ class DataGrid extends UI\Control
 	 */
 	function setDataLoader($loader)
 	{
-		$this->dataLoader = Nette\Callback::create( $loader );
+		$this->dataLoader = Callback::create( $loader );
 		return $this;
 	}
 
@@ -246,7 +302,7 @@ class DataGrid extends UI\Control
 	 */
 	function setFilterContainerFactory($factory)
 	{
-		$this->filterContainerFactory = Nette\Callback::create( $factory );
+		$this->filterContainerFactory = Callback::create( $factory );
 		return $this;
 	}
 
@@ -269,7 +325,7 @@ class DataGrid extends UI\Control
 					&& ( $buttons->addSubmit('reset', 'Zrušit')->onClick[] = $this->onResetButtonClick );
 		}
 
-		if ($this->actions !== NULL) {
+		if ($this->groupActions !== NULL) {
 			$actions = $form->addContainer('actions');
 
 			// records checkboxes
@@ -283,7 +339,7 @@ class DataGrid extends UI\Control
 
 			// action buttons
 			$buttons = $actions->addContainer('buttons');
-			foreach ($this->actions as $name => $action) {
+			foreach ($this->groupActions as $name => $action) {
 				$buttons->addSubmit($name, $action['label'])
 					->onClick[] = $this->onActionButtonClick;
 			}
@@ -328,7 +384,7 @@ class DataGrid extends UI\Control
 			}
 		}
 
-		$this->actions[ $button->name ]['callback']->invokeArgs( array( $primaries ) );
+		$this->groupActions[ $button->name ]['callback']->invokeArgs( array( $primaries ) );
 		$this->invalidateCache();
 	}
 
@@ -462,11 +518,15 @@ class DataGrid extends UI\Control
 
 		$template->form = $template->_form = $this['form'];
 		$template->columns = $this->getColumns();
-		$template->columnCount = count($template->columns) + (isset($template->form['filters']) ? 1 : 0) + ($this->actions !== NULL ? 1 : 0);
+		$template->columnCount = count($template->columns) + (isset($template->form['filters']) ? 1 : 0) + ($this->groupActions !== NULL ? 1 : 0);
 		$template->filterButtons = $this->getFilterButtons();
 		$template->isFiltered = (bool) count($this->filters);
 		$template->dataCount = count( $template->data = $this->getData() );
-		$template->actions = $this->actions;
+		$template->rowActions = $this->rowActions;
+		$template->csrfToken = $this->rowActions !== NULL
+				? ( isset($this->session->csrfToken) ? $this->session->csrfToken : ( $this->session->csrfToken = Nette\Utils\Strings::random(16) ) )
+				: ( $this->session->__unset('csrfToken') || NULL );
+		$template->groupActions = $this->groupActions;
 		$template->render();
 	}
 }

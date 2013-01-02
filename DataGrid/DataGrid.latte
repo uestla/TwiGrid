@@ -8,12 +8,18 @@
  * @param  bool                       $isFiltered
  * @param  array|\Traversable         $data
  * @param  int                        $dataCount
- * @param  array                      $actions
+ * @param  array                      $rowActions
+ * @param  string                     $csrfToken
+ * @param  array                      $groupActions
  * @param  array                      $flashes
  *}
 
 
 <div n:snippet="" class="twigrid">
+
+	<div n:snippet="flashes">
+		<div n:foreach="$flashes as $flash" class="alert alert-{$flash->type} hidable">{$flash->message}</div>
+	</div>
 
 {include #container}
 
@@ -27,8 +33,8 @@
 
 	{? }{form $form, class => ajax}
 
-	{if $form->hasErrors()}
-		<div class="alert alert-error hidable" n:foreach="$form->errors as $error">{$error}</div>
+	{if $errors = $form->errors}
+		<div class="alert alert-error hidable" n:foreach="$errors as $error">{$error}</div>
 	{/if}
 
 		<table class="table table-striped table-bordered table-hover">
@@ -54,7 +60,7 @@
 	<thead>
 
 		<tr>
-			<th rowspan="2" n:if="$actions !== NULL && ($isFiltered || $dataCount)">&nbsp;</th>
+			<th rowspan="2" n:if="$groupActions !== NULL && ($isFiltered || $dataCount)">&nbsp;</th>
 
 		{foreach $columns as $name => $column}
 {include #header-cell, name => $name, column => $column |indent:2}
@@ -146,18 +152,25 @@
 	<tbody>
 
 	{if $dataCount}
-		<tr n:foreach="$data as $row">
+		<tr n:foreach="$data as $record">
 
-		{if $actions !== NULL}
-			{var $inputName = $template->primariesToString($row)}
+		{if $groupActions !== NULL}
+			{var $inputName = $template->primariesToString($record)}
 			<td>{input actions-records-$inputName}</td>
 		{/if}
 
 		{foreach $columns as $name => $column}
-{include #body-cell, column => $column, value => $row->$name |indent:2}
+{include #body-cell, column => $column, value => $record->$name |indent:2}
 		{/foreach}
 
-			<td n:ifset="$form[filters]">&nbsp;</td>
+			<td n:ifset="$form[filters]">
+			{if $rowActions !== NULL}
+{include #row-action-buttons, record => $record |indent:3}
+
+			{else}
+				&nbsp;
+			{/if}
+			</td>
 
 		</tr>
 
@@ -180,15 +193,41 @@
 {/define}
 
 
+{* === ... ============================================ *}
+
+{define row-action-buttons}
+	<div class="btn-group">
+	{foreach $rowActions as $name => $action}
+{include #row-action-button, record => $record, name => $name, action => $action |indent:1}
+	{/foreach}
+	</div>
+{/define}
+
+
+
+{* === ... ============================================ *}
+
+{define row-action-button}
+	<a n:href="rowAction!,
+			action => $name,
+			primary => $template->primariesToString($record),
+			token => $csrfToken"
+		n:class="btn, ajax"
+		n:attr="data-confirm => $action[confirmation]">
+		{$action[label]}
+	</a>
+{/define}
+
+
 
 {* === ... ============================================ *}
 
 {define footer}
 
-	<tfoot n:if="$actions !== NULL && $dataCount">
+	<tfoot n:if="$groupActions !== NULL && $dataCount">
 
 		<td colspan="{$columnCount}">
-{include #action-buttons |indent:2}
+{include #group-action-buttons |indent:2}
 		</td>
 
 	</tfoot>
@@ -199,13 +238,13 @@
 
 {* === ... ============================================ *}
 
-{define action-buttons}
+{define group-action-buttons}
 
-{include #action-buttons-label}
+{include #group-action-buttons-label}
 
 	<div class="btn-group">
-	{foreach $actions as $name => $action}
-{include #action-button, name => $name, action => $action |indent:1}
+	{foreach $groupActions as $name => $action}
+{include #group-action-button, name => $name, action => $action |indent:1}
 	{/foreach}
 	</div>
 
@@ -215,7 +254,7 @@
 
 {* === ... ============================================ *}
 
-{define action-buttons-label}
+{define group-action-buttons-label}
 	<label class="action-buttons-label">Označené:</label>
 {/define}
 
@@ -223,6 +262,6 @@
 
 {* === ... ============================================ *}
 
-{define action-button}
+{define group-action-button}
 	{? }{input actions-buttons-$name, class => btn, data-confirm => $action[confirmation]}
 {/define}
