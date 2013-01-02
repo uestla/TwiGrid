@@ -25,6 +25,7 @@
 					if (!window.confirm( $(this).attr('data-confirm') )) {
 						event.preventDefault();
 						event.stopPropagation();
+						event.stopImmediatePropagation();
 					}
 				});
 
