@@ -3,7 +3,7 @@ TwiGrid
 
 ... is an experimental DataGrid for Nette Framework.
 
-It's based on another (and great) datagrid written by @hrach - https://github.com/nextras/datagrid. My datagrid is hugely inspired and I would like to give this man a maximum credit and respect :-)
+It's based on another (and great) datagrid written by @hrach - https://github.com/nextras/datagrid. My datagrid is hugely inspired by this component and its programming ideas and therefore I would like to give this man a maximum credit and respect :-)
 
 However - I did some things differently or have used a different approach.
 
