@@ -20,10 +20,6 @@
 
 				var grid = $(val);
 
-				// flash messages close button
-				grid.find('.alert.hidable').prepend($('<button type="button" class="close" data-dismiss="alert">&times;</button>'));
-
-
 				// confirmation dialog
 				grid.find('*[data-confirm]').on('click.twigrid', function (event) {
 					if (!window.confirm( $(this).attr('data-confirm') )) {
@@ -137,8 +133,5 @@ $(function () {
 	}, {
 		body: $(document.body)
 	});
-
-
-	$.nette.init();
 
 });
