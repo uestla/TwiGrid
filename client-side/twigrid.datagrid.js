@@ -35,7 +35,7 @@
 
 				// filter controls
 				grid.find('select[name^="filters\\["]').on('change.twigrid', function (event) {
-					grid.find(':submit[name="filters\\[buttons\\]\\[filter\\]"]').trigger('click');
+					grid.find('input[type="submit"][name="filters\\[buttons\\]\\[filter\\]"]').trigger('click');
 				});
 
 
@@ -43,7 +43,7 @@
 				var actionCheckboxes = grid.find(':checkbox[name^="actions\\[records\\]\\["]');
 
 				if (actionCheckboxes.length) {
-					var actionButtons = grid.find(':submit[name^="actions\\[buttons\\]\\["]');
+					var actionButtons = grid.find('input[type="submit"][name^="actions\\[buttons\\]\\["]');
 
 					// toggleCheck all clicking at the header row
 					var checkbox = $('<input type="checkbox" />').on('change.twigrid', function (event) {
