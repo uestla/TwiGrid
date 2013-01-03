@@ -1,13 +1,13 @@
 ;(function ($, undefined) {
 
 	// jQuery extensions
-	$.fn.checked = function (bool) {
+	$.fn.twg_checked = function (bool) {
 		this.attr('checked', !!bool);
 		this.trigger('change');
 	};
 
-	$.fn.toggleChecked = function () {
-		this.checked( !this.attr('checked') );
+	$.fn.twg_toggleChecked = function () {
+		this.twg_checked( !this.attr('checked') );
 	};
 
 
@@ -44,13 +44,13 @@
 
 					// toggleCheck all clicking at the header row
 					var checkbox = $('<input type="checkbox" />').on('change.twigrid', function (event) {
-						actionCheckboxes.checked( $(this).attr('checked') );
+						actionCheckboxes.twg_checked( $(this).attr('checked') );
 					});
 
 					grid.find('table thead tr:first').on('click.twigrid', function (event) {
 						// prevent checking when clicking on a link or a checkbox
 						var target = $(event.target);
-						!target.is('a') && !target.is(':checkbox') && checkbox.toggleChecked();
+						!target.is('a') && !target.is(':checkbox') && checkbox.twg_toggleChecked();
 					}).find('th:first').append( checkbox );
 
 					// toggleCheck single record clicking at the record row
@@ -75,7 +75,7 @@
 						row.on('click.twigrid', function (event) {
 							// prevent checking when clicking on a link or a checkbox
 							var target = $(event.target);
-							!target.is('a') && !target.is(':checkbox') && checkbox.toggleChecked();
+							!target.is('a') && !target.is(':checkbox') && checkbox.twg_toggleChecked();
 						});
 					});
 				}
