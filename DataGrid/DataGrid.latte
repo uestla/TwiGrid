@@ -32,8 +32,8 @@
 {define container}
 
 	{? }{form $form, class => ajax}
-
 	{if $errors = $form->errors}
+
 		<div class="alert alert-error hidable" n:foreach="$errors as $error">{$error}</div>
 	{/if}
 
