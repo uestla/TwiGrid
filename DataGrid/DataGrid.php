@@ -105,7 +105,7 @@ class DataGrid extends UI\Control
 		parent::attached($presenter);
 		$this->invalidateControl();
 		$this->session = $this->sessionContainer->getSection( __CLASS__ . '-' . $this->name );
-		$this->session->setExpiration('+ 5 minutes');
+		$this->session->setExpiration('+ 5 minutes', 'csrfToken');
 	}
 
 
