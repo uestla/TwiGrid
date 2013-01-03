@@ -164,7 +164,7 @@ class DataGrid extends UI\Control
 	/** @return array */
 	function getColumnNames()
 	{
-		return array_keys( $this->getColumns() );
+		return array_combine( $names = array_keys( $this->getColumns() ), $names );
 	}
 
 
