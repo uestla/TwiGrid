@@ -200,7 +200,8 @@ class DataGrid extends UI\Control
 			$this->rowActions[$action]['callback']->invokeArgs( array( $this->stringToPrimaries( $primary ) ) );
 
 		} else {
-			// ...
+			$this->flashMessage('Security token not match.', 'error');
+			$this->redirect('this');
 		}
 	}
 
