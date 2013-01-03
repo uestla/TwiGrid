@@ -130,10 +130,11 @@ class DataGrid extends UI\Control
 
 
 
-	/** @return void */
+	/** @return bool */
 	protected function refreshState()
 	{
 		!$this->presenter->isAjax() && $this->redirect('this');
+		return TRUE;
 	}
 
 
@@ -288,10 +289,11 @@ class DataGrid extends UI\Control
 
 
 
-	/** @return void */
+	/** @return bool */
 	protected function invalidateCache()
 	{
 		unset($this['form']); $this->data = NULL;
+		return TRUE;
 	}
 
 
@@ -410,9 +412,8 @@ class DataGrid extends UI\Control
 	 */
 	function setFilters(array $filters)
 	{
-		$this->filters = $filters;
+		$this->filters !== $filters && ( ( $this->filters = $filters ) || TRUE ) && $this->invalidateCache();
 		$this->refreshState();
-		$this->invalidateCache();
 	}
 
 
