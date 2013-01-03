@@ -326,7 +326,9 @@ class DataGrid extends UI\Control
 
 			count($this->filters)
 					&& $filters['criteria']->setDefaults( $this->filters )
-					&& ( $buttons->addSubmit('reset', 'Zrušit')->onClick[] = $this->onResetButtonClick );
+					&& ( $buttons->addSubmit('reset', 'Zrušit')
+							->setValidationScope(FALSE)
+							->onClick[] = $this->onResetButtonClick );
 		}
 
 		if ($this->groupActions !== NULL) {
