@@ -7,7 +7,7 @@
 	vertical-align: middle;
 }
 
-select, .twigrid input[type="text"], .twigrid input[type="date"] {
+.twigrid select, .twigrid input[type="text"], .twigrid input[type="date"] {
 	display: block;
 	margin: 0;
 	width: 100%;
