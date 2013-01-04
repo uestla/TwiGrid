@@ -12,6 +12,8 @@
  * @param  array                      $rowActions
  * @param  string                     $csrfToken
  * @param  array                      $groupActions
+ * @param  bool                       $isTimelined
+ * @param  int                        $page
  *}
 
 
@@ -45,7 +47,7 @@
 
 
 
-{* === DATAGRID CONTAINER ELEMENT ============================================ *}
+{* === ... ============================================ *}
 
 {define container}
 
@@ -203,6 +205,7 @@
 {/define}
 
 
+
 {* === ... ============================================ *}
 
 {define row-action-buttons}
@@ -234,10 +237,12 @@
 
 {define footer}
 
-	<tfoot n:if="$groupActions !== NULL && $dataCount">
+	<tfoot n:if="($isTimelined || $groupActions !== NULL) && $dataCount">
 
-		<td colspan="{$columnCount}">
+		<td colspan="{$columnCount}" class="center">
 {include #group-action-buttons |indent:2}
+
+{include #timeline-buttons |indent:2}
 		</td>
 
 	</tfoot>
@@ -250,12 +255,42 @@
 
 {define group-action-buttons}
 
-{include #group-action-buttons-label}
+	<div class="pull-left">
 
-	<div class="btn-group">
-	{foreach $groupActions as $name => $action}
-{include #group-action-button, name => $name, action => $action |indent:1}
-	{/foreach}
+{include #group-action-buttons-label |indent:1}
+
+		<div class="btn-group">
+		{foreach $groupActions as $name => $action}
+{include #group-action-button, name => $name, action => $action |indent:2}
+		{/foreach}
+		</div>
+
+	</div>
+
+{/define}
+
+
+
+{* === ... ============================================ *}
+
+{define timeline-buttons}
+
+	<div class="pull-right" n:if="$isTimelined">
+		<div class="btn-group">
+
+			<a n:href="changePage!, page => $page + 1" n:class="btn, ajax" title="{_'Load next records'}" n:if="$page > 0">
+				<i class="icon-chevron-down"></i>
+			</a>
+
+			<a n:href="changePage!, page => -1" n:class="btn, ajax" title="{_'Load all records'}" n:if="$page !== -1">
+				<i class="icon-th-list"></i>
+			</a>
+
+			<a n:href="changePage!, page => 1" title="{_'Reset timeline'}" n:class="btn, ajax">
+				<i class="icon-remove"></i>
+			</a>
+
+		</div>
 	</div>
 
 {/define}

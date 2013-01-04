@@ -32,6 +32,16 @@ class DataGrid extends UI\Control
 
 
 
+	// === timeline ===========
+
+	/** @persistent int|NULL */
+	public $page = 1;
+
+	/** @var bool */
+	protected $timelineBehavior = FALSE;
+
+
+
 	// === filtering ===========
 
 	/** @persistent array */
@@ -128,6 +138,7 @@ class DataGrid extends UI\Control
 	function loadState(array $params)
 	{
 		parent::loadState($params);
+		$this->page = ($this->page === 0 ? 1 : $this->page);
 		$this->orderBy !== NULL && $this[ $this->orderBy ]->setOrderedBy( TRUE, $this->orderDesc );
 	}
 
@@ -145,7 +156,6 @@ class DataGrid extends UI\Control
 	protected function refreshState()
 	{
 		!$this->presenter->isAjax() && $this->redirect('this');
-		return TRUE;
 	}
 
 
@@ -267,6 +277,32 @@ class DataGrid extends UI\Control
 
 
 
+	// === TIMELINE BEHAVIOR ======================================================
+
+	/**
+	 * @param  bool
+	 * @return DataGrid
+	 */
+	function setTimelineBehavior($bool = TRUE)
+	{
+		$this->timelineBehavior = (bool) $bool;
+		return $this;
+	}
+
+
+
+	/**
+	 * @param  int
+	 * @return void
+	 */
+	function handleChangePage($page)
+	{
+		$this->timelineBehavior && $this->page !== ( $page = max(-1, (int) $page) ) && ( $this->page = $page ) && $this->invalidateCache();
+		$this->refreshState();
+	}
+
+
+
 	// === DATA LOADING ======================================================
 
 	/**
@@ -322,7 +358,7 @@ class DataGrid extends UI\Control
 			}
 		}
 
-		$this->data = $this->dataLoader->invokeArgs( array( array_merge( $this->primaryKey, $this->getColumnNames() ), $orderBy, $this->filters ) );
+		$this->data = $this->dataLoader->invokeArgs( array( array_merge( $this->primaryKey, $this->getColumnNames() ), $orderBy, $this->filters, $this->page ) );
 	}
 
 
@@ -453,6 +489,7 @@ class DataGrid extends UI\Control
 	 */
 	function setFilters(array $filters)
 	{
+		$this->page = 1;
 		$this->filters !== $filters && ( ( $this->filters = $filters ) || TRUE ) && $this->invalidateCache();
 		$this->refreshState();
 	}
@@ -571,6 +608,8 @@ class DataGrid extends UI\Control
 				? ( isset($this->session->csrfToken) ? $this->session->csrfToken : ( $this->session->csrfToken = Nette\Utils\Strings::random(16) ) )
 				: ( $this->session->__unset('csrfToken') || NULL );
 		$template->groupActions = $this->groupActions;
+		$template->isTimelined = $this->timelineBehavior;
+		$template->page = $this->page;
 		$template->render();
 	}
 }
