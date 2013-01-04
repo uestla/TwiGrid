@@ -34,7 +34,7 @@ class DataGrid extends UI\Control
 
 	// === timeline ===========
 
-	/** @persistent int|NULL */
+	/** @persistent int */
 	public $page = 1;
 
 	/** @var bool */
@@ -138,7 +138,7 @@ class DataGrid extends UI\Control
 	function loadState(array $params)
 	{
 		parent::loadState($params);
-		$this->page = ($this->page === 0 ? 1 : $this->page);
+		isset( $params['page'] ) && $this->setPage( $params['page'] );
 		$this->orderBy !== NULL && $this[ $this->orderBy ]->setOrderedBy( TRUE, $this->orderDesc );
 	}
 
@@ -297,8 +297,22 @@ class DataGrid extends UI\Control
 	 */
 	function handleChangePage($page)
 	{
-		$this->timelineBehavior && $this->page !== ( $page = max(-1, (int) $page) ) && ( $this->page = $page ) && $this->invalidateCache();
+		$tmp = $this->page;
+		$this->setPage($page);
+		$this->timelineBehavior && $this->page !== $tmp && $this->invalidateCache();
 		$this->refreshState();
+	}
+
+
+
+	/**
+	 * @param  int
+	 * @return DataGrid
+	 */
+	protected function setPage($page)
+	{
+		$this->page = ($page === 0 ? 1 : max(-1, (int) $page));
+		return $this;
 	}
 
 
