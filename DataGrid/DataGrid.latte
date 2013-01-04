@@ -84,7 +84,7 @@
 {include #filter-cell, name => $name, column => $column |indent:2}
 		{/foreach}
 
-			<th>
+			<th class="center">
 {include #filter-buttons |indent:3}
 			</th>
 		</tr>
@@ -138,7 +138,7 @@
 {* === ... ============================================ *}
 
 {define filter-buttons}
-	<div class="btn-group center">
+	<div class="btn-group">
 	{foreach $filterButtons as $name => $button}
 		{? }{input $button, class => btn}
 	{/foreach}
@@ -173,7 +173,7 @@
 {include #body-cell, column => $column, value => $record->$name |indent:2}
 		{/foreach}
 
-			<td n:ifset="$form[filters]">
+			<td n:ifset="$form[filters]" class="center">
 			{if $rowActions !== NULL}
 {include #row-action-buttons, record => $record |indent:3}
 
@@ -206,7 +206,7 @@
 {* === ... ============================================ *}
 
 {define row-action-buttons}
-	<div class="btn-group center">
+	<div class="btn-group">
 	{foreach $rowActions as $name => $action}
 {include #row-action-button, record => $record, name => $name, action => $action |indent:1}
 	{/foreach}
