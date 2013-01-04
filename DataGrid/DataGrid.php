@@ -146,9 +146,24 @@ class DataGrid extends UI\Control
 	function loadState(array $params)
 	{
 		parent::loadState($params);
+		!$this->isInDefaultState() && ( $this->poluted = TRUE );
 		isset( $params['page'] ) && $this->setPage( $params['page'] );
 		$this->orderBy !== NULL && $this[ $this->orderBy ]->setOrderedBy( TRUE, $this->orderDesc );
 		$this->defaultFilters !== NULL && !$this->poluted && $this->setFilters( $this->defaultFilters, FALSE );
+	}
+
+
+
+	/** @return bool */
+	protected function isInDefaultState()
+	{
+		foreach ($this->reflection->getPersistentParams() as $name => $meta) {
+			if ($this->$name !== $meta['def']) {
+				return FALSE;
+			}
+		}
+
+		return TRUE;
 	}
 
 
@@ -165,9 +180,8 @@ class DataGrid extends UI\Control
 	 * @param  bool
 	 * @return bool
 	 */
-	protected function refreshState($poluted = TRUE)
+	protected function refreshState()
 	{
-		$this->poluted = (bool) $poluted;
 		!$this->presenter->isAjax() && $this->redirect('this');
 	}
 
