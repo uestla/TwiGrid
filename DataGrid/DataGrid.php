@@ -164,7 +164,8 @@ class DataGrid extends UI\Control
 	/** @return array */
 	function getColumnNames()
 	{
-		return count( $names = array_keys( $this->getColumns() ) ) ? array_combine( $names, $names ) : array();
+		$names = array_keys( $this->getColumns() );
+		return reset( $names ) !== FALSE ? array_combine( $names, $names ) : array();
 	}
 
 
@@ -324,7 +325,7 @@ class DataGrid extends UI\Control
 			$buttons = $filters->addContainer('buttons');
 			$buttons->addSubmit('filter', 'Filtrovat')->onClick[] = $this->onFilterButtonClick;
 
-			count($this->filters)
+			reset($this->filters) !== FALSE
 					&& $filters['criteria']->setDefaults( $this->filters )
 					&& ( $buttons->addSubmit('reset', 'Zrušit')
 							->setValidationScope(FALSE)
@@ -428,9 +429,9 @@ class DataGrid extends UI\Control
 	{
 		$ret = array();
 		foreach ($a as $k => $v) {
-			if (is_array($v)) {
+			if (is_array($v)) { // recursive
 				$tmp = $this->filterEmpty($v);
-				if (count($tmp)) {
+				if (reset($tmp) !== FALSE) {
 					$ret[$k] = $tmp;
 				}
 
