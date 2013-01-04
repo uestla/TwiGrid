@@ -22,6 +22,11 @@ use Nette\Forms\Controls\SubmitButton;
 
 class DataGrid extends UI\Control
 {
+	/** @persistent bool */
+	public $poluted = FALSE;
+
+
+
 	// === ordering ===========
 
 	/** @persistent */
@@ -46,6 +51,9 @@ class DataGrid extends UI\Control
 
 	/** @persistent array */
 	public $filters = array();
+
+	/** @var array */
+	protected $defaultFilters = NULL;
 
 	/** @var Callback */
 	protected $filterContainerFactory = NULL;
@@ -140,6 +148,7 @@ class DataGrid extends UI\Control
 		parent::loadState($params);
 		isset( $params['page'] ) && $this->setPage( $params['page'] );
 		$this->orderBy !== NULL && $this[ $this->orderBy ]->setOrderedBy( TRUE, $this->orderDesc );
+		$this->defaultFilters !== NULL && !$this->poluted && $this->setFilters( $this->defaultFilters, FALSE );
 	}
 
 
@@ -152,9 +161,13 @@ class DataGrid extends UI\Control
 
 
 
-	/** @return bool */
-	protected function refreshState()
+	/**
+	 * @param  bool
+	 * @return bool
+	 */
+	protected function refreshState($poluted = TRUE)
 	{
+		$this->poluted = (bool) $poluted;
 		!$this->presenter->isAjax() && $this->redirect('this');
 	}
 
@@ -465,30 +478,6 @@ class DataGrid extends UI\Control
 	 * @param  SubmitButton
 	 * @return void
 	 */
-	function onActionButtonClick(SubmitButton $button)
-	{
-		$form = $button->form;
-		$values = $form['actions-records']->values;
-
-
-		// get the primary keys
-		$primaries = array();
-		foreach ($values as $name => $checked) {
-			if ($checked) {
-				$primaries[] = $this->stringToPrimaries($name);
-			}
-		}
-
-		$this->groupActions[ $button->name ]['callback']->invokeArgs( array( $primaries ) );
-		$this->invalidateCache();
-	}
-
-
-
-	/**
-	 * @param  SubmitButton
-	 * @return void
-	 */
 	function onFilterButtonClick(SubmitButton $button)
 	{
 		$form = $button->form;
@@ -499,13 +488,27 @@ class DataGrid extends UI\Control
 
 	/**
 	 * @param  array
-	 * @return void
+	 * @param  bool
+	 * @return DataGrid
 	 */
-	function setFilters(array $filters)
+	protected function setFilters(array $filters, $refresh = TRUE)
 	{
 		$this->page = 1;
 		$this->filters !== $filters && ( ( $this->filters = $filters ) || TRUE ) && $this->invalidateCache();
-		$this->refreshState();
+		$refresh && $this->refreshState();
+		return $this;
+	}
+
+
+
+	/**
+	 * @param  array
+	 * @return DataGrid
+	 */
+	function setDefaultFilters(array $filters)
+	{
+		$this->defaultFilters = $filters;
+		return $this;
 	}
 
 
@@ -543,6 +546,30 @@ class DataGrid extends UI\Control
 	function onResetButtonClick(SubmitButton $button)
 	{
 		$this->setFilters( array() );
+	}
+
+
+
+	/**
+	 * @param  SubmitButton
+	 * @return void
+	 */
+	function onActionButtonClick(SubmitButton $button)
+	{
+		$form = $button->form;
+		$values = $form['actions-records']->values;
+
+
+		// get the primary keys
+		$primaries = array();
+		foreach ($values as $name => $checked) {
+			if ($checked) {
+				$primaries[] = $this->stringToPrimaries($name);
+			}
+		}
+
+		$this->groupActions[ $button->name ]['callback']->invokeArgs( array( $primaries ) );
+		$this->invalidateCache();
 	}
 
 
