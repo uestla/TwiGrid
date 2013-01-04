@@ -1,6 +1,7 @@
 {**
  * Default DataGrid template
  *
+ * @param  array                      $flashes
  * @param  Nette\Application\UI\Form  $form
  * @param  array                      $columns
  * @param  int                        $columnCount number of table columns
@@ -11,25 +12,24 @@
  * @param  array                      $rowActions
  * @param  string                     $csrfToken
  * @param  array                      $groupActions
- * @param  array                      $flashes
  *}
 
 
 <div n:snippet="" class="twigrid">
 
 	<div n:snippet="flashes">
-		<div n:foreach="$flashes as $flash" class="alert alert-{$flash->type} hidable">{$flash->message}</div>
+		<div n:foreach="$flashes as $flash" class="alert alert-{$flash->type} hidable">{_$flash->message}</div>
 	</div>
 
-{include #container}
+{include #datagrid}
 
 </div>
 
 
 
-{* === DATAGRID CONTAINER ELEMENT ============================================ *}
+{* === ... ============================================ *}
 
-{define container}
+{define datagrid}
 
 	{? }{form $form, class => ajax}
 	{if $errors = $form->errors}
@@ -37,7 +37,19 @@
 		<div class="alert alert-error hidable" n:foreach="$errors as $error">{$error}</div>
 	{/if}
 
-		<table class="table table-striped table-bordered table-hover">
+{include #container|indent:1}
+
+	{? }{/form}
+
+{/define}
+
+
+
+{* === DATAGRID CONTAINER ELEMENT ============================================ *}
+
+{define container}
+
+	<table class="table table-striped table-bordered table-hover">
 
 {include #header|indent:2}
 
@@ -45,9 +57,7 @@
 
 {include #footer|indent:2}
 
-		</table>
-
-	{? }{/form}
+	</table>
 
 {/define}
 
@@ -128,7 +138,7 @@
 {* === ... ============================================ *}
 
 {define filter-buttons}
-	<div class="btn-group">
+	<div class="btn-group center">
 	{foreach $filterButtons as $name => $button}
 		{? }{input $button, class => btn}
 	{/foreach}
@@ -196,7 +206,7 @@
 {* === ... ============================================ *}
 
 {define row-action-buttons}
-	<div class="btn-group">
+	<div class="btn-group center">
 	{foreach $rowActions as $name => $action}
 {include #row-action-button, record => $record, name => $name, action => $action |indent:1}
 	{/foreach}
@@ -255,7 +265,7 @@
 {* === ... ============================================ *}
 
 {define group-action-buttons-label}
-	<label class="action-buttons-label">Označené:</label>
+	<label class="action-buttons-label">{_'Checked:'}</label>
 {/define}
 
 

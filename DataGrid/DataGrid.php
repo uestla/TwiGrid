@@ -15,6 +15,7 @@ namespace TwiGrid;
 use Nette;
 use Nette\Callback;
 use Nette\Application\UI;
+use Nette\Localization\ITranslator;
 use Nette\Templating\IFileTemplate;
 use Nette\Forms\Controls\SubmitButton;
 
@@ -67,6 +68,16 @@ class DataGrid extends UI\Control
 
 	/** @var Nette\Http\SessionSection */
 	protected $session;
+
+
+
+	// === l10n ===========
+
+	/** @var ITranslator */
+	protected $translator = NULL;
+
+	/** @var Callback */
+	protected $translationCb = NULL;
 
 
 
@@ -139,6 +150,32 @@ class DataGrid extends UI\Control
 
 
 
+	// === L10N ======================================================
+
+	/**
+	 * @param  ITranslator
+	 * @return DataGrid
+	 */
+	function setTranslator(ITranslator $translator)
+	{
+		$this->translator = $translator;
+		$this->translationCb = Callback::create( $translator, 'translate' );
+		return $this;
+	}
+
+
+
+	/**
+	 * @param  string
+	 * @return string
+	 */
+	function translate($s)
+	{
+		return $this->translator === NULL ? $s : $this->translationCb->invokeArgs( func_get_args() );
+	}
+
+
+
 	// === COLUMNS ======================================================
 
 	/**
@@ -148,7 +185,7 @@ class DataGrid extends UI\Control
 	 */
 	function addColumn($name, $label)
 	{
-		return $this[$name] = new Column($label);
+		return $this[$name] = new Column( $this->translate( $label ) );
 	}
 
 
@@ -182,9 +219,9 @@ class DataGrid extends UI\Control
 	{
 		$this->rowActions === NULL && ( $this->rowActions = array() );
 		$this->rowActions[$name] = array(
-			'label' => (string) $label,
+			'label' => $this->translate( (string) $label ),
 			'callback' => Callback::create($callback),
-			'confirmation' => $confirmation,
+			'confirmation' => $confirmation === NULL ? $confirmation : $this->translate( $confirmation ),
 		);
 		return $this;
 	}
@@ -221,9 +258,9 @@ class DataGrid extends UI\Control
 	{
 		$this->groupActions === NULL && ( $this->groupActions = array() );
 		$this->groupActions[$name] = array(
-			'label' => (string) $label,
+			'label' => $this->translate( (string) $label ),
 			'callback' => Callback::create( $callback ),
-			'confirmation' => $confirmation,
+			'confirmation' => $confirmation === NULL ? $confirmation : $this->translate( $confirmation ),
 		);
 		return $this;
 	}
@@ -317,17 +354,18 @@ class DataGrid extends UI\Control
 	protected function createComponentForm()
 	{
 		$form = new UI\Form;
+		$this->translator !== NULL && $form->setTranslator( $this->translator );
 
 		if ($this->filterContainerFactory !== NULL) {
 			$filters = $form->addContainer('filters');
 			$filters['criteria'] = $this->filterContainerFactory->invoke();
 
 			$buttons = $filters->addContainer('buttons');
-			$buttons->addSubmit('filter', 'Filtrovat')->onClick[] = $this->onFilterButtonClick;
+			$buttons->addSubmit( 'filter', 'Filter' )->onClick[] = $this->onFilterButtonClick;
 
 			reset($this->filters) !== FALSE
 					&& $filters['criteria']->setDefaults( $this->filters )
-					&& ( $buttons->addSubmit('reset', 'Zrušit')
+					&& ( $buttons->addSubmit( 'reset', 'Cancel' )
 							->setValidationScope(FALSE)
 							->onClick[] = $this->onResetButtonClick );
 		}
@@ -340,7 +378,7 @@ class DataGrid extends UI\Control
 			$first = TRUE;
 			foreach ($this->getData() as $record) {
 				$checkbox = $records->addCheckbox( $this->primariesToString($record) );
-				$first && $checkbox->addRule( __CLASS__ . '::validateCheckedCount', 'Zvolte alespoň jeden záznam!' )
+				$first && $checkbox->addRule( __CLASS__ . '::validateCheckedCount', 'Choose at least one record!' )
 						&& ( $first = FALSE );
 			}
 
@@ -516,17 +554,17 @@ class DataGrid extends UI\Control
 	function render()
 	{
 		$template = $this->createTemplate();
+		$template->registerHelper('translate', $this->translate);
+		$template->registerHelper('primariesToString', $this->primariesToString);
 
 		$this->templateFile === NULL && ( $this->templateFile = __DIR__ . '/DataGrid.latte' );
 		!($this->templateFile instanceof Nette\Templating\IFileTemplate) && $template->setFile( $this->templateFile );
-
-		$template->registerHelper('primariesToString', $this->primariesToString);
 
 		$template->form = $template->_form = $this['form'];
 		$template->columns = $this->getColumns();
 		$template->columnCount = count($template->columns) + (isset($template->form['filters']) ? 1 : 0) + ($this->groupActions !== NULL ? 1 : 0);
 		$template->filterButtons = $this->getFilterButtons();
-		$template->isFiltered = (bool) count($this->filters);
+		$template->isFiltered = reset($this->filters) !== FALSE;
 		$template->dataCount = count( $template->data = $this->getData() );
 		$template->rowActions = $this->rowActions;
 		$template->csrfToken = $this->rowActions !== NULL

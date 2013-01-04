@@ -22,3 +22,11 @@
 	display: block;
 	margin: 0.4% 0.8% 0.4% 0;
 }
+
+.twigrid .center {
+	text-align: center;
+}
+
+.twigrid .nowrap {
+	white-space: nowrap;
+}
