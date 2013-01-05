@@ -152,6 +152,12 @@ class DataGrid extends UI\Control
 	function loadState(array $params)
 	{
 		parent::loadState($params);
+
+		$columns = $this->getColumns();
+		if (reset($columns) === FALSE) {
+			throw new Nette\InvalidStateException("No columns set.");
+		}
+
 		!$this->isInDefaultState() && ( $this->poluted = TRUE );
 		isset( $params['page'] ) && $this->setPage( $params['page'] );
 
