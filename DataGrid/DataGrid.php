@@ -71,6 +71,9 @@ class DataGrid extends UI\Control
 	/** @var Callback */
 	protected $dataLoader = NULL;
 
+	/** @var Callback */
+	protected $recordValueGetter = NULL;
+
 	/** @var array|\Traversable */
 	protected $data = NULL;
 
@@ -141,6 +144,7 @@ class DataGrid extends UI\Control
 		$this->invalidateControl();
 		$this->session = $this->sessionContainer->getSection( __CLASS__ . '-' . $this->name );
 		$this->session->setExpiration('+ 5 minutes', 'csrfToken');
+		$this->recordValueGetter === NULL && $this->setRecordValueGetter();
 	}
 
 
@@ -151,11 +155,6 @@ class DataGrid extends UI\Control
 	 */
 	function loadState(array $params)
 	{
-		$columns = $this->getColumns();
-		if (reset($columns) === FALSE) {
-			throw new Nette\InvalidStateException("No columns set.");
-		}
-
 		parent::loadState($params);
 
 		isset( $params['page'] ) && $this->setPage( $params['page'] );
@@ -167,6 +166,26 @@ class DataGrid extends UI\Control
 		}
 
 		$this->orderBy !== NULL && $this[ $this->orderBy ]->setOrderedBy( TRUE, $this->orderDesc );
+		$this->validateState();
+	}
+
+
+
+	/** @return void */
+	protected function validateState()
+	{
+		$columns = $this->getColumns();
+		if (reset($columns) === FALSE) {
+			throw new Nette\InvalidStateException("No columns set.");
+		}
+
+		if ($this->dataLoader === NULL) {
+			throw new Nette\InvalidStateException("Data loader not set.");
+		}
+
+		if ($this->primaryKey === NULL) {
+			throw new Nette\InvalidStateException("Primary key not set.");
+		}
 	}
 
 
@@ -435,14 +454,6 @@ class DataGrid extends UI\Control
 	/** @return void */
 	protected function loadData()
 	{
-		if ($this->dataLoader === NULL) {
-			throw new Nette\InvalidStateException("Data loader not set.");
-		}
-
-		if ($this->primaryKey === NULL) {
-			throw new Nette\InvalidStateException("Primary key not set.");
-		}
-
 		$orderBy = array();
 		if ($this->orderBy !== NULL) {
 			$orderBy[ $this->orderBy ] = $this->orderDesc;
@@ -453,6 +464,32 @@ class DataGrid extends UI\Control
 		}
 
 		$this->data = $this->dataLoader->invokeArgs( array( $this, array_merge( $this->primaryKey, $this->getColumnNames() ), $orderBy, $this->filters, $this->page ) );
+	}
+
+
+
+	/**
+	 * @param  mixed|NULL
+	 * @return DataGrid
+	 */
+	function setRecordValueGetter($callback = NULL)
+	{
+		$this->recordValueGetter = Callback::create( $callback !== NULL ? $callback : function ($record, $column) {
+			return $record->$column;
+		});
+		return $this;
+	}
+
+
+
+	/**
+	 * @param  mixed
+	 * @param  string
+	 * @return mixed
+	 */
+	function getRecordValue($record, $column)
+	{
+		return $this->recordValueGetter->invokeArgs( func_get_args() );
 	}
 
 
@@ -520,11 +557,8 @@ class DataGrid extends UI\Control
 	 */
 	static function validateCheckedCount(Nette\Forms\Controls\Checkbox $checkbox)
 	{
-		if ($checkbox->form->submitted->parent->lookupPath('Nette\\Forms\\Form') === 'actions-buttons') {
-			return in_array(TRUE, $checkbox->parent->getValues(TRUE), TRUE);
-		}
-
-		return TRUE;
+		return $checkbox->form->submitted->parent->lookupPath('Nette\\Forms\\Form') !== 'actions-buttons'
+				|| in_array(TRUE, $checkbox->parent->getValues(TRUE), TRUE);
 	}
 
 
@@ -697,6 +731,7 @@ class DataGrid extends UI\Control
 		$template = $this->createTemplate();
 		$template->registerHelper('translate', $this->translate);
 		$template->registerHelper('primariesToString', $this->primariesToString);
+		$template->registerHelper('getValue', $this->recordValueGetter);
 
 		$template->defaultTemplatePath = __DIR__ . '/DataGrid.latte';
 		$this->templateFile === NULL && ( $this->templateFile = $template->defaultTemplatePath );

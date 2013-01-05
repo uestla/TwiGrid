@@ -89,7 +89,7 @@
 
 		<tr n:if="$renderFilterRow">
 		{foreach $columns as $name => $column}
-{include #filter-cell, name => $name, column => $column |indent:2}
+{include #filter-cell, column => $name |indent:2}
 		{/foreach}
 
 			<th class="center">
@@ -140,8 +140,8 @@
 {define filter-cell}
 
 	<th>
-	{ifset $form["filters-criteria-$name"]}
-		{? }{input $form["filters-criteria-$name"]}
+	{ifset $form["filters-criteria-$column"]}
+		{? }{input $form["filters-criteria-$column"]}
 	{else}
 		&nbsp;
 	{/ifset}
@@ -186,7 +186,7 @@
 			</td>
 
 		{foreach $columns as $name => $column}
-{include #body-cell, name => $name, column => $column, value => $record->$name |indent:2}
+{include #body-cell, record => $record, column => $name, value => $template->getValue($record, $name) |indent:2}
 		{/foreach}
 
 			<td n:if="$renderLastColumn" class="center">
