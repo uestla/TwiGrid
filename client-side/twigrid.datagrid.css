@@ -21,8 +21,16 @@
 	display: inline-block;
 }
 
+.twigrid .left {
+	text-align: left;
+}
+
 .twigrid .center {
 	text-align: center;
+}
+
+.twigrid .right {
+	text-align: right;
 }
 
 .twigrid .nowrap {

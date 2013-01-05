@@ -2,6 +2,7 @@
  * Default DataGrid template
  *
  * @param  array                      $flashes
+ * @param  string                     $defaultTemplatePath
  * @param  Nette\Application\UI\Form  $form
  * @param  array                      $columns
  * @param  int                        $columnCount number of table columns
@@ -15,6 +16,9 @@
  * @param  array                      $groupActions
  * @param  bool                       $isTimelined
  * @param  int                        $page
+ * @param  bool                       $renderFirstColumn
+ * @param  bool                       $renderFilterRow
+ * @param  bool                       $renderLastColumn
  *}
 
 
@@ -73,16 +77,16 @@
 	<thead>
 
 		<tr>
-			<th rowspan="2" n:if="$groupActions !== NULL && ($isFiltered || $dataCount)">&nbsp;</th>
+			<th rowspan="2" n:if="$renderFirstColumn">&nbsp;</th>
 
 		{foreach $columns as $name => $column}
 {include #header-cell, name => $name, column => $column |indent:2}
 		{/foreach}
 
-			<th n:if="isset($form[filters]) && ($isFiltered || $dataCount)">&nbsp;</th>
+			<th n:if="$renderLastColumn">&nbsp;</th>
 		</tr>
 
-		<tr n:if="isset($form[filters]) && ($isFiltered || $dataCount)">
+		<tr n:if="$renderFilterRow">
 		{foreach $columns as $name => $column}
 {include #filter-cell, name => $name, column => $column |indent:2}
 		{/foreach}
@@ -167,16 +171,16 @@
 	{if $dataCount}
 		<tr n:foreach="$data as $record">
 
-		{if $groupActions !== NULL}
-			{var $inputName = $template->primariesToString($record)}
-			<td>{input actions-records-$inputName}</td>
-		{/if}
+			<td n:if="$renderFirstColumn">
+				{var $inputName = $template->primariesToString($record)}
+				{input actions-records-$inputName}
+			</td>
 
 		{foreach $columns as $name => $column}
-{include #body-cell, column => $column, value => $record->$name |indent:2}
+{include #body-cell, name => $name, column => $column, value => $record->$name |indent:2}
 		{/foreach}
 
-			<td n:ifset="$form[filters]" class="center">
+			<td n:if="$renderLastColumn" class="center">
 			{if $rowActions !== NULL}
 {include #row-action-buttons, record => $record |indent:3}
 

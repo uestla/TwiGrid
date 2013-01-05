@@ -694,10 +694,10 @@ class DataGrid extends UI\Control
 
 		$this->templateFile === NULL && ( $this->templateFile = __DIR__ . '/DataGrid.latte' );
 		!($this->templateFile instanceof Nette\Templating\IFileTemplate) && $template->setFile( $this->templateFile );
+		$template->defaultTemplatePath = __DIR__ . '/DataGrid.latte';
 
 		$template->form = $template->_form = $this['form'];
 		$template->columns = $this->getColumns();
-		$template->columnCount = count($template->columns) + (isset($template->form['filters']) ? 1 : 0) + ($this->groupActions !== NULL ? 1 : 0);
 		$template->filterButtons = $this->getFilterButtons();
 		$template->isFiltered = reset($this->filters) !== FALSE;
 		$template->dataCount = count( $template->data = $this->getData() );
@@ -707,6 +707,10 @@ class DataGrid extends UI\Control
 				? ( isset($this->session->csrfToken) ? $this->session->csrfToken : ( $this->session->csrfToken = Nette\Utils\Strings::random(16) ) )
 				: ( $this->session->__unset('csrfToken') || NULL );
 		$template->groupActions = $this->groupActions;
+		$template->renderFirstColumn = $template->dataCount && $template->groupActions !== NULL;
+		$template->renderFilterRow = $template->filterButtons !== NULL && ( $template->isFiltered || $template->dataCount );
+		$template->renderLastColumn = $template->renderFilterRow || $template->rowActions !== NULL;
+		$template->columnCount = count($template->columns) + ( $template->renderFirstColumn ? 1 : 0 ) + ( $template->renderLastColumn ? 1 : 0 );
 		$template->isTimelined = $this->timelineBehavior;
 		$template->page = $this->page;
 		$template->render();
