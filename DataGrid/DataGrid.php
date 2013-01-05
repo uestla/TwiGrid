@@ -326,7 +326,7 @@ class DataGrid extends UI\Control
 	{
 		$tmp = $this->page;
 		$this->setPage($page);
-		$this->timelineBehavior && $this->page !== $tmp && $this->invalidateCache();
+		$this->page !== $tmp && $this->invalidateCache();
 		$this->refreshState();
 	}
 
@@ -338,7 +338,7 @@ class DataGrid extends UI\Control
 	 */
 	protected function setPage($page)
 	{
-		$this->page = ($page === 0 ? 1 : max(-1, (int) $page));
+		$this->timelineBehavior && $this->page = ($page === 0 ? 1 : max(-1, (int) $page));
 		return $this;
 	}
 
@@ -521,6 +521,10 @@ class DataGrid extends UI\Control
 	 */
 	function setDefaultFilters(array $filters)
 	{
+		if ($this->filterContainerFactory === NULL) {
+			throw new Nette\InvalidStateException("Filter factory not set.");
+		}
+
 		$this->defaultFilters = $filters;
 		return $this;
 	}

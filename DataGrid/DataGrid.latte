@@ -240,9 +240,13 @@
 	<tfoot n:if="($isTimelined || $groupActions !== NULL) && $dataCount">
 
 		<td colspan="{$columnCount}" class="center">
+			{if $groupActions !== NULL}
 {include #group-action-buttons |indent:2}
+			{/if}
 
+			{if $isTimelined}
 {include #timeline-buttons |indent:2}
+			{/if}
 		</td>
 
 	</tfoot>
@@ -275,7 +279,7 @@
 
 {define timeline-buttons}
 
-	<div class="pull-right" n:if="$isTimelined">
+	<div class="pull-right">
 		<div class="btn-group">
 
 			<a n:href="changePage!, page => $page + 1" n:class="btn, ajax" title="{_'Load next records'}" n:if="$page > 0">
