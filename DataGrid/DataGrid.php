@@ -74,6 +74,9 @@ class DataGrid extends UI\Control
 	/** @var array|\Traversable */
 	protected $data = NULL;
 
+	/** @var int|NULL */
+	protected $countAll = NULL;
+
 
 
 	// === actions ===========
@@ -391,6 +394,18 @@ class DataGrid extends UI\Control
 
 
 	/**
+	 * @param  int
+	 * @return DataGrid
+	 */
+	function setCountAll($count)
+	{
+		$this->countAll = max(0, (int) $count);
+		return $this;
+	}
+
+
+
+	/**
 	 * @param  string|array
 	 * @return DataGrid
 	 */
@@ -431,7 +446,7 @@ class DataGrid extends UI\Control
 			}
 		}
 
-		$this->data = $this->dataLoader->invokeArgs( array( array_merge( $this->primaryKey, $this->getColumnNames() ), $orderBy, $this->filters, $this->page ) );
+		$this->data = $this->dataLoader->invokeArgs( array( $this, array_merge( $this->primaryKey, $this->getColumnNames() ), $orderBy, $this->filters, $this->page ) );
 	}
 
 
@@ -686,6 +701,7 @@ class DataGrid extends UI\Control
 		$template->filterButtons = $this->getFilterButtons();
 		$template->isFiltered = reset($this->filters) !== FALSE;
 		$template->dataCount = count( $template->data = $this->getData() );
+		$template->countAll = $this->countAll;
 		$template->rowActions = $this->rowActions;
 		$template->csrfToken = $this->rowActions !== NULL
 				? ( isset($this->session->csrfToken) ? $this->session->csrfToken : ( $this->session->csrfToken = Nette\Utils\Strings::random(16) ) )

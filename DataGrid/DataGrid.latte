@@ -9,6 +9,7 @@
  * @param  bool                       $isFiltered
  * @param  array|\Traversable         $data
  * @param  int                        $dataCount
+ * @param  int|NULL                   $countAll
  * @param  array                      $rowActions
  * @param  string                     $csrfToken
  * @param  array                      $groupActions
@@ -282,15 +283,15 @@
 	<div class="pull-right">
 		<div class="btn-group">
 
-			<a n:href="changePage!, page => $page + 1" n:class="btn, ajax" title="{_'Load next records'}" n:if="$page > 0">
+			<a n:href="changePage!, page => $page + 1" n:class="btn, ajax" title="{_'Load next records'}" n:if="$page > 0 && ( $countAll === NULL || $dataCount < $countAll )">
 				<i class="icon-chevron-down"></i>
 			</a>
 
-			<a n:href="changePage!, page => -1" n:class="btn, ajax" title="{_'Load all records'}" n:if="$page !== -1">
+			<a n:href="changePage!, page => -1" n:class="btn, ajax" title="{_'Load all records'}" n:if="$page !== -1 && ( $countAll === NULL || $dataCount < $countAll )">
 				<i class="icon-th-list"></i>
 			</a>
 
-			<a n:href="changePage!, page => 1" title="{_'Reset timeline'}" n:class="btn, ajax">
+			<a n:href="changePage!, page => 1" title="{_'Reset timeline'}" n:class="btn, ajax" n:if="$page !== 1">
 				<i class="icon-remove"></i>
 			</a>
 
