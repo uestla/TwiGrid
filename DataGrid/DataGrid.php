@@ -27,13 +27,16 @@ class DataGrid extends UI\Control
 
 
 
-	// === ordering ===========
+	// === sorting ===========
 
 	/** @persistent */
 	public $orderBy = NULL;
 
 	/** @persistent */
 	public $orderDesc = FALSE;
+
+	/** @var array */
+	protected $defaultOrderBy = NULL;
 
 
 
@@ -148,8 +151,13 @@ class DataGrid extends UI\Control
 		parent::loadState($params);
 		!$this->isInDefaultState() && ( $this->poluted = TRUE );
 		isset( $params['page'] ) && $this->setPage( $params['page'] );
+
+		if (!$this->poluted) {
+			$this->defaultOrderBy !== NULL && ( $this->orderBy = $this->defaultOrderBy[0] ) && ( $this->orderDesc = $this->defaultOrderBy[1] );
+			$this->defaultFilters !== NULL && $this->setFilters( $this->defaultFilters, FALSE );
+		}
+
 		$this->orderBy !== NULL && $this[ $this->orderBy ]->setOrderedBy( TRUE, $this->orderDesc );
-		$this->defaultFilters !== NULL && !$this->poluted && $this->setFilters( $this->defaultFilters, FALSE );
 	}
 
 
@@ -304,6 +312,30 @@ class DataGrid extends UI\Control
 
 
 
+	/**
+	 * @param  SubmitButton
+	 * @return void
+	 */
+	function onActionButtonClick(SubmitButton $button)
+	{
+		$form = $button->form;
+		$values = $form['actions-records']->values;
+
+
+		// get the primary keys
+		$primaries = array();
+		foreach ($values as $name => $checked) {
+			if ($checked) {
+				$primaries[] = $this->stringToPrimaries($name);
+			}
+		}
+
+		$this->groupActions[ $button->name ]['callback']->invokeArgs( array( $primaries ) );
+		$this->invalidateCache();
+	}
+
+
+
 	// === TIMELINE BEHAVIOR ======================================================
 
 	/**
@@ -415,18 +447,6 @@ class DataGrid extends UI\Control
 
 	// === FORM BUILDING ======================================================
 
-	/**
-	 * @param  mixed
-	 * @return DataGrid
-	 */
-	function setFilterContainerFactory($factory)
-	{
-		$this->filterContainerFactory = Callback::create( $factory );
-		return $this;
-	}
-
-
-
 	/** @return UI\Form */
 	protected function createComponentForm()
 	{
@@ -488,6 +508,43 @@ class DataGrid extends UI\Control
 
 
 
+	/** @return \ArrayIterator|NULL */
+	protected function getFilterButtons()
+	{
+		return isset($this['form']['filters']) ? $this['form']['filters']['buttons']->components : NULL;
+	}
+
+
+
+	// === SORTING ======================================================
+
+	/**
+	 * @param  string
+	 * @param  bool
+	 * @return DataGrid
+	 */
+	function setDefaultOrderBy($column, $desc = FALSE)
+	{
+		$this->defaultOrderBy = array( (string) $column, (bool) $desc );
+		return $this;
+	}
+
+
+
+	// === FILTERING ======================================================
+
+	/**
+	 * @param  mixed
+	 * @return DataGrid
+	 */
+	function setFilterContainerFactory($factory)
+	{
+		$this->filterContainerFactory = Callback::create( $factory );
+		return $this;
+	}
+
+
+
 	/**
 	 * @param  SubmitButton
 	 * @return void
@@ -496,37 +553,6 @@ class DataGrid extends UI\Control
 	{
 		$form = $button->form;
 		$this->setFilters( $this->filterEmpty( $form['filters']['criteria']->getValues(TRUE) ) );
-	}
-
-
-
-	/**
-	 * @param  array
-	 * @param  bool
-	 * @return DataGrid
-	 */
-	protected function setFilters(array $filters, $refresh = TRUE)
-	{
-		$this->page = 1;
-		$this->filters !== $filters && ( ( $this->filters = $filters ) || TRUE ) && $refresh && $this->invalidateCache();
-		$refresh && $this->refreshState();
-		return $this;
-	}
-
-
-
-	/**
-	 * @param  array
-	 * @return DataGrid
-	 */
-	function setDefaultFilters(array $filters)
-	{
-		if ($this->filterContainerFactory === NULL) {
-			throw new Nette\InvalidStateException("Filter factory not set.");
-		}
-
-		$this->defaultFilters = $filters;
-		return $this;
 	}
 
 
@@ -569,33 +595,32 @@ class DataGrid extends UI\Control
 
 
 	/**
-	 * @param  SubmitButton
-	 * @return void
+	 * @param  array
+	 * @return DataGrid
 	 */
-	function onActionButtonClick(SubmitButton $button)
+	function setDefaultFilters(array $filters)
 	{
-		$form = $button->form;
-		$values = $form['actions-records']->values;
-
-
-		// get the primary keys
-		$primaries = array();
-		foreach ($values as $name => $checked) {
-			if ($checked) {
-				$primaries[] = $this->stringToPrimaries($name);
-			}
+		if ($this->filterContainerFactory === NULL) {
+			throw new Nette\InvalidStateException("Filter factory not set.");
 		}
 
-		$this->groupActions[ $button->name ]['callback']->invokeArgs( array( $primaries ) );
-		$this->invalidateCache();
+		$this->defaultFilters = $filters;
+		return $this;
 	}
 
 
 
-	/** @return \ArrayIterator|NULL */
-	protected function getFilterButtons()
+	/**
+	 * @param  array
+	 * @param  bool
+	 * @return DataGrid
+	 */
+	protected function setFilters(array $filters, $refresh = TRUE)
 	{
-		return isset($this['form']['filters']) ? $this['form']['filters']['buttons']->components : NULL;
+		$this->page = 1; // TODO: add some logic?
+		$this->filters !== $filters && ( ( $this->filters = $filters ) || TRUE ) && $refresh && $this->invalidateCache();
+		$refresh && $this->refreshState();
+		return $this;
 	}
 
 
