@@ -128,6 +128,14 @@
 
 {* === ... ============================================ *}
 
+{define header-label}
+	{$column->label}
+{/define}
+
+
+
+{* === ... ============================================ *}
+
 {define filter-cell}
 
 	<th>
@@ -147,7 +155,7 @@
 {define filter-buttons}
 	<div class="btn-group">
 	{foreach $filterButtons as $name => $button}
-		{? }{input $button, class => btn}
+{include #filter-button, name => $name, button => $button |indent:1}
 	{/foreach}
 	</div>
 {/define}
@@ -156,8 +164,8 @@
 
 {* === ... ============================================ *}
 
-{define header-label}
-	{$column->label}
+{define filter-button}
+	{? }{input $button, class => btn}
 {/define}
 
 
