@@ -181,7 +181,7 @@
 
 			<td n:if="$renderFirstColumn">
 				{var $inputName = $template->primariesToString($record)}
-				{input actions-records-$inputName}
+				{? }{input actions-records-$inputName}
 			</td>
 
 		{foreach $columns as $name => $column}
@@ -290,6 +290,22 @@
 
 {* === ... ============================================ *}
 
+{define group-action-buttons-label}
+	<label class="action-buttons-label">{_'Checked:'}</label>
+{/define}
+
+
+
+{* === ... ============================================ *}
+
+{define group-action-button}
+	{? }{input actions-buttons-$name, class => btn, data-confirm => $action[confirmation]}
+{/define}
+
+
+
+{* === ... ============================================ *}
+
 {define timeline-buttons}
 
 	<div class="pull-right">
@@ -310,20 +326,4 @@
 		</div>
 	</div>
 
-{/define}
-
-
-
-{* === ... ============================================ *}
-
-{define group-action-buttons-label}
-	<label class="action-buttons-label">{_'Checked:'}</label>
-{/define}
-
-
-
-{* === ... ============================================ *}
-
-{define group-action-button}
-	{? }{input actions-buttons-$name, class => btn, data-confirm => $action[confirmation]}
 {/define}
