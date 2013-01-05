@@ -692,9 +692,9 @@ class DataGrid extends UI\Control
 		$template->registerHelper('translate', $this->translate);
 		$template->registerHelper('primariesToString', $this->primariesToString);
 
-		$this->templateFile === NULL && ( $this->templateFile = __DIR__ . '/DataGrid.latte' );
-		!($this->templateFile instanceof Nette\Templating\IFileTemplate) && $template->setFile( $this->templateFile );
 		$template->defaultTemplatePath = __DIR__ . '/DataGrid.latte';
+		$this->templateFile === NULL && ( $this->templateFile = $template->defaultTemplatePath );
+		!($this->templateFile instanceof Nette\Templating\IFileTemplate) && $template->setFile( $this->templateFile );
 
 		$template->form = $template->_form = $this['form'];
 		$template->columns = $this->getColumns();
