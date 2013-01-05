@@ -19,6 +19,7 @@
  * @param  bool  $renderFirstColumn
  * @param  bool  $renderFilterRow
  * @param  bool  $renderLastColumn
+ * @param  bool  $renderFooter
  *}
 
 
@@ -250,7 +251,7 @@
 
 {define footer}
 
-	<tfoot n:if="($isTimelined || $groupActions !== NULL) && $dataCount">
+	<tfoot n:if="$renderFooter">
 
 		<td colspan="{$columnCount}" class="center">
 			{if $groupActions !== NULL}

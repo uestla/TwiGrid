@@ -151,15 +151,15 @@ class DataGrid extends UI\Control
 	 */
 	function loadState(array $params)
 	{
-		parent::loadState($params);
-
 		$columns = $this->getColumns();
 		if (reset($columns) === FALSE) {
 			throw new Nette\InvalidStateException("No columns set.");
 		}
 
-		!$this->isInDefaultState() && ( $this->poluted = TRUE );
+		parent::loadState($params);
+
 		isset( $params['page'] ) && $this->setPage( $params['page'] );
+		!$this->isInDefaultState() && ( $this->poluted = TRUE );
 
 		if (!$this->poluted) {
 			$this->defaultOrderBy !== NULL && ( $this->orderBy = $this->defaultOrderBy[0] ) && ( $this->orderDesc = $this->defaultOrderBy[1] );
@@ -379,7 +379,7 @@ class DataGrid extends UI\Control
 	 */
 	protected function setPage($page)
 	{
-		$this->timelineBehavior && $this->page = ($page === 0 ? 1 : max(-1, (int) $page));
+		$this->page = $this->timelineBehavior ? ($page === 0 ? 1 : max(-1, (int) $page)) : 1;
 		return $this;
 	}
 
@@ -713,12 +713,13 @@ class DataGrid extends UI\Control
 				? ( isset($this->session->csrfToken) ? $this->session->csrfToken : ( $this->session->csrfToken = Nette\Utils\Strings::random(16) ) )
 				: ( $this->session->__unset('csrfToken') || NULL );
 		$template->groupActions = $this->groupActions;
-		$template->renderFirstColumn = $template->dataCount && $template->groupActions !== NULL;
-		$template->renderFilterRow = $template->filterButtons !== NULL && ( $template->isFiltered || $template->dataCount );
-		$template->renderLastColumn = $template->renderFilterRow || $template->rowActions !== NULL;
-		$template->columnCount = count($template->columns) + ( $template->renderFirstColumn ? 1 : 0 ) + ( $template->renderLastColumn ? 1 : 0 );
 		$template->isTimelined = $this->timelineBehavior;
 		$template->page = $this->page;
+		$template->renderFirstColumn = $template->dataCount && $this->groupActions !== NULL;
+		$template->renderFilterRow = $template->filterButtons !== NULL && ( $template->isFiltered || $template->dataCount );
+		$template->renderLastColumn = $template->renderFilterRow || $this->rowActions !== NULL;
+		$template->renderFooter = $template->dataCount && ( $this->groupActions !== NULL || $this->timelineBehavior ) && ( $this->groupActions !== NULL || $this->countAll === NULL || $template->dataCount < $this->countAll || $this->page !== 1 ); // see http://www.wolframalpha.com/input/?i=%21%28+%28+%28%21a+%26%26+%21b%29+%7C%7C+%21c+%29+%7C%7C+%28%21a+%26%26+b+%26%26+d+%26%26+e+%26%26+f%29+%29
+		$template->columnCount = count($template->columns) + ( $template->renderFirstColumn ? 1 : 0 ) + ( $template->renderLastColumn ? 1 : 0 );
 		$template->render();
 	}
 }
