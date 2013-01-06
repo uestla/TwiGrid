@@ -63,6 +63,19 @@ class DataGrid extends UI\Control
 
 
 
+	// === inline editing ===========
+
+	/** @persistent string|NULL */
+	public $inlineEditPrimary = NULL;
+
+	/** @var Callback */
+	protected $inlineEditContainerFactory = NULL;
+
+	/** @var Callback */
+	protected $inlineEditProcessCallback = NULL;
+
+
+
 	// === data ===========
 
 	/** @var string|array */
@@ -118,14 +131,13 @@ class DataGrid extends UI\Control
 	// === constants ===========
 
 	const PRIMARY_SEPARATOR = '-';
+	const INLINE_EDIT_ACTION = '__inline';
 
 
 
 	// === LIFE CYCLE ======================================================
 
-	/**
-	 * @param  Nette\Http\Session
-	 */
+	/** @param  Nette\Http\Session */
 	function __construct(Nette\Http\Session $s)
 	{
 		parent::__construct();
@@ -302,7 +314,7 @@ class DataGrid extends UI\Control
 	{
 		if ($token === $this->session->csrfToken) {
 			unset($this->session->csrfToken);
-			$this->rowActions[$action]['callback']->invokeArgs( array( $this->stringToPrimaries( $primary ) ) );
+			$this->rowActions[$action]['callback']->invokeArgs( array( $this->stringToPrimary( $primary ) ) );
 
 		} else {
 			$this->flashMessage('Security token not match.', 'error');
@@ -346,7 +358,7 @@ class DataGrid extends UI\Control
 		$primaries = array();
 		foreach ($values as $name => $checked) {
 			if ($checked) {
-				$primaries[] = $this->stringToPrimaries($name);
+				$primaries[] = $this->stringToPrimary($name);
 			}
 		}
 
@@ -611,6 +623,48 @@ class DataGrid extends UI\Control
 
 
 
+	// === INLINE EDITING ======================================================
+
+	/**
+	 * @param  string
+	 * @param  mixed
+	 * @param  mixed
+	 * @return DataGrid
+	 */
+	function setInlineEditing($label, $containerCb, $processCb)
+	{
+		if ($this->inlineEditContainerFactory !== NULL) {
+			throw new Nette\InvalidStateException("Inline editing already set.");
+		}
+
+		$this->inlineEditContainerFactory = Callback::create( $containerCb );
+		$this->inlineEditProcessCallback = Callback::create( $processCb );
+
+		$me = $this;
+		$this->addRowAction( static::INLINE_EDIT_ACTION, $label, function ($primary) use ($me) {
+			$me->inlineEditPrimary = $primary;
+		} );
+	}
+
+
+
+	/**
+	 * @param  string|array
+	 * @return mixed
+	 */
+	protected function findRecord($primary)
+	{
+		foreach ($this->getData() as $record) {
+			if ($this->getRecordPrimary($record) === $primary) {
+				return $record;
+			}
+		}
+
+		return NULL;
+	}
+
+
+
 	// === FORM BUILDING ======================================================
 
 	/** @return UI\Form */
@@ -640,7 +694,7 @@ class DataGrid extends UI\Control
 			$records = $actions->addContainer('records');
 			$first = TRUE;
 			foreach ($this->getData() as $record) {
-				$checkbox = $records->addCheckbox( $this->primariesToString($record) );
+				$checkbox = $records->addCheckbox( $this->primaryToString($record) );
 				$first && $checkbox->addRule( __CLASS__ . '::validateCheckedCount', 'Choose at least one record!' )
 						&& ( $first = FALSE );
 			}
@@ -683,16 +737,27 @@ class DataGrid extends UI\Control
 
 	/**
 	 * @param  mixed
-	 * @return string
+	 * @return array
 	 */
-	function primariesToString($record)
+	protected function getRecordPrimary($record)
 	{
 		$primaries = array();
 		foreach ($this->primaryKey as $column) {
-			$primaries[] = $this->getRecordValue($record, $column);
+			$primaries[ $column ] = $this->getRecordValue($record, $column);
 		}
 
-		return implode( static::PRIMARY_SEPARATOR, $primaries );
+		return $primaries;
+	}
+
+
+
+	/**
+	 * @param  mixed
+	 * @return string
+	 */
+	function primaryToString($record)
+	{
+		return implode( static::PRIMARY_SEPARATOR, $this->getRecordPrimary($record) );
 	}
 
 
@@ -701,7 +766,7 @@ class DataGrid extends UI\Control
 	 * @param  string
 	 * @return array|string
 	 */
-	function stringToPrimaries($s)
+	function stringToPrimary($s)
 	{
 		$primaries = explode( static::PRIMARY_SEPARATOR, $s );
 		return count($primaries) === 1 ? (string) $primaries[0] : $primaries;
@@ -730,7 +795,7 @@ class DataGrid extends UI\Control
 	{
 		$template = $this->createTemplate();
 		$template->registerHelper('translate', $this->translate);
-		$template->registerHelper('primariesToString', $this->primariesToString);
+		$template->registerHelper('primaryToString', $this->primaryToString);
 		$template->registerHelper('getValue', $this->recordValueGetter);
 
 		$template->defaultTemplatePath = __DIR__ . '/DataGrid.latte';

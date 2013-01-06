@@ -181,7 +181,7 @@
 		<tr n:foreach="$data as $record">
 
 			<td n:if="$renderFirstColumn">
-				{var $inputName = $template->primariesToString($record)}
+				{var $inputName = $template->primaryToString($record)}
 				{? }{input actions-records-$inputName}
 			</td>
 
@@ -237,7 +237,7 @@
 {define row-action-button}
 	<a n:href="rowAction!,
 			action => $name,
-			primary => $template->primariesToString($record),
+			primary => $template->primaryToString($record),
 			token => $csrfToken"
 		n:class="btn, ajax"
 		n:attr="data-confirm => $action[confirmation]">
