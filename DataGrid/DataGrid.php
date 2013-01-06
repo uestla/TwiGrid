@@ -436,7 +436,7 @@ class DataGrid extends UI\Control
 	 */
 	function setPrimaryKey($primary)
 	{
-		$this->primaryKey = (array) $primary;
+		$this->primaryKey = is_array($primary) ? $primary : func_get_args();
 		return $this;
 	}
 
@@ -682,14 +682,14 @@ class DataGrid extends UI\Control
 	// === RENDERING ======================================================
 
 	/**
-	 * @param  array|\ArrayAccess
+	 * @param  mixed
 	 * @return string
 	 */
 	function primariesToString($record)
 	{
 		$primaries = array();
 		foreach ($this->primaryKey as $column) {
-			$primaries[] = $record[ $column ];
+			$primaries[] = $this->getRecordValue($record, $column);
 		}
 
 		return implode( static::PRIMARY_SEPARATOR, $primaries );
