@@ -222,11 +222,13 @@ class DataGrid extends UI\Control
 
 	/**
 	 * @param  bool
-	 * @return bool
+	 * @return TRUE
 	 */
-	protected function refreshState()
+	protected function refreshState($cancelInlineEditing = TRUE)
 	{
+		$cancelInlineEditing && ( $this->inlineEditPrimary = NULL );
 		!$this->presenter->isAjax() && $this->redirect('this');
+		return TRUE;
 	}
 
 
@@ -319,7 +321,7 @@ class DataGrid extends UI\Control
 		if ($token === $this->session->csrfToken) {
 			unset($this->session->csrfToken);
 			$this->rowActions[$action]['callback']->invokeArgs( array( $this->stringToPrimary( $primary ) ) );
-			$this->refreshState();
+			$this->refreshState( $this->inlineEditPrimary === NULL );
 
 		} else {
 			$this->flashMessage('Security token not match.', 'error');
@@ -390,8 +392,8 @@ class DataGrid extends UI\Control
 	{
 		$tmp = $this->page;
 		$this->setPage($page);
-		$this->page !== $tmp && $this->invalidateCache();
 		$this->refreshState();
+		$this->page !== $tmp && $this->invalidateCache();
 	}
 
 
@@ -517,8 +519,8 @@ class DataGrid extends UI\Control
 	 */
 	protected function setFilters(array $filters, $refresh = TRUE)
 	{
-		$this->filters !== $filters && ( ( $this->filters = $filters ) || TRUE ) && ( $this->page = 1 ) && $refresh && $this->invalidateCache();
-		$refresh && $this->refreshState();
+		$this->filters !== $filters && ( ( $this->filters = $filters ) || TRUE ) && ( $this->page = 1 );
+		$refresh && $this->refreshState() && $this->invalidateCache();
 		return $this;
 	}
 
@@ -589,7 +591,7 @@ class DataGrid extends UI\Control
 
 
 	/**
-	 * @param  string|array
+	 * @param  array
 	 * @return mixed
 	 */
 	protected function findRecord($primary)
@@ -631,10 +633,14 @@ class DataGrid extends UI\Control
 
 
 
-	/** @return void */
-	protected function invalidateCache()
+	/**
+	 * @param  bool
+	 * @return void
+	 */
+	protected function invalidateCache($dataAsWell = TRUE)
 	{
-		unset($this['form']); $this->data = NULL;
+		unset($this['form']);
+		$dataAsWell && ( $this->data = NULL );
 	}
 
 
@@ -667,16 +673,19 @@ class DataGrid extends UI\Control
 	function activateInlineEditing($primary)
 	{
 		$this->inlineEditPrimary = $this->primaryToString($primary, FALSE);
-		$this->refreshState();
+		$this->refreshState(FALSE);
 	}
 
 
 
-	/** @return void */
-	function deactivateInlineEditing()
+	/**
+	 * @param  bool
+	 * @return void
+	 */
+	function deactivateInlineEditing($dataAsWell = TRUE)
 	{
-		$this->inlineEditPrimary = NULL;
 		$this->refreshState();
+		$this->invalidateCache( $dataAsWell );
 	}
 
 
@@ -689,7 +698,6 @@ class DataGrid extends UI\Control
 	{
 		$this->inlineEditProcessCallback->invokeArgs( array( $this->stringToPrimary( $this->inlineEditPrimary ),
 			$button->form['inline']['values']->getValues(TRUE) ) );
-		$this->invalidateCache();
 		$this->deactivateInlineEditing();
 	}
 
@@ -701,7 +709,7 @@ class DataGrid extends UI\Control
 	 */
 	function onCancelInlineButtonClick(SubmitButton $button)
 	{
-		$this->deactivateInlineEditing();
+		$this->deactivateInlineEditing( FALSE );
 	}
 
 
@@ -729,21 +737,6 @@ class DataGrid extends UI\Control
 							->onClick[] = $this->onResetFiltersButtonClick );
 		}
 
-		// inline editing
-		if ($this->inlineEditPrimary !== NULL) {
-			$record = $this->findRecord( $this->stringToPrimary( $this->inlineEditPrimary ) );
-			if ($record === NULL) {
-				throw new Nette\InvalidStateException("Record not found.");
-			}
-
-			$inline = $form->addContainer('inline');
-			$inline['values'] = $this->inlineEditContainerFactory->invokeArgs( array($record) );
-
-			$buttons = $inline->addContainer('buttons');
-			$buttons->addSubmit('edit', 'Edit inline')->onClick[] = $this->onEditInlineButtonClick;
-			$buttons->addSubmit('cancel', 'Cancel')->onClick[] = $this->onCancelInlineButtonClick;
-		}
-
 		// group actions
 		if ($this->groupActions !== NULL) {
 			$actions = $form->addContainer('actions');
@@ -763,6 +756,20 @@ class DataGrid extends UI\Control
 				$buttons->addSubmit($name, $action['label'])
 					->onClick[] = $this->onActionButtonClick;
 			}
+		}
+
+		// inline editing
+		if ($this->inlineEditPrimary !== NULL) {
+			if ( ( $record = $this->findRecord( $this->stringToPrimary( $this->inlineEditPrimary, FALSE ) ) ) === NULL ) {
+				throw new Nette\InvalidStateException("Record not found.");
+			}
+
+			$inline = $form->addContainer('inline');
+			$inline['values'] = $this->inlineEditContainerFactory->invokeArgs( array($record) );
+
+			$buttons = $inline->addContainer('buttons');
+			$buttons->addSubmit('edit', 'Edit inline')->onClick[] = $this->onEditInlineButtonClick;
+			$buttons->addSubmit('cancel', 'Cancel')->onClick[] = $this->onCancelInlineButtonClick;
 		}
 
 		$form->addProtection();
@@ -801,7 +808,7 @@ class DataGrid extends UI\Control
 	{
 		$primaries = array();
 		foreach ($this->primary as $column) {
-			$primaries[ $column ] = $this->getRecordValue($record, $column);
+			$primaries[ $column ] = (string) $this->getRecordValue($record, $column); // intentionally string conversion due to later comparison
 		}
 
 		return $primaries;
@@ -816,19 +823,20 @@ class DataGrid extends UI\Control
 	 */
 	function primaryToString($record, $isRecord = TRUE)
 	{
-		return implode( static::PRIMARY_SEPARATOR, $isRecord ? $this->getRecordPrimary($record) : $record );
+		return implode( static::PRIMARY_SEPARATOR, $isRecord ? $this->getRecordPrimary($record) : (array) $record );
 	}
 
 
 
 	/**
 	 * @param  string
+	 * @param  bool
 	 * @return array|string
 	 */
-	function stringToPrimary($s)
+	function stringToPrimary($s, $singleToString = TRUE)
 	{
 		$primaries = explode( static::PRIMARY_SEPARATOR, $s );
-		return count($primaries) === 1 ? (string) $primaries[0] : array_combine( $this->primary, $primaries );
+		return $singleToString && count($primaries) === 1 ? (string) $primaries[0] : array_combine( $this->primary, $primaries );
 	}
 
 

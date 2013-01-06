@@ -178,8 +178,10 @@
 	<tbody>
 
 	{if $dataCount}
-		<tr n:foreach="$data as $record">
-			{var $primaryString = $template->primaryToString( $record )}
+	{foreach $data as $record}
+		{var $primaryString = $template->primaryToString( $record ),
+			$isInlineEdited = $inlineEditPrimary === $primaryString}
+		<tr n:class="$isInlineEdited ? success">
 
 			<td class="center" n:if="$renderFirstColumn">
 				{var $inputKey = $iterator->counter - 1}
@@ -187,12 +189,12 @@
 			</td>
 
 		{foreach $columns as $name => $column}
-{include #body-cell, record => $record, primaryString => $primaryString, column => $name, value => $template->getValue($record, $name) |indent:2}
+{include #body-cell, record => $record, isInlineEdited => $isInlineEdited, column => $name, value => $template->getValue($record, $name) |indent:2}
 		{/foreach}
 
 			<td n:if="$renderLastColumn" class="center">
 			{if $rowActions !== NULL}
-{include #row-action-buttons, record => $record, primaryString => $primaryString |indent:3}
+{include #row-action-buttons, record => $record, isInlineEdited => $isInlineEdited, primaryString => $primaryString |indent:3}
 
 			{else}
 				&nbsp;
@@ -200,6 +202,7 @@
 			</td>
 
 		</tr>
+	{/foreach}
 
 	{else}
 		<tr class="warning">
@@ -217,7 +220,7 @@
 
 {define body-cell}
 	<td>
-	{if $inlineEditPrimary === $primaryString && isset($form["inline-values-$column"])}
+	{if $isInlineEdited && isset($form["inline-values-$column"])}
 		{input inline-values-$column}
 
 	{else}
@@ -232,9 +235,9 @@
 
 {define row-action-buttons}
 	<div class="btn-group">
-	{if $inlineEditPrimary === $primaryString}
-		{input inline-buttons-edit, class => btn}
-		{input inline-buttons-cancel, class => btn}
+	{if $isInlineEdited}
+		{input inline-buttons-edit, class => 'btn btn-success'}
+		{input inline-buttons-cancel, class => 'btn btn-danger'}
 
 	{else}
 	{foreach $rowActions as $name => $action}
@@ -253,7 +256,7 @@
 			action => $name,
 			primary => $primaryString,
 			token => $csrfToken"
-		n:class="btn, ajax"
+		n:class="btn, btn-info, ajax"
 		n:attr="data-confirm => $action[confirmation]">
 		{$action[label]}
 	</a>
