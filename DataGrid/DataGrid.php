@@ -79,7 +79,7 @@ class DataGrid extends UI\Control
 	// === data ===========
 
 	/** @var array */
-	protected $primaryKey = NULL;
+	protected $primary = NULL;
 
 	/** @var Callback */
 	protected $dataLoader = NULL;
@@ -195,8 +195,12 @@ class DataGrid extends UI\Control
 			throw new Nette\InvalidStateException("Data loader not set.");
 		}
 
-		if ($this->primaryKey === NULL) {
+		if ($this->primary === NULL) {
 			throw new Nette\InvalidStateException("Primary key not set.");
+		}
+
+		if ($this->inlineEditPrimary !== NULL && $this->inlineEditContainerFactory === NULL) {
+			throw new Nette\InvalidStateException("Inline editing not properly set.");
 		}
 	}
 
@@ -315,6 +319,7 @@ class DataGrid extends UI\Control
 		if ($token === $this->session->csrfToken) {
 			unset($this->session->csrfToken);
 			$this->rowActions[$action]['callback']->invokeArgs( array( $this->stringToPrimary( $primary ) ) );
+			$this->refreshState();
 
 		} else {
 			$this->flashMessage('Security token not match.', 'error');
@@ -482,7 +487,7 @@ class DataGrid extends UI\Control
 	 * @param  SubmitButton
 	 * @return void
 	 */
-	function onResetButtonClick(SubmitButton $button)
+	function onResetFiltersButtonClick(SubmitButton $button)
 	{
 		$this->setFilters( array() );
 	}
@@ -522,6 +527,18 @@ class DataGrid extends UI\Control
 	// === DATA LOADING ======================================================
 
 	/**
+	 * @param  string|array
+	 * @return DataGrid
+	 */
+	function setPrimaryKey($primary)
+	{
+		$this->primary = is_array($primary) ? $primary : func_get_args();
+		return $this;
+	}
+
+
+
+	/**
 	 * @param  mixed
 	 * @return DataGrid
 	 */
@@ -545,18 +562,6 @@ class DataGrid extends UI\Control
 
 
 
-	/**
-	 * @param  string|array
-	 * @return DataGrid
-	 */
-	function setPrimaryKey($primary)
-	{
-		$this->primaryKey = is_array($primary) ? $primary : func_get_args();
-		return $this;
-	}
-
-
-
 	/** @return array|\Traversable */
 	protected function getData()
 	{
@@ -573,12 +578,29 @@ class DataGrid extends UI\Control
 		if ($this->orderBy !== NULL) {
 			$orderBy[ $this->orderBy ] = $this->orderDesc;
 
-			foreach ($this->primaryKey as $column) {
+			foreach ($this->primary as $column) {
 				$orderBy[ $column ] = $this->orderDesc;
 			}
 		}
 
-		$this->data = $this->dataLoader->invokeArgs( array( $this, array_merge( $this->primaryKey, $this->getColumnNames() ), $orderBy, $this->filters, $this->page ) );
+		$this->data = $this->dataLoader->invokeArgs( array( $this, array_merge( $this->primary, $this->getColumnNames() ), $orderBy, $this->filters, $this->page ) );
+	}
+
+
+
+	/**
+	 * @param  string|array
+	 * @return mixed
+	 */
+	protected function findRecord($primary)
+	{
+		foreach ($this->getData() as $record) {
+			if ($this->getRecordPrimary($record) === $primary) {
+				return $record;
+			}
+		}
+
+		return NULL;
 	}
 
 
@@ -609,11 +631,10 @@ class DataGrid extends UI\Control
 
 
 
-	/** @return bool */
+	/** @return void */
 	protected function invalidateCache()
 	{
 		unset($this['form']); $this->data = NULL;
-		return TRUE;
 	}
 
 
@@ -621,12 +642,12 @@ class DataGrid extends UI\Control
 	// === INLINE EDITING ======================================================
 
 	/**
-	 * @param  string
 	 * @param  mixed
 	 * @param  mixed
+	 * @param  string|NULL
 	 * @return DataGrid
 	 */
-	function setInlineEditing($label, $containerCb, $processCb)
+	function setInlineEditing($containerCb, $processCb, $label = NULL)
 	{
 		if ($this->inlineEditContainerFactory !== NULL) {
 			throw new Nette\InvalidStateException("Inline editing already set.");
@@ -634,28 +655,53 @@ class DataGrid extends UI\Control
 
 		$this->inlineEditContainerFactory = Callback::create( $containerCb );
 		$this->inlineEditProcessCallback = Callback::create( $processCb );
-
-		$me = $this;
-		$this->addRowAction( static::INLINE_EDIT_ACTION, $label, function ($primary) use ($me) {
-			$me->inlineEditPrimary = $primary;
-		} );
+		$this->addRowAction( static::INLINE_EDIT_ACTION, $label === NULL ? 'Edit inline' : $label, $this->activateInlineEditing );
 	}
 
 
 
 	/**
-	 * @param  string|array
-	 * @return mixed
+	 * @param  string
+	 * @return void
 	 */
-	protected function findRecord($primary)
+	function activateInlineEditing($primary)
 	{
-		foreach ($this->getData() as $record) {
-			if ($this->getRecordPrimary($record) === $primary) {
-				return $record;
-			}
-		}
+		$this->inlineEditPrimary = $this->primaryToString($primary, FALSE);
+		$this->refreshState();
+	}
 
-		return NULL;
+
+
+	/** @return void */
+	function deactivateInlineEditing()
+	{
+		$this->inlineEditPrimary = NULL;
+		$this->refreshState();
+	}
+
+
+
+	/**
+	 * @param  SubmitButton
+	 * @return void
+	 */
+	function onEditInlineButtonClick(SubmitButton $button)
+	{
+		$this->inlineEditProcessCallback->invokeArgs( array( $this->stringToPrimary( $this->inlineEditPrimary ),
+			$button->form['inline']['values']->getValues(TRUE) ) );
+		$this->invalidateCache();
+		$this->deactivateInlineEditing();
+	}
+
+
+
+	/**
+	 * @param  SubmitButton
+	 * @return void
+	 */
+	function onCancelInlineButtonClick(SubmitButton $button)
+	{
+		$this->deactivateInlineEditing();
 	}
 
 
@@ -668,20 +714,37 @@ class DataGrid extends UI\Control
 		$form = new UI\Form;
 		$this->translator !== NULL && $form->setTranslator( $this->translator );
 
+		// filtering
 		if ($this->filterContainerFactory !== NULL) {
 			$filters = $form->addContainer('filters');
 			$filters['criteria'] = $this->filterContainerFactory->invoke();
 
 			$buttons = $filters->addContainer('buttons');
-			$buttons->addSubmit( 'filter', 'Filter' )->onClick[] = $this->onFilterButtonClick;
+			$buttons->addSubmit('filter', 'Filter')->onClick[] = $this->onFilterButtonClick;
 
 			reset($this->filters) !== FALSE
 					&& $filters['criteria']->setDefaults( $this->filters )
-					&& ( $buttons->addSubmit( 'reset', 'Cancel' )
+					&& ( $buttons->addSubmit('reset', 'Cancel')
 							->setValidationScope(FALSE)
-							->onClick[] = $this->onResetButtonClick );
+							->onClick[] = $this->onResetFiltersButtonClick );
 		}
 
+		// inline editing
+		if ($this->inlineEditPrimary !== NULL) {
+			$record = $this->findRecord( $this->stringToPrimary( $this->inlineEditPrimary ) );
+			if ($record === NULL) {
+				throw new Nette\InvalidStateException("Record not found.");
+			}
+
+			$inline = $form->addContainer('inline');
+			$inline['values'] = $this->inlineEditContainerFactory->invokeArgs( array($record) );
+
+			$buttons = $inline->addContainer('buttons');
+			$buttons->addSubmit('edit', 'Edit inline')->onClick[] = $this->onEditInlineButtonClick;
+			$buttons->addSubmit('cancel', 'Cancel')->onClick[] = $this->onCancelInlineButtonClick;
+		}
+
+		// group actions
 		if ($this->groupActions !== NULL) {
 			$actions = $form->addContainer('actions');
 
@@ -737,7 +800,7 @@ class DataGrid extends UI\Control
 	protected function getRecordPrimary($record)
 	{
 		$primaries = array();
-		foreach ($this->primaryKey as $column) {
+		foreach ($this->primary as $column) {
 			$primaries[ $column ] = $this->getRecordValue($record, $column);
 		}
 
@@ -748,11 +811,12 @@ class DataGrid extends UI\Control
 
 	/**
 	 * @param  mixed
+	 * @param  bool
 	 * @return string
 	 */
-	function primaryToString($record)
+	function primaryToString($record, $isRecord = TRUE)
 	{
-		return implode( static::PRIMARY_SEPARATOR, $this->getRecordPrimary($record) );
+		return implode( static::PRIMARY_SEPARATOR, $isRecord ? $this->getRecordPrimary($record) : $record );
 	}
 
 
@@ -764,7 +828,7 @@ class DataGrid extends UI\Control
 	function stringToPrimary($s)
 	{
 		$primaries = explode( static::PRIMARY_SEPARATOR, $s );
-		return count($primaries) === 1 ? (string) $primaries[0] : array_combine( $this->primaryKey, $primaries );
+		return count($primaries) === 1 ? (string) $primaries[0] : array_combine( $this->primary, $primaries );
 	}
 
 
@@ -815,6 +879,7 @@ class DataGrid extends UI\Control
 		$template->renderLastColumn = $template->renderFilterRow || $this->rowActions !== NULL;
 		$template->renderFooter = $template->dataCount && ( $this->groupActions !== NULL || $this->timelineBehavior ) && ( $this->groupActions !== NULL || $this->countAll === NULL || $template->dataCount < $this->countAll || $this->page !== 1 ); // see http://www.wolframalpha.com/input/?i=%21%28+%28+%28%21a+%26%26+%21b%29+%7C%7C+%21c+%29+%7C%7C+%28%21a+%26%26+b+%26%26+d+%26%26+e+%26%26+f%29+%29
 		$template->columnCount = count($template->columns) + ( $template->renderFirstColumn ? 1 : 0 ) + ( $template->renderLastColumn ? 1 : 0 );
+		$template->inlineEditPrimary = $this->inlineEditPrimary;
 		$template->render();
 	}
 }

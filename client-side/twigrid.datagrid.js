@@ -36,6 +36,34 @@
 				});
 
 
+				// inline editing
+				var inlines = grid.find('[name^="inline\\[values\\]\\["]');
+				if (inlines.length) {
+					var editButton = grid.find('[name="inline\\[buttons\\]\\[edit\\]"]'),
+						cancelButton = grid.find('[name="inline\\[buttons\\]\\[cancel]"]');
+
+					// [Enter] and [Esc] behavior
+					inlines.on('focus.twigrid', function (event) {
+						var single = $(this);
+						single.on('keyup.twigrid', function (e) {
+							if (!e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey) {
+								if (e.keyCode === 13) {
+									editButton.trigger('click');
+
+								} else if (e.keyCode === 27) {
+									cancelButton.trigger('click');
+								}
+							}
+						});
+					}).on('blur.twigrid', function (event) {
+						$(this).off('keyup.twigrid');
+					});
+
+					// focusing first input comes handy
+					inlines.first().trigger('focus');
+				}
+
+
 				// rows checking
 				var actionCheckboxes = grid.find(':checkbox[name^="actions\\[records\\]\\["]');
 
@@ -50,7 +78,7 @@
 					grid.find('table thead tr:first').on('click.twigrid', function (event) {
 						// prevent checking when clicking on a link or a checkbox
 						var target = $(event.target);
-						!target.is('a') && !target.is(':checkbox') && checkbox.twg_toggleChecked();
+						!target.is('a') && !target.is('input') && checkbox.twg_toggleChecked();
 					}).find('th:first').html( checkbox );
 
 					// toggleCheck single record clicking at the record row
@@ -75,7 +103,7 @@
 						row.on('click.twigrid', function (event) {
 							// prevent checking when clicking on a link or a checkbox
 							var target = $(event.target);
-							!target.is('a') && !target.is(':checkbox') && checkbox.twg_toggleChecked();
+							!target.is('a') && !target.is('input') && checkbox.twg_toggleChecked();
 						});
 					});
 				}

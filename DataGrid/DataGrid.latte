@@ -78,7 +78,7 @@
 	<thead>
 
 		<tr>
-			<th rowspan="2" n:if="$renderFirstColumn">&nbsp;</th>
+			<th rowspan="2" class="center" n:if="$renderFirstColumn">&nbsp;</th>
 
 		{foreach $columns as $name => $column}
 {include #header-cell, name => $name, column => $column |indent:2}
@@ -141,7 +141,7 @@
 
 	<th>
 	{ifset $form["filters-criteria-$column"]}
-		{? }{input $form["filters-criteria-$column"]}
+		{? }{input filters-criteria-$column}
 	{else}
 		&nbsp;
 	{/ifset}
@@ -179,19 +179,20 @@
 
 	{if $dataCount}
 		<tr n:foreach="$data as $record">
+			{var $primaryString = $template->primaryToString( $record )}
 
-			<td n:if="$renderFirstColumn">
+			<td class="center" n:if="$renderFirstColumn">
 				{var $inputKey = $iterator->counter - 1}
 				{? }{input actions-records-$inputKey}
 			</td>
 
 		{foreach $columns as $name => $column}
-{include #body-cell, record => $record, column => $name, value => $template->getValue($record, $name) |indent:2}
+{include #body-cell, record => $record, primaryString => $primaryString, column => $name, value => $template->getValue($record, $name) |indent:2}
 		{/foreach}
 
 			<td n:if="$renderLastColumn" class="center">
 			{if $rowActions !== NULL}
-{include #row-action-buttons, record => $record |indent:3}
+{include #row-action-buttons, record => $record, primaryString => $primaryString |indent:3}
 
 			{else}
 				&nbsp;
@@ -215,7 +216,14 @@
 {* === ... ============================================ *}
 
 {define body-cell}
-	<td>{$value}</td>
+	<td>
+	{if $inlineEditPrimary === $primaryString && isset($form["inline-values-$column"])}
+		{input inline-values-$column}
+
+	{else}
+		{$value}
+	{/if}
+	</td>
 {/define}
 
 
@@ -224,9 +232,15 @@
 
 {define row-action-buttons}
 	<div class="btn-group">
+	{if $inlineEditPrimary === $primaryString}
+		{input inline-buttons-edit, class => btn}
+		{input inline-buttons-cancel, class => btn}
+
+	{else}
 	{foreach $rowActions as $name => $action}
-{include #row-action-button, record => $record, name => $name, action => $action |indent:1}
+{include #row-action-button, record => $record, primaryString => $primaryString, name => $name, action => $action |indent:1}
 	{/foreach}
+	{/if}
 	</div>
 {/define}
 
@@ -237,7 +251,7 @@
 {define row-action-button}
 	<a n:href="rowAction!,
 			action => $name,
-			primary => $template->primaryToString($record),
+			primary => $primaryString,
 			token => $csrfToken"
 		n:class="btn, ajax"
 		n:attr="data-confirm => $action[confirmation]">
