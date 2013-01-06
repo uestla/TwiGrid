@@ -2,11 +2,8 @@
 
 namespace TwiGrid\Forms;
 
-use Nette\Utils\Html as NHtml;
-use Nette\Forms\Controls\Checkbox as NCheckbox;
 
-
-class ValueCheckbox extends NCheckbox
+class ValueCheckbox extends Nette\Forms\Controls\Checkbox
 {
 	/** @var mixed */
 	protected $htmlValue = NULL;
@@ -29,13 +26,5 @@ class ValueCheckbox extends NCheckbox
 	function getHtmlValue()
 	{
 		return $this->htmlValue;
-	}
-
-
-
-	/** @return NHtml */
-	function getControl()
-	{
-		return parent::getControl()->value( $this->htmlValue );
 	}
 }
