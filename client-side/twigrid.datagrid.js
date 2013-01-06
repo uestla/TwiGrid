@@ -51,7 +51,7 @@
 						// prevent checking when clicking on a link or a checkbox
 						var target = $(event.target);
 						!target.is('a') && !target.is(':checkbox') && checkbox.twg_toggleChecked();
-					}).find('th:first').append( checkbox );
+					}).find('th:first').html( checkbox );
 
 					// toggleCheck single record clicking at the record row
 					actionCheckboxes.each(function (k, v) {
