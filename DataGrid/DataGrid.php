@@ -78,7 +78,7 @@ class DataGrid extends UI\Control
 
 	// === data ===========
 
-	/** @var string|array */
+	/** @var array */
 	protected $primaryKey = NULL;
 
 	/** @var Callback */
@@ -130,7 +130,7 @@ class DataGrid extends UI\Control
 
 	// === constants ===========
 
-	const PRIMARY_SEPARATOR = '-';
+	const PRIMARY_SEPARATOR = '|';
 	const INLINE_EDIT_ACTION = '__inline';
 
 
@@ -260,9 +260,9 @@ class DataGrid extends UI\Control
 	 * @param  string
 	 * @return Column
 	 */
-	function addColumn($name, $label)
+	function addColumn($name, $label = NULL)
 	{
-		return $this[$name] = new Column( $this->translate( $label ) );
+		return $this[$name] = new Column( $this->translate( $label === NULL ? $name : $label ) );
 	}
 
 
@@ -350,15 +350,10 @@ class DataGrid extends UI\Control
 	 */
 	function onActionButtonClick(SubmitButton $button)
 	{
-		$form = $button->form;
-		$values = $form['actions-records']->values;
-
-
-		// get the primary keys
 		$primaries = array();
-		foreach ($values as $name => $checked) {
-			if ($checked) {
-				$primaries[] = $this->stringToPrimary($name);
+		foreach ($button->form['actions-records']->components as $checkbox) {
+			if ($checkbox->value) { // checked
+				$primaries[] = $this->stringToPrimary( $checkbox->htmlValue );
 			}
 		}
 
@@ -692,11 +687,11 @@ class DataGrid extends UI\Control
 
 			// records checkboxes
 			$records = $actions->addContainer('records');
-			$first = TRUE;
+			$i = 0;
 			foreach ($this->getData() as $record) {
-				$checkbox = $records->addCheckbox( $this->primaryToString($record) );
-				$first && $checkbox->addRule( __CLASS__ . '::validateCheckedCount', 'Choose at least one record!' )
-						&& ( $first = FALSE );
+				$records->addComponent( $checkbox = new Forms\ValueCheckbox(), $i );
+				$checkbox->setHtmlValue( $this->primaryToString($record) );
+				$i++ === 0 && $checkbox->addRule( __CLASS__ . '::validateCheckedCount', 'Choose at least one record!' );
 			}
 
 			// action buttons
@@ -769,7 +764,7 @@ class DataGrid extends UI\Control
 	function stringToPrimary($s)
 	{
 		$primaries = explode( static::PRIMARY_SEPARATOR, $s );
-		return count($primaries) === 1 ? (string) $primaries[0] : $primaries;
+		return count($primaries) === 1 ? (string) $primaries[0] : array_combine( $this->primaryKey, $primaries );
 	}
 
 

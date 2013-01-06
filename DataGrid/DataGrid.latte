@@ -181,8 +181,8 @@
 		<tr n:foreach="$data as $record">
 
 			<td n:if="$renderFirstColumn">
-				{var $inputName = $template->primaryToString($record)}
-				{? }{input actions-records-$inputName}
+				{var $inputKey = $iterator->counter - 1}
+				{? }{input actions-records-$inputKey}
 			</td>
 
 		{foreach $columns as $name => $column}
