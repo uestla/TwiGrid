@@ -2,6 +2,8 @@
 
 namespace TwiGrid\Forms;
 
+use Nette;
+
 
 class ValueCheckbox extends Nette\Forms\Controls\Checkbox
 {
