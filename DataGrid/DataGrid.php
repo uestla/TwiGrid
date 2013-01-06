@@ -204,14 +204,6 @@ class DataGrid extends UI\Control
 
 
 
-	/** @return void */
-	function handleSort()
-	{
-		$this->refreshState();
-	}
-
-
-
 	/**
 	 * @param  bool
 	 * @return bool
@@ -404,6 +396,122 @@ class DataGrid extends UI\Control
 
 
 
+	// === SORTING ======================================================
+
+	/** @return void */
+	function handleSort()
+	{
+		$this->refreshState();
+	}
+
+
+
+	/**
+	 * @param  string
+	 * @param  bool
+	 * @return DataGrid
+	 */
+	function setDefaultOrderBy($column, $desc = FALSE)
+	{
+		$this->defaultOrderBy = array( (string) $column, (bool) $desc );
+		return $this;
+	}
+
+
+
+	// === FILTERING ======================================================
+
+	/**
+	 * @param  mixed
+	 * @return DataGrid
+	 */
+	function setFilterContainerFactory($factory)
+	{
+		$this->filterContainerFactory = Callback::create( $factory );
+		return $this;
+	}
+
+
+
+	/**
+	 * @param  SubmitButton
+	 * @return void
+	 */
+	function onFilterButtonClick(SubmitButton $button)
+	{
+		$form = $button->form;
+		$this->setFilters( $this->filterEmpty( $form['filters']['criteria']->getValues(TRUE) ) );
+	}
+
+
+
+	/**
+	 * @param  array
+	 * @return array
+	 */
+	protected function filterEmpty(array $a)
+	{
+		$ret = array();
+		foreach ($a as $k => $v) {
+			if (is_array($v)) { // recursive
+				$tmp = $this->filterEmpty($v);
+				if (reset($tmp) !== FALSE) {
+					$ret[$k] = $tmp;
+				}
+
+			} else {
+				if (strlen($v)) {
+					$ret[$k] = $v;
+				}
+			}
+		}
+
+		return $ret;
+	}
+
+
+
+	/**
+	 * @param  SubmitButton
+	 * @return void
+	 */
+	function onResetButtonClick(SubmitButton $button)
+	{
+		$this->setFilters( array() );
+	}
+
+
+
+	/**
+	 * @param  array
+	 * @return DataGrid
+	 */
+	function setDefaultFilters(array $filters)
+	{
+		if ($this->filterContainerFactory === NULL) {
+			throw new Nette\InvalidStateException("Filter factory not set.");
+		}
+
+		$this->defaultFilters = $filters;
+		return $this;
+	}
+
+
+
+	/**
+	 * @param  array
+	 * @param  bool
+	 * @return DataGrid
+	 */
+	protected function setFilters(array $filters, $refresh = TRUE)
+	{
+		$this->filters !== $filters && ( ( $this->filters = $filters ) || TRUE ) && ( $this->page = 1 ) && $refresh && $this->invalidateCache();
+		$refresh && $this->refreshState();
+		return $this;
+	}
+
+
+
 	// === DATA LOADING ======================================================
 
 	/**
@@ -567,114 +675,6 @@ class DataGrid extends UI\Control
 	protected function getFilterButtons()
 	{
 		return isset($this['form']['filters']) ? $this['form']['filters']['buttons']->components : NULL;
-	}
-
-
-
-	// === SORTING ======================================================
-
-	/**
-	 * @param  string
-	 * @param  bool
-	 * @return DataGrid
-	 */
-	function setDefaultOrderBy($column, $desc = FALSE)
-	{
-		$this->defaultOrderBy = array( (string) $column, (bool) $desc );
-		return $this;
-	}
-
-
-
-	// === FILTERING ======================================================
-
-	/**
-	 * @param  mixed
-	 * @return DataGrid
-	 */
-	function setFilterContainerFactory($factory)
-	{
-		$this->filterContainerFactory = Callback::create( $factory );
-		return $this;
-	}
-
-
-
-	/**
-	 * @param  SubmitButton
-	 * @return void
-	 */
-	function onFilterButtonClick(SubmitButton $button)
-	{
-		$form = $button->form;
-		$this->setFilters( $this->filterEmpty( $form['filters']['criteria']->getValues(TRUE) ) );
-	}
-
-
-
-	/**
-	 * @param  array
-	 * @return array
-	 */
-	protected function filterEmpty(array $a)
-	{
-		$ret = array();
-		foreach ($a as $k => $v) {
-			if (is_array($v)) { // recursive
-				$tmp = $this->filterEmpty($v);
-				if (reset($tmp) !== FALSE) {
-					$ret[$k] = $tmp;
-				}
-
-			} else {
-				if (strlen($v)) {
-					$ret[$k] = $v;
-				}
-			}
-		}
-
-		return $ret;
-	}
-
-
-
-	/**
-	 * @param  SubmitButton
-	 * @return void
-	 */
-	function onResetButtonClick(SubmitButton $button)
-	{
-		$this->setFilters( array() );
-	}
-
-
-
-	/**
-	 * @param  array
-	 * @return DataGrid
-	 */
-	function setDefaultFilters(array $filters)
-	{
-		if ($this->filterContainerFactory === NULL) {
-			throw new Nette\InvalidStateException("Filter factory not set.");
-		}
-
-		$this->defaultFilters = $filters;
-		return $this;
-	}
-
-
-
-	/**
-	 * @param  array
-	 * @param  bool
-	 * @return DataGrid
-	 */
-	protected function setFilters(array $filters, $refresh = TRUE)
-	{
-		$this->filters !== $filters && ( ( $this->filters = $filters ) || TRUE ) && ( $this->page = 1 ) && $refresh && $this->invalidateCache();
-		$refresh && $this->refreshState();
-		return $this;
 	}
 
 
