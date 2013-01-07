@@ -333,10 +333,6 @@
 				<i class="icon-chevron-down"></i>
 			</a>
 
-			<a n:href="changePage!, page => -1" n:class="btn, ajax" title="{_'Load all records'}" n:if="$page !== -1 && ( $countAll === NULL || $dataCount < $countAll )">
-				<i class="icon-th-list"></i>
-			</a>
-
 			<a n:href="changePage!, page => 1" title="{_'Reset timeline'}" n:class="btn, ajax" n:if="$page !== 1">
 				<i class="icon-remove"></i>
 			</a>

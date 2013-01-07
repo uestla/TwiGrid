@@ -409,7 +409,7 @@ class DataGrid extends UI\Control
 	 */
 	protected function setPage($page)
 	{
-		$this->page = $this->timelineBehavior ? ($page === 0 ? 1 : max(-1, (int) $page)) : 1;
+		$this->page = $this->timelineBehavior ? max(1, (int) $page) : 1;
 		return $this;
 	}
 
