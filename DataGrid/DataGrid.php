@@ -170,7 +170,7 @@ class DataGrid extends UI\Control
 		parent::loadState($params);
 
 		isset( $params['page'] ) && $this->setPage( $params['page'] );
-		!$this->isInDefaultState() && ( $this->poluted = TRUE );
+		!$this->poluted && !$this->isInDefaultState() && ( $this->poluted = TRUE );
 
 		if (!$this->poluted) {
 			$this->defaultOrderBy !== NULL && ( $this->orderBy = $this->defaultOrderBy[0] ) && ( $this->orderDesc = $this->defaultOrderBy[1] );
@@ -496,6 +496,7 @@ class DataGrid extends UI\Control
 	 */
 	function onResetFiltersButtonClick(SubmitButton $button)
 	{
+		$this->poluted = TRUE;
 		$this->setFilters( array() );
 	}
 
