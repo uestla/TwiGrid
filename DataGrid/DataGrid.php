@@ -355,10 +355,15 @@ class DataGrid extends UI\Control
 	 * @param  SubmitButton
 	 * @return void
 	 */
-	function onActionButtonClick(SubmitButton $button)
+	function onGroupActionButtonClick(SubmitButton $button)
 	{
+		$checkboxes = $button->form['actions']['records'];
+		if (!$checkboxes->valid) {
+			return ;
+		}
+
 		$primaries = array();
-		foreach ($button->form['actions-records']->components as $checkbox) {
+		foreach ($checkboxes->components as $checkbox) {
 			if ($checkbox->value) { // checked
 				$primaries[] = $this->stringToPrimary( $checkbox->htmlValue );
 			}
@@ -453,8 +458,8 @@ class DataGrid extends UI\Control
 	 */
 	function onFilterButtonClick(SubmitButton $button)
 	{
-		$form = $button->form;
-		$this->setFilters( $this->filterEmpty( $form['filters']['criteria']->getValues(TRUE) ) );
+		$criteria = $button->form['filters']['criteria'];
+		$criteria->valid && $this->setFilters( $this->filterEmpty( $criteria->getValues(TRUE) ) );
 	}
 
 
@@ -728,13 +733,11 @@ class DataGrid extends UI\Control
 			$filters['criteria'] = $this->filterContainerFactory->invoke();
 
 			$buttons = $filters->addContainer('buttons');
-			$buttons->addSubmit('filter', 'Filter')->onClick[] = $this->onFilterButtonClick;
+			$buttons->addSubmit('filter', 'Filter')->setValidationScope(FALSE)->onClick[] = $this->onFilterButtonClick;
 
 			reset($this->filters) !== FALSE
 					&& $filters['criteria']->setDefaults( $this->filters )
-					&& ( $buttons->addSubmit('reset', 'Cancel')
-							->setValidationScope(FALSE)
-							->onClick[] = $this->onResetFiltersButtonClick );
+					&& ( $buttons->addSubmit('reset', 'Cancel')->setValidationScope(FALSE)->onClick[] = $this->onResetFiltersButtonClick );
 		}
 
 		// group actions
@@ -753,8 +756,7 @@ class DataGrid extends UI\Control
 			// action buttons
 			$buttons = $actions->addContainer('buttons');
 			foreach ($this->groupActions as $name => $action) {
-				$buttons->addSubmit($name, $action['label'])
-					->onClick[] = $this->onActionButtonClick;
+				$buttons->addSubmit($name, $action['label'])->setValidationScope(FALSE)->onClick[] = $this->onGroupActionButtonClick;
 			}
 		}
 
@@ -769,7 +771,7 @@ class DataGrid extends UI\Control
 
 			$buttons = $inline->addContainer('buttons');
 			$buttons->addSubmit('edit', 'Edit inline')->onClick[] = $this->onEditInlineButtonClick;
-			$buttons->addSubmit('cancel', 'Cancel')->onClick[] = $this->onCancelInlineButtonClick;
+			$buttons->addSubmit('cancel', 'Cancel')->setValidationScope(FALSE)->onClick[] = $this->onCancelInlineButtonClick;
 		}
 
 		$form->addProtection();
