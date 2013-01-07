@@ -365,7 +365,7 @@ class DataGrid extends UI\Control
 		$primaries = array();
 		foreach ($checkboxes->components as $checkbox) {
 			if ($checkbox->value) { // checked
-				$primaries[] = $this->stringToPrimary( $checkbox->htmlValue );
+				$primaries[] = $this->stringToPrimary( $checkbox->primary );
 			}
 		}
 
@@ -596,23 +596,6 @@ class DataGrid extends UI\Control
 
 
 	/**
-	 * @param  array
-	 * @return mixed
-	 */
-	protected function findRecord($primary)
-	{
-		foreach ($this->getData() as $record) {
-			if ($this->getRecordPrimary($record) === $primary) {
-				return $record;
-			}
-		}
-
-		return NULL;
-	}
-
-
-
-	/**
 	 * @param  mixed|NULL
 	 * @return DataGrid
 	 */
@@ -655,10 +638,9 @@ class DataGrid extends UI\Control
 	/**
 	 * @param  mixed
 	 * @param  mixed
-	 * @param  string|NULL
 	 * @return DataGrid
 	 */
-	function setInlineEditing($containerCb, $processCb, $label = NULL)
+	function setInlineEditing($containerCb, $processCb)
 	{
 		if ($this->inlineEditContainerFactory !== NULL) {
 			throw new Nette\InvalidStateException("Inline editing already set.");
@@ -666,7 +648,17 @@ class DataGrid extends UI\Control
 
 		$this->inlineEditContainerFactory = Callback::create( $containerCb );
 		$this->inlineEditProcessCallback = Callback::create( $processCb );
-		$this->addRowAction( static::INLINE_EDIT_ACTION, $label === NULL ? 'Edit inline' : $label, $this->activateInlineEditing );
+	}
+
+
+
+	/**
+	 * @param  Forms\PrimarySubmitButton
+	 * @return void
+	 */
+	function onActivateInlineEditButtonClick(Forms\PrimarySubmitButton $button)
+	{
+		$this->activateInlineEditing( $button->primary );
 	}
 
 
@@ -677,8 +669,9 @@ class DataGrid extends UI\Control
 	 */
 	function activateInlineEditing($primary)
 	{
-		$this->inlineEditPrimary = $this->primaryToString($primary, FALSE);
+		$this->inlineEditPrimary = $primary;
 		$this->refreshState(FALSE);
+		$this->invalidateCache();
 	}
 
 
@@ -748,8 +741,8 @@ class DataGrid extends UI\Control
 			$records = $actions->addContainer('records');
 			$i = 0;
 			foreach ($this->getData() as $record) {
-				$records->addComponent( $checkbox = new Forms\ValueCheckbox(), $i );
-				$checkbox->setHtmlValue( $this->primaryToString($record) );
+				$records->addComponent( $checkbox = new Forms\PrimaryCheckbox(), $i );
+				$checkbox->setPrimary( $this->primaryToString($record) );
 				$i++ === 0 && $checkbox->addRule( __CLASS__ . '::validateCheckedCount', 'Choose at least one record!' );
 			}
 
@@ -761,17 +754,25 @@ class DataGrid extends UI\Control
 		}
 
 		// inline editing
-		if ($this->inlineEditPrimary !== NULL) {
-			if ( ( $record = $this->findRecord( $this->stringToPrimary( $this->inlineEditPrimary, FALSE ) ) ) === NULL ) {
-				throw new Nette\InvalidStateException("Record not found.");
-			}
-
+		if ($this->inlineEditContainerFactory !== NULL) {
 			$inline = $form->addContainer('inline');
-			$inline['values'] = $this->inlineEditContainerFactory->invokeArgs( array($record) );
-
 			$buttons = $inline->addContainer('buttons');
-			$buttons->addSubmit('edit', 'Edit inline')->onClick[] = $this->onEditInlineButtonClick;
-			$buttons->addSubmit('cancel', 'Cancel')->setValidationScope(FALSE)->onClick[] = $this->onCancelInlineButtonClick;
+
+			$i = 0;
+			foreach ($this->getData() as $record) {
+				$primaryString = $this->primaryToString($record);
+				if ($this->inlineEditPrimary === $primaryString) {
+					$inline['values'] = $this->inlineEditContainerFactory->invokeArgs( array($record) );
+					$buttons->addSubmit('edit', 'Edit')->onClick[] = $this->onEditInlineButtonClick;
+					$buttons->addSubmit('cancel', 'Cancel')->setValidationScope(FALSE)->onClick[] = $this->onCancelInlineButtonClick;
+
+				} else {
+					$buttons->addComponent( $ab = new Forms\PrimarySubmitButton('Edit inline'), $i );
+					$ab->setPrimary( $primaryString )->setValidationScope(FALSE)->onClick[] = $this->onActivateInlineEditButtonClick;
+				}
+
+				$i++;
+			}
 		}
 
 		$form->addProtection();
@@ -784,7 +785,7 @@ class DataGrid extends UI\Control
 	 * @param  Nette\Forms\Controls\Checkbox
 	 * @return bool
 	 */
-	static function validateCheckedCount(Nette\Forms\Controls\Checkbox $checkbox)
+	static function validateCheckedCount(Forms\PrimaryCheckbox $checkbox)
 	{
 		return $checkbox->form->submitted->parent->lookupPath('Nette\\Forms\\Form') !== 'actions-buttons'
 				|| in_array(TRUE, $checkbox->parent->getValues(TRUE), TRUE);
@@ -820,12 +821,11 @@ class DataGrid extends UI\Control
 
 	/**
 	 * @param  mixed
-	 * @param  bool
 	 * @return string
 	 */
-	function primaryToString($record, $isRecord = TRUE)
+	function primaryToString($record)
 	{
-		return implode( static::PRIMARY_SEPARATOR, $isRecord ? $this->getRecordPrimary($record) : (array) $record );
+		return implode( static::PRIMARY_SEPARATOR, $this->getRecordPrimary($record) );
 	}
 
 
@@ -889,6 +889,7 @@ class DataGrid extends UI\Control
 		$template->renderLastColumn = $template->renderFilterRow || $this->rowActions !== NULL;
 		$template->renderFooter = $template->dataCount && ( $this->groupActions !== NULL || $this->timelineBehavior ) && ( $this->groupActions !== NULL || $this->countAll === NULL || $template->dataCount < $this->countAll || $this->page !== 1 ); // see http://www.wolframalpha.com/input/?i=%21%28+%28+%28%21a+%26%26+%21b%29+%7C%7C+%21c+%29+%7C%7C+%28%21a+%26%26+b+%26%26+d+%26%26+e+%26%26+f%29+%29
 		$template->columnCount = count($template->columns) + ( $template->renderFirstColumn ? 1 : 0 ) + ( $template->renderLastColumn ? 1 : 0 );
+		$template->isActiveInlineEdit = $this->inlineEditContainerFactory !== NULL;
 		$template->inlineEditPrimary = $this->inlineEditPrimary;
 		$template->render();
 	}

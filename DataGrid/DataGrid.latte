@@ -193,8 +193,8 @@
 		{/foreach}
 
 			<td n:if="$renderLastColumn" class="center">
-			{if $rowActions !== NULL}
-{include #row-action-buttons, record => $record, isInlineEdited => $isInlineEdited, primaryString => $primaryString |indent:3}
+			{if $rowActions !== NULL || $isActiveInlineEdit}
+{include #row-action-buttons, i => $iterator->counter - 1, record => $record, isInlineEdited => $isInlineEdited, primaryString => $primaryString |indent:3}
 
 			{else}
 				&nbsp;
@@ -240,7 +240,10 @@
 		{input inline-buttons-cancel, class => 'btn btn-danger'}
 
 	{else}
-	{foreach $rowActions as $name => $action}
+	{ifset $form[ $buttonName = "inline-buttons-" . ($i) ]}
+		{? }{input $buttonName, class => 'btn btn-info'}
+	{/ifset}
+	{foreach (array) $rowActions as $name => $action}
 {include #row-action-button, record => $record, primaryString => $primaryString, name => $name, action => $action |indent:1}
 	{/foreach}
 	{/if}
