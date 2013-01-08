@@ -525,8 +525,8 @@ class DataGrid extends UI\Control
 	 */
 	protected function setFilters(array $filters, $refresh = TRUE)
 	{
-		$this->filters !== $filters && ( ( $this->filters = $filters ) || TRUE ) && ( $this->page = 1 );
-		$refresh && $this->refreshState() && $this->invalidateCache();
+		( $diff = $this->filters !== $filters ) && ( ( $this->filters = $filters ) || TRUE ) && ( $this->page = 1 );
+		$refresh && $this->refreshState() && $this->invalidateCache( $diff );
 		return $this;
 	}
 
