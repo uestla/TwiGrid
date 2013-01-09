@@ -191,7 +191,7 @@
 			</td>
 
 		{foreach $columns as $name => $column}
-{include #body-cell, record => $record, isInlineEdited => $isInlineEdited, column => $name, value => $template->getValue($record, $name) |indent:2}
+{include #body-cell, record => $record, isInlineEdited => $isInlineEdited, column => $name, value => $template->getValue($record, $name, FALSE) |indent:2}
 		{/foreach}
 
 			<td n:if="$renderLastColumn" class="center">

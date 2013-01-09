@@ -602,7 +602,15 @@ class DataGrid extends UI\Control
 	 */
 	function setRecordValueGetter($callback = NULL)
 	{
-		$this->recordValueGetter = Callback::create( $callback !== NULL ? $callback : function ($record, $column) {
+		$this->recordValueGetter = Callback::create( $callback !== NULL ? $callback : function ($record, $column, $need) {
+			if (!isset($record->$column)) {
+				if ($need) {
+					throw new Nette\InvalidArgumentException("The value of column '$column' not found in the record.");
+				}
+
+				return NULL;
+			}
+
 			return $record->$column;
 		});
 		return $this;
@@ -613,11 +621,12 @@ class DataGrid extends UI\Control
 	/**
 	 * @param  mixed
 	 * @param  string
+	 * @param  bool
 	 * @return mixed
 	 */
-	function getRecordValue($record, $column)
+	function getRecordValue($record, $column, $need = TRUE)
 	{
-		return $this->recordValueGetter->invokeArgs( func_get_args() );
+		return $this->recordValueGetter->invokeArgs( array($record, $column, $need) );
 	}
 
 
