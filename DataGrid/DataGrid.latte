@@ -83,7 +83,11 @@
 			<th rowspan="2" class="center" n:if="$renderFirstColumn">&nbsp;</th>
 
 		{foreach $columns as $name => $column}
+{ifset #header-cell-$name}
+{include #"header-cell-$name", name => $name, column => $column |indent:2}
+{else}
 {include #header-cell, name => $name, column => $column |indent:2}
+{/ifset}
 		{/foreach}
 
 			<th n:if="$renderLastColumn">&nbsp;</th>
@@ -91,7 +95,11 @@
 
 		<tr n:if="$renderFilterRow">
 		{foreach $columns as $name => $column}
+{ifset #filter-cell-$name}
+{include #"filter-cell-$name", column => $name |indent:2}
+{else}
 {include #filter-cell, column => $name |indent:2}
+{/ifset}
 		{/foreach}
 
 			<th class="center">
@@ -182,7 +190,8 @@
 	{if $dataCount}
 	{foreach $data as $record}
 		{var $primaryString = $template->primaryToString( $record ),
-			$isInlineEdited = $inlineEditPrimary === $primaryString}
+			$isInlineEdited = $inlineEditPrimary === $primaryString,
+			$suff = $isInlineEdited ? '-inline'}
 		<tr n:class="$isInlineEdited ? success">
 
 			<td class="center" n:if="$renderFirstColumn">
@@ -191,7 +200,11 @@
 			</td>
 
 		{foreach $columns as $name => $column}
-{include #body-cell, record => $record, isInlineEdited => $isInlineEdited, column => $name, value => $template->getValue($record, $name, FALSE) |indent:2}
+{ifset #body-cell-$name$suff}
+{include #"body-cell-$name$suff", record => $record, isInlineEdited => $isInlineEdited, column => $name, value => $template->getValue($record, $name, FALSE) |indent:2}
+{else}
+{include #"body-cell$suff", record => $record, isInlineEdited => $isInlineEdited, column => $name, value => $template->getValue($record, $name, FALSE) |indent:2}
+{/ifset}
 		{/foreach}
 
 			<td n:if="$renderLastColumn" class="center">
@@ -221,14 +234,12 @@
 {* === ... ============================================ *}
 
 {define body-cell}
-	<td>
-	{if $isInlineEdited && isset($form["inline-values-$column"])}
-		{input inline-values-$column}
+	<td>{$value}</td>
+{/define}
 
-	{else}
-		{$value}
-	{/if}
-	</td>
+
+{define body-cell-inline}
+	<td>{ifset $form["inline-values-$column"]}{input inline-values-$column}{/ifset}</td>
 {/define}
 
 
