@@ -321,7 +321,8 @@ class DataGrid extends UI\Control
 		if ($token === $this->session->csrfToken) {
 			unset($this->session->csrfToken);
 			$this->rowActions[$action]['callback']->invokeArgs( array( $this->stringToPrimary( $primary ) ) );
-			$this->refreshState( $this->inlineEditPrimary === NULL );
+			$this->refreshState();
+			$this->invalidateCache();
 
 		} else {
 			$this->flashMessage('Security token not match.', 'error');
