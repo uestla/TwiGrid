@@ -239,7 +239,13 @@
 
 
 {define body-cell-inline}
-	<td>{ifset $form["inline-values-$column"]}{input inline-values-$column}{/ifset}</td>
+	<td>
+	{ifset $form["inline-values-$column"]}
+		{? }{input inline-values-$column}
+	{else}
+		{$value}
+	{/ifset}
+	</td>
 {/define}
 
 
