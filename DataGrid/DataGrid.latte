@@ -190,8 +190,7 @@
 	{if $dataCount}
 	{foreach $data as $record}
 		{var $primaryString = $template->primaryToString( $record ),
-			$isInlineEdited = $inlineEditPrimary === $primaryString,
-			$suff = $isInlineEdited ? '-inline'}
+			$isInlineEdited = $inlineEditPrimary === $primaryString}
 		<tr n:class="$isInlineEdited ? success">
 
 			<td class="center" n:if="$renderFirstColumn">
@@ -200,11 +199,7 @@
 			</td>
 
 		{foreach $columns as $name => $column}
-{ifset #body-cell-$name$suff}
-{include #"body-cell-$name$suff", record => $record, isInlineEdited => $isInlineEdited, column => $name, value => $template->getValue($record, $name, FALSE) |indent:2}
-{else}
-{include #"body-cell$suff", record => $record, isInlineEdited => $isInlineEdited, column => $name, value => $template->getValue($record, $name, FALSE) |indent:2}
-{/ifset}
+{include #body-cell, record => $record, isInlineEdited => $isInlineEdited, column => $name, value => $template->getValue($record, $name, FALSE) |indent:2}
 		{/foreach}
 
 			<td n:if="$renderLastColumn" class="center">
@@ -234,18 +229,21 @@
 {* === ... ============================================ *}
 
 {define body-cell}
+{if $isInlineEdited}
+{ifset #body-cell-$column-inline}
+{include #"body-cell-$column", record => $record, isInlineEdited => $isInlineEdited, column => $column, value => $value}
+{elseifset $form["inline-values-$column"]}
+	<td>{input inline-values-$column}</td>
+{else}
 	<td>{$value}</td>
-{/define}
-
-
-{define body-cell-inline}
-	<td>
-	{ifset $form["inline-values-$column"]}
-		{? }{input inline-values-$column}
-	{else}
-		{$value}
-	{/ifset}
-	</td>
+{/ifset}
+{else}
+{ifset #body-cell-$column}
+{include #"body-cell-$column", record => $record, isInlineEdited => $isInlineEdited, column => $column, value => $value}
+{else}
+	<td>{$value}</td>
+{/ifset}
+{/if}
 {/define}
 
 
