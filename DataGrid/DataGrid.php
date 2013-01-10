@@ -878,7 +878,7 @@ class DataGrid extends UI\Control
 		$template->registerHelper('primaryToString', $this->primaryToString);
 		$template->registerHelper('getValue', $this->recordValueGetter);
 
-		$template->defaultTemplatePath = __DIR__ . '/DataGrid.latte';
+		$template->defaultTemplate = __DIR__ . '/DataGrid.latte';
 		$this->templateFile === NULL && ( $this->templateFile = $template->defaultTemplatePath );
 		!($this->templateFile instanceof Nette\Templating\IFileTemplate) && $template->setFile( $this->templateFile );
 
