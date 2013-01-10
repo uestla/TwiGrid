@@ -231,7 +231,7 @@
 {define body-cell}
 {if $isInlineEdited}
 {ifset #body-cell-$column-inline}
-{include #"body-cell-$column", record => $record, isInlineEdited => $isInlineEdited, column => $column, value => $value}
+{include #"body-cell-$column-inline", record => $record, isInlineEdited => $isInlineEdited, column => $column, value => $value}
 {elseifset $form["inline-values-$column"]}
 	<td>{input inline-values-$column}</td>
 {else}

@@ -682,7 +682,7 @@ class DataGrid extends UI\Control
 	{
 		$this->inlineEditPrimary = $primary;
 		$this->refreshState(FALSE);
-		$this->invalidateCache();
+		$this->invalidateCache( FALSE );
 	}
 
 
