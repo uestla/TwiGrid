@@ -204,7 +204,7 @@
 
 			<td n:if="$renderLastColumn" class="center">
 			{if $rowActions !== NULL || $isActiveInlineEdit}
-{include #row-action-buttons, i => $iterator->counter - 1, record => $record, isInlineEdited => $isInlineEdited, primaryString => $primaryString |indent:3}
+{include #row-actions, i => $iterator->counter - 1, record => $record, isInlineEdited => $isInlineEdited, primaryString => $primaryString |indent:3}
 
 			{else}
 				&nbsp;
@@ -250,18 +250,17 @@
 
 {* === ... ============================================ *}
 
-{define row-action-buttons}
+{define row-actions}
 	<div class="btn-group">
 	{if $isInlineEdited}
-		{input inline-buttons-edit, class => 'btn btn-success'}
-		{input inline-buttons-cancel, class => 'btn btn-danger'}
+{include #inline-buttons |indent:1}
 
 	{else}
 	{ifset $form[ $buttonName = "inline-buttons-" . ($i) ]}
 		{? }{input $buttonName, class => 'btn btn-info'}
 	{/ifset}
 	{foreach (array) $rowActions as $name => $action}
-{include #row-action-button, record => $record, primaryString => $primaryString, name => $name, action => $action |indent:1}
+{include #row-action, record => $record, primaryString => $primaryString, name => $name, action => $action |indent:1}
 	{/foreach}
 	{/if}
 	</div>
@@ -271,15 +270,24 @@
 
 {* === ... ============================================ *}
 
-{define row-action-button}
-	<a n:href="rowAction!,
-			action => $name,
-			primary => $primaryString,
-			token => $csrfToken"
-		n:class="btn, btn-info, ajax"
-		n:attr="data-confirm => $action[confirmation]">
+{define inline-buttons}
+	{? }{input inline-buttons-edit, class => 'btn btn-success'}
+	{? }{input inline-buttons-cancel, class => 'btn btn-danger'}
+{/define}
+
+
+
+{* === ... ============================================ *}
+
+{define row-action}
+{var $link = $control->link('rowAction!', [ action => $name, primary => $primaryString, token => $csrfToken ])}
+{ifset #row-action-$name}
+{include #"row-action-$name", link => $link, label => $action[label], confirmation => $action[confirmation]}
+{else}
+	<a href="{$link}" n:class="btn, btn-info, ajax" n:attr="data-confirm => $action[confirmation]">
 		{$action[label]}
 	</a>
+{/ifset}
 {/define}
 
 
