@@ -1,13 +1,13 @@
-.twigrid thead th {
+.twigrid-cnt thead th {
 	background: #eee;
 	white-space: nowrap;
 }
 
-.twigrid th, .twigrid td {
+.twigrid-cnt th, .twigrid-cnt td {
 	vertical-align: middle;
 }
 
-.twigrid select, .twigrid input[type="text"], .twigrid input[type="date"] {
+.twigrid-cnt select, .twigrid-cnt input[type="text"], .twigrid-cnt input[type="date"] {
 	display: block;
 	margin: 0;
 	width: 100%;
@@ -17,22 +17,22 @@
 	box-sizing: border-box;
 }
 
-.twigrid .action-buttons-label {
+.twigrid-cnt .action-buttons-label {
 	display: inline-block;
 }
 
-.twigrid .left {
+.twigrid-cnt .left {
 	text-align: left;
 }
 
-.twigrid .center {
+.twigrid-cnt .center {
 	text-align: center;
 }
 
-.twigrid .right {
+.twigrid-cnt .right {
 	text-align: right;
 }
 
-.twigrid .nowrap {
+.twigrid-cnt .nowrap {
 	white-space: nowrap;
 }
