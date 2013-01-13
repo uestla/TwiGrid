@@ -220,7 +220,7 @@ class DataGrid extends UI\Control
 	 * @param  bool
 	 * @return TRUE
 	 */
-	protected function refreshState($cancelInlineEditing = FALSE)
+	protected function refreshState($cancelInlineEditing = TRUE)
 	{
 		$cancelInlineEditing && ( $this->inlineEditPrimary = NULL );
 		!$this->presenter->isAjax() && $this->redirect('this');
@@ -689,8 +689,8 @@ class DataGrid extends UI\Control
 	function activateInlineEditing($primary)
 	{
 		$this->inlineEditPrimary = $primary;
-		$this->refreshState();
-		$this->invalidate( FALSE );
+		$this->refreshState(FALSE);
+		$this->invalidate( FALSE, 'body' );
 	}
 
 
@@ -701,8 +701,8 @@ class DataGrid extends UI\Control
 	 */
 	function deactivateInlineEditing($dataAsWell = TRUE)
 	{
-		$this->refreshState(TRUE);
-		$this->invalidate( $dataAsWell );
+		$this->refreshState();
+		$this->invalidate( $dataAsWell, 'body' );
 	}
 
 
