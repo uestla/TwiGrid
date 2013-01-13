@@ -45,7 +45,7 @@ class DataGrid extends UI\Control
 	public $page = 1;
 
 	/** @var bool */
-	protected $timelineBehavior = FALSE;
+	protected $timeline = FALSE;
 
 
 
@@ -58,7 +58,7 @@ class DataGrid extends UI\Control
 	protected $defaultFilters = NULL;
 
 	/** @var Nette\Callback */
-	protected $filterContainerFactory = NULL;
+	protected $filterFactory = NULL;
 
 
 
@@ -149,10 +149,10 @@ class DataGrid extends UI\Control
 	protected function attached($presenter)
 	{
 		parent::attached($presenter);
-		$this->invalidateControl();
 		$this->session = $this->sessionContainer->getSection( __CLASS__ . '-' . $this->name );
 		$this->session->setExpiration('+ 5 minutes', 'csrfToken');
-		$this->record->valueGetter === NULL && $this->setRecordValueGetter();
+		$this->record->valueGetter === NULL && $this->setValueGetter();
+		!isset($this->presenter->payload->twiGrids) && ( $this->presenter->payload->twiGrids = $this->presenter->payload->twiGrids['forms'] = array() );
 	}
 
 
@@ -318,7 +318,7 @@ class DataGrid extends UI\Control
 			unset($this->session->csrfToken);
 			$this->rowActions[$action]['callback']->invokeArgs( array( $this->record->stringToPrimary( $primary ) ) );
 			$this->refreshState();
-			$this->invalidateCache();
+			$this->invalidate('body', 'footer');
 
 		} else {
 			$this->flashMessage('Security token not match.', 'error');
@@ -367,7 +367,8 @@ class DataGrid extends UI\Control
 		}
 
 		$this->groupActions[ $button->name ]['callback']->invokeArgs( array( $primaries ) );
-		$this->invalidateCache();
+		$this->refreshState();
+		$this->invalidate('body', 'footer');
 	}
 
 
@@ -378,9 +379,9 @@ class DataGrid extends UI\Control
 	 * @param  bool
 	 * @return DataGrid
 	 */
-	function setTimelineBehavior($bool = TRUE)
+	function setTimeline($bool = TRUE)
 	{
-		$this->timelineBehavior = (bool) $bool;
+		$this->timeline = (bool) $bool;
 		return $this;
 	}
 
@@ -390,12 +391,12 @@ class DataGrid extends UI\Control
 	 * @param  int
 	 * @return void
 	 */
-	function handleChangePage($page)
+	function handleChangePage($no)
 	{
 		$tmp = $this->page;
-		$this->setPage($page);
+		$this->setPage($no);
 		$this->refreshState();
-		$this->page !== $tmp && $this->invalidateCache();
+		$this->page !== $tmp && $this->invalidate('body', 'footer');
 	}
 
 
@@ -406,7 +407,7 @@ class DataGrid extends UI\Control
 	 */
 	protected function setPage($page)
 	{
-		$this->page = $this->timelineBehavior ? max(1, (int) $page) : 1;
+		$this->page = $this->timeline ? max(1, (int) $page) : 1;
 		return $this;
 	}
 
@@ -441,9 +442,9 @@ class DataGrid extends UI\Control
 	 * @param  mixed
 	 * @return DataGrid
 	 */
-	function setFilterContainerFactory($factory)
+	function setFilterFactory($factory)
 	{
-		$this->filterContainerFactory = Nette\Callback::create( $factory );
+		$this->filterFactory = Nette\Callback::create( $factory );
 		return $this;
 	}
 
@@ -505,7 +506,7 @@ class DataGrid extends UI\Control
 	 */
 	function setDefaultFilters(array $filters)
 	{
-		if ($this->filterContainerFactory === NULL) {
+		if ($this->filterFactory === NULL) {
 			throw new Nette\InvalidStateException("Filter factory not set.");
 		}
 
@@ -523,7 +524,7 @@ class DataGrid extends UI\Control
 	protected function setFilters(array $filters, $refresh = TRUE)
 	{
 		( $diff = $this->filters !== $filters ) && ( ( $this->filters = $filters ) || TRUE ) && ( $this->page = 1 );
-		$refresh && $this->refreshState() && $this->invalidateCache( $diff );
+		$refresh && $this->refreshState() && $this->invalidate( $diff );
 		return $this;
 	}
 
@@ -597,7 +598,7 @@ class DataGrid extends UI\Control
 	 * @param  mixed|NULL
 	 * @return DataGrid
 	 */
-	function setRecordValueGetter($callback = NULL)
+	function setValueGetter($callback = NULL)
 	{
 		$this->record->setValueGetter($callback);
 		return $this;
@@ -611,7 +612,7 @@ class DataGrid extends UI\Control
 	 * @param  bool
 	 * @return mixed
 	 */
-	function getRecordValue($record, $column, $need = TRUE)
+	function getValue($record, $column, $need = TRUE)
 	{
 		return $this->record->getValue($record, $column, $need);
 	}
@@ -619,13 +620,33 @@ class DataGrid extends UI\Control
 
 
 	/**
-	 * @param  bool
+	 * API:
+	 * $c->invalidate() - data reload + whole grid snippet
+	 * $c->invalidate(FALSE) - whole grid snippet
+	 * $c->invalidate('snippet1', 'snippet2', ...) - inv. given snippets
+	 * $c->invalidate(TRUE, 'snippet1', 'snippet2', ...) - data reload + given snippets
+	 *
+	 * @param  bool|string|NULL
+	 * @param  string|NULL
 	 * @return void
 	 */
-	protected function invalidateCache($dataAsWell = TRUE)
+	protected function invalidate($reloadData = TRUE)
 	{
+		$snippets = func_get_args();
+		if (!is_bool($reloadData)) {
+			$reloadData = TRUE;
+
+		} else {
+			array_shift($snippets);
+		}
+
 		unset($this['form']);
-		$dataAsWell && ( $this->data = NULL );
+		$reloadData && ( $this->data = NULL );
+
+		reset($snippets) === FALSE && ( $snippets[] = NULL );
+		foreach ($snippets as $snippet) {
+			$this->invalidateControl($snippet);
+		}
 	}
 
 
@@ -668,7 +689,7 @@ class DataGrid extends UI\Control
 	{
 		$this->inlineEditPrimary = $primary;
 		$this->refreshState(FALSE);
-		$this->invalidateCache( FALSE );
+		$this->invalidate( FALSE , 'body' );
 	}
 
 
@@ -680,7 +701,7 @@ class DataGrid extends UI\Control
 	function deactivateInlineEditing($dataAsWell = TRUE)
 	{
 		$this->refreshState();
-		$this->invalidateCache( $dataAsWell );
+		$this->invalidate( $dataAsWell, 'body' );
 	}
 
 
@@ -718,9 +739,9 @@ class DataGrid extends UI\Control
 		$this->translator !== NULL && $form->setTranslator( $this->translator );
 
 		// filtering
-		if ($this->filterContainerFactory !== NULL) {
+		if ($this->filterFactory !== NULL) {
 			$filters = $form->addContainer('filters');
-			$filters['criteria'] = $this->filterContainerFactory->invoke();
+			$filters['criteria'] = $this->filterFactory->invoke();
 
 			$buttons = $filters->addContainer('buttons');
 			$buttons->addSubmit('filter', 'Filter')->setValidationScope(FALSE)->onClick[] = $this->onFilterButtonClick;
@@ -819,6 +840,9 @@ class DataGrid extends UI\Control
 	/** @return void */
 	function render()
 	{
+		$form = $this['form'];
+		$this->presenter->payload->twiGrids['forms'][ $form->elementPrototype->id ] = (string) $form->getAction();
+
 		$template = $this->createTemplate();
 		$template->registerHelper('translate', $this->translate);
 		$template->registerHelper('primaryToString', $this->record->primaryToString);
@@ -828,7 +852,7 @@ class DataGrid extends UI\Control
 		$this->templateFile === NULL && ( $this->templateFile = $template->defaultTemplatePath );
 		!($this->templateFile instanceof Nette\Templating\IFileTemplate) && $template->setFile( $this->templateFile );
 
-		$template->form = $template->_form = $this['form'];
+		$template->form = $template->_form = $form;
 		$template->columns = $this->getColumns();
 		$template->filterButtons = $this->getFilterButtons();
 		$template->isFiltered = reset($this->filters) !== FALSE;
@@ -839,12 +863,12 @@ class DataGrid extends UI\Control
 				? ( isset($this->session->csrfToken) ? $this->session->csrfToken : ( $this->session->csrfToken = Nette\Utils\Strings::random(16) ) )
 				: ( $this->session->__unset('csrfToken') || NULL );
 		$template->groupActions = $this->groupActions;
-		$template->isTimelined = $this->timelineBehavior;
+		$template->timeline = $this->timeline;
 		$template->page = $this->page;
 		$template->renderFirstColumn = $template->dataCount && $this->groupActions !== NULL;
 		$template->renderFilterRow = $template->filterButtons !== NULL && ( $template->isFiltered || $template->dataCount );
 		$template->renderLastColumn = $template->renderFilterRow || $this->rowActions !== NULL;
-		$template->renderFooter = $template->dataCount && ( $this->groupActions !== NULL || $this->timelineBehavior ) && ( $this->groupActions !== NULL || $this->countAll === NULL || $template->dataCount < $this->countAll || $this->page !== 1 ); // see http://www.wolframalpha.com/input/?i=%21%28+%28+%28%21a+%26%26+%21b%29+%7C%7C+%21c+%29+%7C%7C+%28%21a+%26%26+b+%26%26+d+%26%26+e+%26%26+f%29+%29
+		$template->renderFooter = $template->dataCount && ( $this->groupActions !== NULL || $this->timeline ) && ( $this->groupActions !== NULL || $this->countAll === NULL || $template->dataCount < $this->countAll || $this->page !== 1 ); // see http://www.wolframalpha.com/input/?i=%21%28+%28+%28%21a+%26%26+%21b%29+%7C%7C+%21c+%29+%7C%7C+%28%21a+%26%26+b+%26%26+d+%26%26+e+%26%26+f%29+%29
 		$template->columnCount = count($template->columns) + ( $template->renderFirstColumn ? 1 : 0 ) + ( $template->renderLastColumn ? 1 : 0 );
 		$template->isActiveInlineEdit = $this->inlineEditContainerFactory !== NULL;
 		$template->inlineEditPrimary = $this->inlineEditPrimary;

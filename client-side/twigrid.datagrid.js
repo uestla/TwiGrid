@@ -59,7 +59,7 @@ $.nette.ext('twigrid', {
 					cancelButton = grid.find('[name="inline\\[buttons\\]\\[cancel]"]');
 
 				// [Enter] and [Esc] behavior
-				inlines.off('focus.twigrid').on('focus.twigrid', function (event) {
+				inlines.off('focus.twigrid').off('blur.twigrid').on('focus.twigrid', function (event) {
 					var single = $(this);
 					single.off('keyup.twigrid').on('keyup.twigrid', function (e) {
 						if (!e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey) {
@@ -71,7 +71,8 @@ $.nette.ext('twigrid', {
 							}
 						}
 					});
-				}).on('blur.twigrid', function (event) {
+
+				}).off('blur.twigrid').on('blur.twigrid', function (event) {
 					$(this).off('keyup.twigrid');
 				});
 
@@ -134,7 +135,15 @@ $.nette.ext('twigrid', {
 		this.body.removeClass('twigrid-loading');
 	},
 
-	success: function () {
+	success: function (payload) {
+		if (payload.twiGrids) {
+			$.each(payload.twiGrids, function (key, val) {
+				$.each(payload.twiGrids.forms, function (form, action) {
+					$('#' + form).attr('action', action);
+				});
+			});
+		}
+
 		var flashes = $('.alert.hidable:first');
 		if (flashes.length) {
 			var flashOffset = flashes.offset().top, docOffset = $('html').scrollTop() || this.body.scrollTop();

@@ -14,7 +14,7 @@
  * @param  array  $rowActions
  * @param  string  $csrfToken
  * @param  array  $groupActions
- * @param  bool  $isTimelined
+ * @param  bool  $timeline
  * @param  int  $page
  * @param  bool  $renderFirstColumn
  * @param  bool  $renderFilterRow
@@ -25,7 +25,7 @@
  *}
 
 
-<div n:snippet="" class="twigrid-cnt">
+<div class="twigrid-cnt">
 
 	<div n:snippet="flashes">
 		<div n:foreach="$flashes as $flash" class="alert alert-{$flash->type} hidable">{_$flash->message}</div>
@@ -77,7 +77,7 @@
 
 {define header}
 
-	<thead>
+	<thead n:snippet="header">
 
 		<tr>
 			<th rowspan="2" class="center" n:if="$renderFirstColumn">&nbsp;</th>
@@ -185,7 +185,7 @@
 
 {define body}
 
-	<tbody>
+	<tbody n:snippet="body">
 
 	{if $dataCount}
 	{foreach $data as $record}
@@ -296,17 +296,19 @@
 
 {define footer}
 
-	<tfoot n:if="$renderFooter">
+	<tfoot n:snippet="footer">
 
-		<td colspan="{$columnCount}" class="center">
-			{if $groupActions !== NULL}
-{include #group-action-buttons |indent:2}
-			{/if}
+		<tr n:if="$renderFooter">
+			<td colspan="{$columnCount}" class="center">
+				{if $groupActions !== NULL}
+{include #group-action-buttons |indent:3}
+				{/if}
 
-			{if $isTimelined}
-{include #timeline-buttons |indent:2}
-			{/if}
-		</td>
+				{if $timeline}
+{include #timeline-buttons |indent:3}
+				{/if}
+			</td>
+		</tr>
 
 	</tfoot>
 
@@ -357,11 +359,11 @@
 	<div class="pull-right">
 		<div class="btn-group">
 
-			<a n:href="changePage!, page => $page + 1" n:class="btn, ajax" title="{_'Load next records'}" n:if="$page > 0 && ( $countAll === NULL || $dataCount < $countAll )">
+			<a n:href="changePage!, no => $page + 1" n:class="btn, ajax" title="{_'Load next records'}" n:if="$page > 0 && ( $countAll === NULL || $dataCount < $countAll )">
 				<i class="icon-chevron-down"></i>
 			</a>
 
-			<a n:href="changePage!, page => 1" title="{_'Reset timeline'}" n:class="btn, ajax" n:if="$page !== 1">
+			<a n:href="changePage!, no => 1" title="{_'Reset timeline'}" n:class="btn, ajax" n:if="$page !== 1">
 				<i class="icon-remove"></i>
 			</a>
 
