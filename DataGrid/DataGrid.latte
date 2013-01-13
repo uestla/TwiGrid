@@ -41,7 +41,7 @@
 
 {define datagrid}
 
-	{? }{form $form, class => ajax}
+	{? }{form $form, class => tw-ajax}
 	{if $errors = $form->errors}
 
 		<div class="alert alert-error hidable" n:foreach="$errors as $error">{$error}</div>
@@ -122,7 +122,7 @@
 		<a n:href="sort!,
 				orderBy => !$column->orderedBy || !$column->orderedDesc ? $name : NULL,
 				orderDesc => $column->orderedBy && !$column->orderedDesc"
-			n:class="ajax">
+			n:class="tw-ajax">
 {include #header-label, column => $column |indent:2}
 		</a>
 
@@ -284,7 +284,7 @@
 {ifset #row-action-$name}
 {include #"row-action-$name", link => $link, label => $action[label], confirmation => $action[confirmation]}
 {else}
-	<a href="{$link}" n:class="btn, btn-info, ajax" n:attr="data-confirm => $action[confirmation]">
+	<a href="{$link}" n:class="btn, btn-info, tw-ajax" n:attr="data-confirm => $action[confirmation]">
 		{$action[label]}
 	</a>
 {/ifset}
@@ -359,11 +359,11 @@
 	<div class="pull-right">
 		<div class="btn-group">
 
-			<a n:href="changePage!, no => $page + 1" n:class="btn, ajax" title="{_'Load next records'}" n:if="$page > 0 && ( $countAll === NULL || $dataCount < $countAll )">
+			<a n:href="changePage!, no => $page + 1" n:class="btn, tw-ajax" title="{_'Load next records'}" n:if="$page > 0 && ( $countAll === NULL || $dataCount < $countAll )">
 				<i class="icon-chevron-down"></i>
 			</a>
 
-			<a n:href="changePage!, no => 1" title="{_'Reset timeline'}" n:class="btn, ajax" n:if="$page !== 1">
+			<a n:href="changePage!, no => 1" title="{_'Reset timeline'}" n:class="btn, tw-ajax" n:if="$page !== 1">
 				<i class="icon-remove"></i>
 			</a>
 

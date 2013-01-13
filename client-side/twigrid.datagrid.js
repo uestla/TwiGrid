@@ -33,7 +33,7 @@ $.nette.ext('twigrid', {
 		this.body.append('<style>.twigrid-loading * { cursor: wait !important; }</style>');
 	},
 
-	load: function () {
+	load: function (rh) {
 		$('.twigrid-cnt').each(function (key, val) {
 			var grid = $(val);
 
@@ -124,6 +124,17 @@ $.nette.ext('twigrid', {
 					});
 				});
 			}
+		});
+
+
+		// own links & forms ajaxification due to event queue (mainly due to confirm dialogs)
+		$('a.tw-ajax').off('click.twigrid', rh).on('click.twigrid', rh);
+		$('form.tw-ajax').off('submit.twigrid', rh).on('submit.twigrid', rh)
+			.off('click.twigrid', 'input[type="image"]', rh).on('click.twigrid', 'input[type="image"]', rh)
+			.off('click.twigrid', 'input[type="submit"]', rh).on('click.twigrid', 'input[type="submit"]', rh);
+		$('input.tw-ajax[type="submit"], input.tw-ajax[type="image"]').each(function () {
+			$(this).closest('form').off('click.twigrid', this.buttonSelector, rh)
+				.on('click.twigrid', this.buttonSelector, rh);
 		});
 	},
 
