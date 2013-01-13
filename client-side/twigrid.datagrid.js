@@ -137,10 +137,8 @@ $.nette.ext('twigrid', {
 
 	success: function (payload) {
 		if (payload.twiGrids) {
-			$.each(payload.twiGrids, function (key, val) {
-				$.each(payload.twiGrids.forms, function (form, action) {
-					$('#' + form).attr('action', action);
-				});
+			$.each(payload.twiGrids.forms, function (form, action) {
+				$('#' + form).attr('action', action);
 			});
 		}
 

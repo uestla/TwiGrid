@@ -220,7 +220,7 @@ class DataGrid extends UI\Control
 	 * @param  bool
 	 * @return TRUE
 	 */
-	protected function refreshState($cancelInlineEditing = TRUE)
+	protected function refreshState($cancelInlineEditing = FALSE)
 	{
 		$cancelInlineEditing && ( $this->inlineEditPrimary = NULL );
 		!$this->presenter->isAjax() && $this->redirect('this');
@@ -396,7 +396,7 @@ class DataGrid extends UI\Control
 		$tmp = $this->page;
 		$this->setPage($no);
 		$this->refreshState();
-		$this->page !== $tmp && $this->invalidate('body', 'footer');
+		$this->page !== $tmp && $this->invalidate();
 	}
 
 
@@ -419,6 +419,7 @@ class DataGrid extends UI\Control
 	function handleSort()
 	{
 		$this->refreshState();
+		$this->invalidate();
 	}
 
 
@@ -688,8 +689,8 @@ class DataGrid extends UI\Control
 	function activateInlineEditing($primary)
 	{
 		$this->inlineEditPrimary = $primary;
-		$this->refreshState(FALSE);
-		$this->invalidate( FALSE , 'body' );
+		$this->refreshState();
+		$this->invalidate( FALSE );
 	}
 
 
@@ -700,8 +701,8 @@ class DataGrid extends UI\Control
 	 */
 	function deactivateInlineEditing($dataAsWell = TRUE)
 	{
-		$this->refreshState();
-		$this->invalidate( $dataAsWell, 'body' );
+		$this->refreshState(TRUE);
+		$this->invalidate( $dataAsWell );
 	}
 
 
@@ -841,6 +842,7 @@ class DataGrid extends UI\Control
 	function render()
 	{
 		$form = $this['form'];
+		$this->isControlInvalid() && $this->invalidate(FALSE, 'flashes');
 		$this->presenter->payload->twiGrids['forms'][ $form->elementPrototype->id ] = (string) $form->getAction();
 
 		$template = $this->createTemplate();
