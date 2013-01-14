@@ -260,7 +260,7 @@
 		{? }{input $buttonName, class => 'btn btn-info'}
 	{/ifset}
 	{foreach (array) $rowActions as $name => $action}
-{include #row-action, record => $record, primaryString => $primaryString, name => $name, action => $action |indent:1}
+{include #row-action, name => $name, action => $action, record => $record, link => $control->link('rowAction!', [ action => $name, primary => $primaryString, token => $csrfToken ]) |indent:1}
 	{/foreach}
 	{/if}
 	</div>
@@ -280,7 +280,6 @@
 {* === ... ============================================ *}
 
 {define row-action}
-{var $link = $control->link('rowAction!', [ action => $name, primary => $primaryString, token => $csrfToken ])}
 {ifset #row-action-$name}
 {include #"row-action-$name", link => $link, label => $action[label], confirmation => $action[confirmation]}
 {else}

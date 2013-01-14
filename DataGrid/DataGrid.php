@@ -14,6 +14,7 @@ namespace TwiGrid;
 
 use Nette;
 use Nette\Application\UI;
+use Nette\Forms\ISubmitterControl;
 use Nette\Localization\ITranslator;
 use Nette\Templating\IFileTemplate;
 use Nette\Forms\Controls\SubmitButton;
@@ -119,7 +120,7 @@ class DataGrid extends UI\Control
 
 	// === rendering ===========
 
-	/** @var string|IFileTemplate */
+	/** @var string */
 	protected $templateFile = NULL;
 
 
@@ -152,7 +153,7 @@ class DataGrid extends UI\Control
 		$this->session = $this->sessionContainer->getSection( __CLASS__ . '-' . $this->name );
 		$this->session->setExpiration('+ 5 minutes', 'csrfToken');
 		$this->record->valueGetter === NULL && $this->setValueGetter();
-		!isset($this->presenter->payload->twiGrids) && ( $this->presenter->payload->twiGrids = $this->presenter->payload->twiGrids['forms'] = array() );
+		!isset( $this->presenter->payload->twiGrids ) && ( $this->presenter->payload->twiGrids = $this->presenter->payload->twiGrids['forms'] = array() );
 	}
 
 
@@ -525,7 +526,7 @@ class DataGrid extends UI\Control
 	protected function setFilters(array $filters, $refresh = TRUE)
 	{
 		( $diff = $this->filters !== $filters ) && ( ( $this->filters = $filters ) || TRUE ) && ( $this->page = 1 );
-		$refresh && $this->refreshState() && $this->invalidate( $diff );
+		$refresh && $this->refreshState() && ( $diff ? $this->invalidate() : $this->invalidate(FALSE, 'body', 'footer') );
 		return $this;
 	}
 
@@ -590,7 +591,13 @@ class DataGrid extends UI\Control
 			}
 		}
 
-		$this->data = $this->dataLoader->invokeArgs( array( $this, array_merge( $this->record->primaryKey, $this->getColumnNames() ), $orderBy, $this->filters, $this->page ) );
+		$this->data = $this->dataLoader->invokeArgs( array(
+			$this,
+			array_merge( array_combine( $this->record->primaryKey, $this->record->primaryKey ), $this->getColumnNames() ),
+			$orderBy,
+			$this->filters,
+			$this->page,
+		) );
 	}
 
 
@@ -628,7 +635,6 @@ class DataGrid extends UI\Control
 	 * $c->invalidate(TRUE, 'snippet1', 'snippet2', ...) - data reload + given snippets
 	 *
 	 * @param  bool|string|NULL
-	 * @param  string|NULL
 	 * @return void
 	 */
 	protected function invalidate($reloadData = TRUE)
@@ -734,10 +740,13 @@ class DataGrid extends UI\Control
 	// === FORM BUILDING ======================================================
 
 	/** @return UI\Form */
-	protected function createComponentForm()
+	protected function createComponentForm($name)
 	{
 		$form = new UI\Form;
 		$this->translator !== NULL && $form->setTranslator( $this->translator );
+		$form->addProtection();
+
+		$this->addComponent( $form, $name );
 
 		// filtering
 		if ($this->filterFactory !== NULL) {
@@ -750,6 +759,10 @@ class DataGrid extends UI\Control
 			reset($this->filters) !== FALSE
 					&& $filters['criteria']->setDefaults( $this->filters )
 					&& ( $buttons->addSubmit('reset', 'Cancel')->setValidationScope(FALSE)->onClick[] = $this->onResetFiltersButtonClick );
+		}
+
+		if ( ( $sBy = $form->submitted ) instanceof ISubmitterControl && $sBy->parent->lookupPath('Nette\\Forms\\Form') === 'filters-buttons' ) {
+			return $form; // no need to continue
 		}
 
 		// group actions
@@ -794,7 +807,6 @@ class DataGrid extends UI\Control
 			}
 		}
 
-		$form->addProtection();
 		return $form;
 	}
 
@@ -828,11 +840,7 @@ class DataGrid extends UI\Control
 	 */
 	function setTemplateFile($templateFile)
 	{
-		if ( !is_string($templateFile) && !($templateFile instanceof IFileTemplate) ) {
-			throw new Nette\InvalidArgumentException('String or Nette\Templating\IFileTemplate expected, "' . gettype($templateFile) . '" given.');
-		}
-
-		$this->templateFile = $templateFile;
+		$this->templateFile = (string) $templateFile;
 		return $this;
 	}
 
@@ -852,7 +860,7 @@ class DataGrid extends UI\Control
 
 		$template->defaultTemplate = __DIR__ . '/DataGrid.latte';
 		$this->templateFile === NULL && ( $this->templateFile = $template->defaultTemplatePath );
-		!($this->templateFile instanceof Nette\Templating\IFileTemplate) && $template->setFile( $this->templateFile );
+		$template->setFile( $this->templateFile );
 
 		$template->form = $template->_form = $form;
 		$template->columns = $this->getColumns();
