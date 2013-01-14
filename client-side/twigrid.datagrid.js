@@ -59,7 +59,7 @@ $.nette.ext('twigrid', {
 					cancelButton = grid.find('[name="inline\\[buttons\\]\\[cancel]"]');
 
 				// [Enter] and [Esc] behavior
-				inlines.off('focus.twigrid').off('blur.twigrid').on('focus.twigrid', function (event) {
+				inlines.off('focus.twigrid').on('focus.twigrid', function (event) {
 					var single = $(this);
 					single.off('keyup.twigrid').on('keyup.twigrid', function (e) {
 						if (!e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey) {
