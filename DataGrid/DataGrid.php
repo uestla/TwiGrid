@@ -474,14 +474,12 @@ class DataGrid extends UI\Control
 		foreach ($a as $k => $v) {
 			if (is_array($v)) { // recursive
 				$tmp = $this->filterEmpty($v);
-				if (reset($tmp) !== FALSE) {
+				if (!count($tmp)) {
 					$ret[$k] = $tmp;
 				}
 
-			} else {
-				if (strlen($v)) {
-					$ret[$k] = $v;
-				}
+			} elseif (strlen($v)) {
+				$ret[$k] = $v;
 			}
 		}
 
