@@ -473,8 +473,7 @@ class DataGrid extends UI\Control
 		$ret = array();
 		foreach ($a as $k => $v) {
 			if (is_array($v)) { // recursive
-				$tmp = $this->filterEmpty($v);
-				if (!count($tmp)) {
+				if (!count( $tmp = $this->filterEmpty($v) )) {
 					$ret[$k] = $tmp;
 				}
 
