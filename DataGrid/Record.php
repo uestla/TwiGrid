@@ -64,6 +64,7 @@ class Record extends Nette\Object
 
 			return $record->$column;
 		});
+
 		return $this;
 	}
 

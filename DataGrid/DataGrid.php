@@ -612,19 +612,6 @@ class DataGrid extends UI\Control
 
 
 	/**
-	 * @param  mixed
-	 * @param  string
-	 * @param  bool
-	 * @return mixed
-	 */
-	function getValue($record, $column, $need = TRUE)
-	{
-		return $this->record->getValue($record, $column, $need);
-	}
-
-
-
-	/**
 	 * API:
 	 * $c->invalidate() - data reload + whole grid snippet
 	 * $c->invalidate(FALSE) - whole grid snippet
@@ -853,7 +840,7 @@ class DataGrid extends UI\Control
 		$template = $this->createTemplate();
 		$template->registerHelper('translate', $this->translate);
 		$template->registerHelper('primaryToString', $this->record->primaryToString);
-		$template->registerHelper('getValue', $this->record->valueGetter);
+		$template->registerHelper('getValue', $this->record->getValue);
 
 		$template->defaultTemplate = __DIR__ . '/DataGrid.latte';
 		$this->templateFile === NULL && ( $this->templateFile = $template->defaultTemplatePath );
