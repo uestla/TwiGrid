@@ -319,14 +319,14 @@ class DataGrid extends UI\Control
 	 */
 	function handleRowAction($action, $primary, $token)
 	{
-		if ($token === $this->session->csrfToken) {
+		if (isset($this->session->token) && $token === $this->session->csrfToken) {
 			unset($this->session->csrfToken);
 			$this->rowActions[$action]['callback']->invokeArgs( array( $this->record->stringToPrimary( $primary ) ) );
 			$this->refreshState();
 			$this->invalidate('body', 'footer');
 
 		} else {
-			$this->flashMessage('Security token not match.', 'error');
+			$this->flashMessage('Security token does not match.', 'error');
 			$this->redirect('this');
 		}
 	}
