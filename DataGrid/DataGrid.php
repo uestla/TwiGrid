@@ -459,7 +459,7 @@ class DataGrid extends UI\Control
 	function onFilterButtonClick(SubmitButton $button)
 	{
 		$criteria = $button->form['filters']['criteria'];
-		$criteria->valid && $this->setFilters( $this->filterEmpty( $criteria->getValues(TRUE) ) );
+		$criteria->valid && $this->setFilters( static::filterEmpty( $criteria->getValues(TRUE) ) );
 	}
 
 
@@ -468,12 +468,12 @@ class DataGrid extends UI\Control
 	 * @param  array
 	 * @return array
 	 */
-	protected function filterEmpty(array $a)
+	protected static function filterEmpty(array $a)
 	{
 		$ret = array();
 		foreach ($a as $k => $v) {
 			if (is_array($v)) { // recursive
-				if (count( $tmp = $this->filterEmpty($v) )) {
+				if (count( $tmp = static::filterEmpty($v) )) {
 					$ret[$k] = $tmp;
 				}
 
@@ -523,7 +523,7 @@ class DataGrid extends UI\Control
 	protected function setFilters(array $filters, $refresh = TRUE)
 	{
 		( $diff = $this->filters !== $filters ) && ( ( $this->filters = $filters ) || TRUE ) && ( $this->page = 1 );
-		$refresh && $this->refreshState() && ( $diff ? $this->invalidate() : $this->invalidate(FALSE, 'body', 'footer') );
+		$refresh && $this->refreshState() && $diff && $this->invalidate();
 		return $this;
 	}
 
