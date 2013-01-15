@@ -298,6 +298,10 @@ class DataGrid extends UI\Control
 	function addRowAction($name, $label, $callback, $confirmation = NULL)
 	{
 		$this->rowActions === NULL && ( $this->rowActions = array() );
+		if (isset($this->rowActions[$name])) {
+			throw new Nette\InvalidArgumentException("Row action '$name' already set.");
+		}
+
 		$this->rowActions[$name] = array(
 			'label' => $this->translate( (string) $label ),
 			'callback' => Nette\Callback::create($callback),
@@ -339,6 +343,10 @@ class DataGrid extends UI\Control
 	function addGroupAction($name, $label, $callback, $confirmation = NULL)
 	{
 		$this->groupActions === NULL && ( $this->groupActions = array() );
+		if (isset($this->groupActions[$name])) {
+			throw new Nette\InvalidArgumentException("Group action '$name' already set.");
+		}
+
 		$this->groupActions[$name] = array(
 			'label' => $this->translate( (string) $label ),
 			'callback' => Nette\Callback::create( $callback ),
