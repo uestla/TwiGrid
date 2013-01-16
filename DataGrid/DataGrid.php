@@ -672,9 +672,9 @@ class DataGrid extends Nette\Application\UI\Control
 	function render()
 	{
 		$template = $this->createTemplate();
-		$template->defaultTemplate = __DIR__ . '/blocks.latte';
-		$template->templateFile = $this->templateFile === NULL ? $template->defaultTemplate : $this->templateFile;
-		$template->setFile( __DIR__ . '/DataGrid.latte' );
+		$template->defaultTemplate = __DIR__ . '/DataGrid.latte';
+		$this->templateFile === NULL && ( $this->templateFile = $template->defaultTemplatePath );
+		$template->setFile( $this->templateFile );
 
 		$template->registerHelper('translate', $this->translate);
 		$template->registerHelper('primaryToString', $this->record->primaryToString);
