@@ -504,10 +504,6 @@ class DataGrid extends Nette\Application\UI\Control
 	 */
 	function setInlineEditing($containerCb, $processCb)
 	{
-		if ($this->ieContainerFactory !== NULL) {
-			throw new Nette\InvalidStateException("Inline editing already set.");
-		}
-
 		$this->ieContainerFactory = Nette\Callback::create( $containerCb );
 		$this->ieProcessCallback = Nette\Callback::create( $processCb );
 	}
