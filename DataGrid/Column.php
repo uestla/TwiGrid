@@ -35,8 +35,6 @@ class Column extends Nette\ComponentModel\Component
 	function __construct($label)
 	{
 		parent::__construct();
-
-		$this->monitor('TwiGrid\\DataGrid');
 		$this->label = (string) $label;
 	}
 

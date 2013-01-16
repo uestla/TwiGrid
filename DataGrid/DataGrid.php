@@ -13,14 +13,11 @@
 namespace TwiGrid;
 
 use Nette;
-use Nette\Application\UI;
-use Nette\Forms\ISubmitterControl;
-use Nette\Localization\ITranslator;
 use Nette\Templating\IFileTemplate;
-use Nette\Forms\Controls\SubmitButton;
+use Nette\Localization\ITranslator;
 
 
-class DataGrid extends UI\Control
+class DataGrid extends Nette\Application\UI\Control
 {
 	/** @persistent bool */
 	public $poluted = FALSE;
@@ -40,16 +37,6 @@ class DataGrid extends UI\Control
 
 
 
-	// === timeline ===========
-
-	/** @persistent int */
-	public $page = 1;
-
-	/** @var bool */
-	protected $timeline = FALSE;
-
-
-
 	// === filtering ===========
 
 	/** @persistent array */
@@ -66,13 +53,13 @@ class DataGrid extends UI\Control
 	// === inline editing ===========
 
 	/** @persistent string|NULL */
-	public $inlineEditPrimary = NULL;
+	public $iePrimary = NULL;
 
 	/** @var Nette\Callback */
-	protected $inlineEditContainerFactory = NULL;
+	protected $ieContainerFactory = NULL;
 
 	/** @var Nette\Callback */
-	protected $inlineEditProcessCallback = NULL;
+	protected $ieProcessCallback = NULL;
 
 
 
@@ -86,9 +73,6 @@ class DataGrid extends UI\Control
 
 	/** @var array|\Traversable */
 	protected $data = NULL;
-
-	/** @var int|NULL */
-	protected $countAll = NULL;
 
 
 
@@ -112,9 +96,6 @@ class DataGrid extends UI\Control
 
 	/** @var ITranslator */
 	protected $translator = NULL;
-
-	/** @var Nette\Callback */
-	protected $translationCb = NULL;
 
 
 
@@ -166,7 +147,6 @@ class DataGrid extends UI\Control
 	{
 		parent::loadState($params);
 
-		isset( $params['page'] ) && $this->setPage( $params['page'] );
 		!$this->poluted && !$this->isInDefaultState() && ( $this->poluted = TRUE );
 
 		if (!$this->poluted) {
@@ -174,7 +154,7 @@ class DataGrid extends UI\Control
 			$this->defaultFilters !== NULL && $this->setFilters( $this->defaultFilters, FALSE );
 		}
 
-		$this->orderBy !== NULL && $this[ $this->orderBy ]->setOrderedBy( TRUE, $this->orderDesc );
+		$this->orderBy !== NULL && $this['columns']->getComponent( $this->orderBy )->setOrderedBy( TRUE, $this->orderDesc );
 		$this->validateState();
 	}
 
@@ -196,7 +176,7 @@ class DataGrid extends UI\Control
 			throw new Nette\InvalidStateException("Primary key not set.");
 		}
 
-		if ($this->inlineEditPrimary !== NULL && $this->inlineEditContainerFactory === NULL) {
+		if ($this->iePrimary !== NULL && $this->ieContainerFactory === NULL) {
 			throw new Nette\InvalidStateException("Inline editing not properly set.");
 		}
 	}
@@ -223,7 +203,7 @@ class DataGrid extends UI\Control
 	 */
 	protected function refreshState($cancelInlineEditing = TRUE)
 	{
-		$cancelInlineEditing && ( $this->inlineEditPrimary = NULL );
+		$cancelInlineEditing && ( $this->iePrimary = NULL );
 		!$this->presenter->isAjax() && $this->redirect('this');
 		return TRUE;
 	}
@@ -239,7 +219,6 @@ class DataGrid extends UI\Control
 	function setTranslator(ITranslator $translator)
 	{
 		$this->translator = $translator;
-		$this->translationCb = Nette\Callback::create( $translator, 'translate' );
 		return $this;
 	}
 
@@ -247,11 +226,12 @@ class DataGrid extends UI\Control
 
 	/**
 	 * @param  string
+	 * @param  int|NULL
 	 * @return string
 	 */
-	function translate($s)
+	function translate($s, $count = NULL)
 	{
-		return $this->translator === NULL ? $s : $this->translationCb->invokeArgs( func_get_args() );
+		return $this->translator === NULL ? $s : $this->translator->translate($s, $count);
 	}
 
 
@@ -265,15 +245,17 @@ class DataGrid extends UI\Control
 	 */
 	function addColumn($name, $label = NULL)
 	{
-		return $this[$name] = new Column( $this->translate( $label === NULL ? $name : $label ) );
+		!isset($this['columns']) && ( $this['columns'] = new Nette\ComponentModel\Container );
+		$this['columns']->addComponent( $c = new Column( $this->translate( $label === NULL ? $name : $label ) ), $name );
+		return $c;
 	}
 
 
 
-	/** @return array */
+	/** @return \ArrayIterator|NULL */
 	function getColumns()
 	{
-		return iterator_to_array( $this->getComponents(FALSE, 'TwiGrid\\Column') );
+		return isset($this['columns']) ? $this['columns']->components : NULL;
 	}
 
 
@@ -281,8 +263,8 @@ class DataGrid extends UI\Control
 	/** @return array */
 	function getColumnNames()
 	{
-		$names = array_keys( $this->getColumns() );
-		return reset( $names ) !== FALSE ? array_combine( $names, $names ) : array();
+		$names = array_keys( iterator_to_array($this->getColumns()) );
+		return array_combine($names, $names);
 	}
 
 
@@ -319,11 +301,11 @@ class DataGrid extends UI\Control
 	 */
 	function handleRowAction($action, $primary, $token)
 	{
-		if (isset($this->session->token) && $token === $this->session->csrfToken) {
+		if (isset($this->session->csrfToken) && $token === $this->session->csrfToken) {
 			unset($this->session->csrfToken);
-			$this->rowActions[$action]['callback']->invokeArgs( array( $this->record->stringToPrimary( $primary ) ) );
+			$this->rowActions[$action]['callback']( $this->record->stringToPrimary( $primary ) );
 			$this->refreshState();
-			$this->invalidate('body', 'footer');
+			$this->invalidate(TRUE, TRUE, 'body', 'footer');
 
 		} else {
 			$this->flashMessage('Security token does not match.', 'error');
@@ -357,78 +339,13 @@ class DataGrid extends UI\Control
 
 
 
-	/**
-	 * @param  SubmitButton
-	 * @return void
-	 */
-	function onGroupActionButtonClick(SubmitButton $button)
-	{
-		$checkboxes = $button->form['actions']['records'];
-		if (!$checkboxes->valid) {
-			return ;
-		}
-
-		$primaries = array();
-		foreach ($checkboxes->components as $checkbox) {
-			if ($checkbox->value) { // checked
-				$primaries[] = $this->record->stringToPrimary( $checkbox->primary );
-			}
-		}
-
-		$this->groupActions[ $button->name ]['callback']->invokeArgs( array( $primaries ) );
-		$this->refreshState();
-		$this->invalidate('body', 'footer');
-	}
-
-
-
-	// === TIMELINE BEHAVIOR ======================================================
-
-	/**
-	 * @param  bool
-	 * @return DataGrid
-	 */
-	function setTimeline($bool = TRUE)
-	{
-		$this->timeline = (bool) $bool;
-		return $this;
-	}
-
-
-
-	/**
-	 * @param  int
-	 * @return void
-	 */
-	function handleChangePage($no)
-	{
-		$tmp = $this->page;
-		$this->setPage($no);
-		$this->refreshState();
-		$this->page !== $tmp && $this->invalidate();
-	}
-
-
-
-	/**
-	 * @param  int
-	 * @return DataGrid
-	 */
-	protected function setPage($page)
-	{
-		$this->page = $this->timeline ? max(1, (int) $page) : 1;
-		return $this;
-	}
-
-
-
 	// === SORTING ======================================================
 
 	/** @return void */
 	function handleSort()
 	{
 		$this->refreshState();
-		$this->invalidate();
+		$this->invalidate(TRUE, TRUE);
 	}
 
 
@@ -461,53 +378,6 @@ class DataGrid extends UI\Control
 
 
 	/**
-	 * @param  SubmitButton
-	 * @return void
-	 */
-	function onFilterButtonClick(SubmitButton $button)
-	{
-		$criteria = $button->form['filters']['criteria'];
-		$criteria->valid && $this->setFilters( static::filterEmpty( $criteria->getValues(TRUE) ) );
-	}
-
-
-
-	/**
-	 * @param  array
-	 * @return array
-	 */
-	protected static function filterEmpty(array $a)
-	{
-		$ret = array();
-		foreach ($a as $k => $v) {
-			if (is_array($v)) { // recursive
-				if (count( $tmp = static::filterEmpty($v) )) {
-					$ret[$k] = $tmp;
-				}
-
-			} elseif (strlen($v)) {
-				$ret[$k] = $v;
-			}
-		}
-
-		return $ret;
-	}
-
-
-
-	/**
-	 * @param  SubmitButton
-	 * @return void
-	 */
-	function onResetFiltersButtonClick(SubmitButton $button)
-	{
-		$this->poluted = TRUE;
-		$this->setFilters( array() );
-	}
-
-
-
-	/**
 	 * @param  array
 	 * @return DataGrid
 	 */
@@ -530,8 +400,8 @@ class DataGrid extends UI\Control
 	 */
 	protected function setFilters(array $filters, $refresh = TRUE)
 	{
-		( $diff = $this->filters !== $filters ) && ( ( $this->filters = $filters ) || TRUE ) && ( $this->page = 1 );
-		$refresh && $this->refreshState() && $diff && $this->invalidate();
+		( $diff = $this->filters !== $filters ) && ( $this->filters = $filters );
+		$refresh && $this->refreshState() && $diff && $this->invalidate(TRUE, TRUE);
 		return $this;
 	}
 
@@ -563,46 +433,28 @@ class DataGrid extends UI\Control
 
 
 
-	/**
-	 * @param  int
-	 * @return DataGrid
-	 */
-	function setCountAll($count)
-	{
-		$this->countAll = max(0, (int) $count);
-		return $this;
-	}
-
-
-
 	/** @return array|\Traversable */
-	protected function getData()
+	function getData()
 	{
-		$this->data === NULL && $this->loadData();
-		return $this->data;
-	}
+		if ($this->data === NULL) {
+			$order = array();
+			if ($this->orderBy !== NULL) {
+				$order[ $this->orderBy ] = $this->orderDesc;
 
-
-
-	/** @return void */
-	protected function loadData()
-	{
-		$orderBy = array();
-		if ($this->orderBy !== NULL) {
-			$orderBy[ $this->orderBy ] = $this->orderDesc;
-
-			foreach ($this->record->primaryKey as $column) {
-				$orderBy[ $column ] = $this->orderDesc;
+				foreach ($this->record->primaryKey as $column) {
+					$order[ $column ] = $this->orderDesc;
+				}
 			}
+
+			$this->data = $this->dataLoader->invokeArgs( array(
+				$this,
+				array_merge( array_combine( $this->record->primaryKey, $this->record->primaryKey ), $this->getColumnNames() ),
+				$order,
+				$this->filters,
+			) );
 		}
 
-		$this->data = $this->dataLoader->invokeArgs( array(
-			$this,
-			array_merge( array_combine( $this->record->primaryKey, $this->record->primaryKey ), $this->getColumnNames() ),
-			$orderBy,
-			$this->filters,
-			$this->page,
-		) );
+		return $this->data;
 	}
 
 
@@ -621,26 +473,19 @@ class DataGrid extends UI\Control
 
 	/**
 	 * API:
-	 * $c->invalidate() - data reload + whole grid snippet
-	 * $c->invalidate(FALSE) - whole grid snippet
-	 * $c->invalidate('snippet1', 'snippet2', ...) - inv. given snippets
-	 * $c->invalidate(TRUE, 'snippet1', 'snippet2', ...) - data reload + given snippets
+	 * $c->invalidate( [bool $data, [bool $form, ]] string $snippet1, string $snippet2 )
 	 *
 	 * @param  bool|string|NULL
 	 * @return void
 	 */
-	protected function invalidate($reloadData = TRUE)
+	protected function invalidate($reloadData = TRUE, $reloadForm = FALSE)
 	{
 		$snippets = func_get_args();
-		if (!is_bool($reloadData)) {
-			$reloadData = TRUE;
+		!is_bool($reloadData) ? ($reloadData = TRUE) : array_shift($snippets);
+		!is_bool($reloadForm) ? ($reloadForm = FALSE) : array_shift($snippets);
 
-		} else {
-			array_shift($snippets);
-		}
-
-		unset($this['form']);
-		$reloadData && ( $this->data = NULL );
+		$reloadData && ($this->data = NULL);
+		if ($reloadForm) { unset($this['form']); }
 
 		reset($snippets) === FALSE && ( $snippets[] = NULL );
 		foreach ($snippets as $snippet) {
@@ -659,23 +504,12 @@ class DataGrid extends UI\Control
 	 */
 	function setInlineEditing($containerCb, $processCb)
 	{
-		if ($this->inlineEditContainerFactory !== NULL) {
+		if ($this->ieContainerFactory !== NULL) {
 			throw new Nette\InvalidStateException("Inline editing already set.");
 		}
 
-		$this->inlineEditContainerFactory = Nette\Callback::create( $containerCb );
-		$this->inlineEditProcessCallback = Nette\Callback::create( $processCb );
-	}
-
-
-
-	/**
-	 * @param  Forms\PrimarySubmitButton
-	 * @return void
-	 */
-	function onActivateInlineEditButtonClick(Forms\PrimarySubmitButton $button)
-	{
-		$this->activateInlineEditing( $button->primary );
+		$this->ieContainerFactory = Nette\Callback::create( $containerCb );
+		$this->ieProcessCallback = Nette\Callback::create( $processCb );
 	}
 
 
@@ -684,11 +518,11 @@ class DataGrid extends UI\Control
 	 * @param  string
 	 * @return void
 	 */
-	function activateInlineEditing($primary)
+	protected function activateInlineEditing($primary)
 	{
-		$this->inlineEditPrimary = $primary;
+		$this->iePrimary = $primary;
 		$this->refreshState(FALSE);
-		$this->invalidate( FALSE, 'body' );
+		$this->invalidate( FALSE, TRUE, 'body' );
 	}
 
 
@@ -697,121 +531,86 @@ class DataGrid extends UI\Control
 	 * @param  bool
 	 * @return void
 	 */
-	function deactivateInlineEditing($dataAsWell = TRUE)
+	protected function deactivateInlineEditing($dataAsWell = TRUE)
 	{
 		$this->refreshState();
-		$this->invalidate( $dataAsWell, 'body' );
-	}
-
-
-
-	/**
-	 * @param  SubmitButton
-	 * @return void
-	 */
-	function onEditInlineButtonClick(SubmitButton $button)
-	{
-		$this->inlineEditProcessCallback->invokeArgs( array( $this->record->stringToPrimary( $this->inlineEditPrimary ),
-			$button->form['inline']['values']->getValues(TRUE) ) );
-		$this->deactivateInlineEditing();
-	}
-
-
-
-	/**
-	 * @param  SubmitButton
-	 * @return void
-	 */
-	function onCancelInlineButtonClick(SubmitButton $button)
-	{
-		$this->deactivateInlineEditing( FALSE );
+		$this->invalidate( $dataAsWell, TRUE, 'body' );
 	}
 
 
 
 	// === FORM BUILDING ======================================================
 
-	/** @return UI\Form */
-	protected function createComponentForm($name)
+	/** @return Forms\Form */
+	protected function createComponentForm()
 	{
-		$form = new UI\Form;
+		$form = new Forms\Form;
 		$this->translator !== NULL && $form->setTranslator( $this->translator );
+		$this->filterFactory !== NULL && $form->setFilterFactory( $this->filterFactory ) && $form->addFilterButtons( reset($this->filters) !== FALSE );
+		$this->groupActions !== NULL && $form->addGroupActionButtons( $this->groupActions );
+		$this->ieContainerFactory !== NULL && $form->addInlineEditControls( $this->getData, $this->record->primaryToString, $this->ieContainerFactory, $this->iePrimary );
+
 		$form->addProtection();
-
-		$this->addComponent( $form, $name );
-
-		// filtering
-		if ($this->filterFactory !== NULL) {
-			$filters = $form->addContainer('filters');
-			$filters['criteria'] = $this->filterFactory->invoke();
-
-			$buttons = $filters->addContainer('buttons');
-			$buttons->addSubmit('filter', 'Filter')->setValidationScope(FALSE)->onClick[] = $this->onFilterButtonClick;
-
-			reset($this->filters) !== FALSE
-					&& $filters['criteria']->setDefaults( $this->filters )
-					&& ( $buttons->addSubmit('reset', 'Cancel')->setValidationScope(FALSE)->onClick[] = $this->onResetFiltersButtonClick );
-		}
-
-		if ( ( $sBy = $form->submitted ) instanceof ISubmitterControl && $sBy->parent->lookupPath('Nette\\Forms\\Form') === 'filters-buttons' ) {
-			return $form; // no need to continue
-		}
-
-		// group actions
-		if ($this->groupActions !== NULL) {
-			$actions = $form->addContainer('actions');
-
-			// records checkboxes
-			$records = $actions->addContainer('records');
-			$i = 0;
-			foreach ($this->getData() as $record) {
-				$records->addComponent( $checkbox = new Forms\PrimaryCheckbox(), $i );
-				$checkbox->setPrimary( $this->record->primaryToString($record) );
-				$i++ === 0 && $checkbox->addRule( __CLASS__ . '::validateCheckedCount', 'Choose at least one record!' );
-			}
-
-			// action buttons
-			$buttons = $actions->addContainer('buttons');
-			foreach ($this->groupActions as $name => $action) {
-				$buttons->addSubmit($name, $action['label'])->setValidationScope(FALSE)->onClick[] = $this->onGroupActionButtonClick;
-			}
-		}
-
-		// inline editing
-		if ($this->inlineEditContainerFactory !== NULL) {
-			$inline = $form->addContainer('inline');
-			$buttons = $inline->addContainer('buttons');
-
-			$i = 0;
-			foreach ($this->getData() as $record) {
-				$primaryString = $this->record->primaryToString($record);
-				if ($this->inlineEditPrimary === $primaryString) {
-					$inline['values'] = $this->inlineEditContainerFactory->invokeArgs( array($record) );
-					$buttons->addSubmit('edit', 'Edit')->onClick[] = $this->onEditInlineButtonClick;
-					$buttons->addSubmit('cancel', 'Cancel')->setValidationScope(FALSE)->onClick[] = $this->onCancelInlineButtonClick;
-
-				} else {
-					$buttons->addComponent( $ab = new Forms\PrimarySubmitButton('Edit inline'), $i );
-					$ab->setPrimary( $primaryString )->setValidationScope(FALSE)->onClick[] = $this->onActivateInlineEditButtonClick;
-				}
-
-				$i++;
-			}
-		}
-
+		$form->onSuccess[] = $this->processForm;
+		$form->onSubmit[] = $this->formSubmitted;
 		return $form;
 	}
 
 
 
 	/**
-	 * @param  Nette\Forms\Controls\Checkbox
-	 * @return bool
+	 * @param  Forms\Form
+	 * @return void
 	 */
-	static function validateCheckedCount(Forms\PrimaryCheckbox $checkbox)
+	function formSubmitted(Forms\Form $form)
 	{
-		return $checkbox->form->submitted->parent->lookupPath('Nette\\Forms\\Form') !== 'actions-buttons'
-				|| in_array(TRUE, $checkbox->parent->getValues(TRUE), TRUE);
+		$this->invalidate(FALSE, 'form-errors');
+	}
+
+
+
+	/**
+	 * @param  Forms\Form
+	 * @return void
+	 */
+	function processForm(Forms\Form $form)
+	{
+		$button = $form->submitted;
+		$name = $button->name;
+		$path = $button->parent->lookupPath('TwiGrid\\Forms\\Form');
+
+		if ("$path-$name" === 'filters-buttons-filter') {
+			($criteria = $form->getFilterCriteria()) !== NULL && $this->setFilters($criteria);
+
+		} elseif ("$path-$name" === 'filters-buttons-reset') {
+			$this->poluted = TRUE;
+			$this->setFilters( array() );
+
+		} elseif ($path === 'actions-buttons') {
+			if (($checked = $form->getCheckedRecords( $this->record->primaryToString, $this->record->stringToPrimary )) !== NULL) {
+				$primaries = array();
+				foreach ($checked as $primaryString) {
+					$primaries[] = $this->record->stringToPrimary( $primaryString );
+				}
+
+				$this->groupActions[ $name ]['callback']( $primaries );
+				$this->refreshState();
+				$this->invalidate(TRUE, TRUE, 'body', 'footer');
+			}
+
+		} elseif ($path === 'inline-buttons') {
+			if ($name === 'edit') {
+				$this->ieProcessCallback->invokeArgs( array( $this->record->stringToPrimary( $this->iePrimary ),
+					$form['inline']['values']->getValues(TRUE) ) );
+				$this->deactivateInlineEditing();
+
+			} elseif ($name === 'cancel') {
+				$this->deactivateInlineEditing( FALSE );
+
+			} else {
+				$this->activateInlineEditing( $button->primary );
+			}
+		}
 	}
 
 
@@ -838,42 +637,47 @@ class DataGrid extends UI\Control
 
 
 
+	/** @return bool */
+	protected function passForm()
+	{
+		return !$this->presenter->isAjax()
+			|| $this->isControlInvalid('form-errors')
+			|| $this->isControlInvalid('header')
+			|| $this->isControlInvalid('body')
+			|| $this->isControlInvalid('footer');
+	}
+
+
+
 	/** @return void */
 	function render()
 	{
-		$form = $this['form'];
-		$this->isControlInvalid() && $this->invalidate(FALSE, 'flashes');
-		$this->presenter->payload->twiGrids['forms'][ $form->elementPrototype->id ] = (string) $form->getAction();
-
 		$template = $this->createTemplate();
-		$template->registerHelper('translate', $this->translate);
-		$template->registerHelper('primaryToString', $this->record->primaryToString);
-		$template->registerHelper('getValue', $this->record->getValue);
-
 		$template->defaultTemplate = __DIR__ . '/DataGrid.latte';
 		$this->templateFile === NULL && ( $this->templateFile = $template->defaultTemplatePath );
 		$template->setFile( $this->templateFile );
 
-		$template->form = $template->_form = $form;
+		$template->registerHelper('translate', $this->translate);
+		$template->registerHelper('primaryToString', $this->record->primaryToString);
+		$template->registerHelper('getValue', $this->record->getValue);
+
+		$this->isControlInvalid() && $this->invalidate(FALSE, 'flashes');
+		$this->passForm() && ($template->form = $template->_form = $form = $this['form'])
+				&& $this->presenter->payload->twiGrids['forms'][ $form->elementPrototype->id ] = (string) $form->getAction();
 		$template->columns = $this->getColumns();
 		$template->filterButtons = $this->getFilterButtons();
-		$template->isFiltered = reset($this->filters) !== FALSE;
-		$template->dataCount = count( $template->data = $this->getData() );
-		$template->countAll = $this->countAll;
+		$template->data = $this->getData;
 		$template->rowActions = $this->rowActions;
 		$template->csrfToken = $this->rowActions !== NULL
 				? ( isset($this->session->csrfToken) ? $this->session->csrfToken : ( $this->session->csrfToken = Nette\Utils\Strings::random(16) ) )
-				: ( $this->session->__unset('csrfToken') || NULL );
+				: ( $this->session->__unset('csrfToken') ? NULL : NULL );
 		$template->groupActions = $this->groupActions;
-		$template->timeline = $this->timeline;
-		$template->page = $this->page;
-		$template->renderFirstColumn = $template->dataCount && $this->groupActions !== NULL;
-		$template->renderFilterRow = $template->filterButtons !== NULL && ( $template->isFiltered || $template->dataCount );
-		$template->renderLastColumn = $template->renderFilterRow || $this->rowActions !== NULL;
-		$template->renderFooter = $template->dataCount && ( $this->groupActions !== NULL || $this->timeline ) && ( $this->groupActions !== NULL || $this->countAll === NULL || $template->dataCount < $this->countAll || $this->page !== 1 ); // see http://www.wolframalpha.com/input/?i=%21%28+%28+%28%21a+%26%26+%21b%29+%7C%7C+%21c+%29+%7C%7C+%28%21a+%26%26+b+%26%26+d+%26%26+e+%26%26+f%29+%29
-		$template->columnCount = count($template->columns) + ( $template->renderFirstColumn ? 1 : 0 ) + ( $template->renderLastColumn ? 1 : 0 );
-		$template->isActiveInlineEdit = $this->inlineEditContainerFactory !== NULL;
-		$template->inlineEditPrimary = $this->inlineEditPrimary;
+		$template->hasRowActions = $this->rowActions !== NULL;
+		$template->hasGroupActions = $this->groupActions !== NULL;
+		$template->hasFilters = $template->filterButtons !== NULL;
+		$template->hasInlineEdit = $this->ieContainerFactory !== NULL;
+		$template->iePrimary = $this->iePrimary;
+		$template->columnCount = count($template->columns) + ( $template->hasGroupActions ? 1 : 0 ) + ( $template->hasFilters || $template->hasRowActions ? 1 : 0 );
 		$template->render();
 	}
 }

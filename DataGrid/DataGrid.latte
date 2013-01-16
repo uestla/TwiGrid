@@ -4,24 +4,18 @@
  * @param  array  $flashes
  * @param  string  $defaultTemplate
  * @param  Nette\Application\UI\Form  $form
- * @param  array  $columns
- * @param  int  $columnCount number of table columns
- * @param  \ArrayIterator  $filterButtons
- * @param  bool  $isFiltered
- * @param  array|\Traversable  $data
- * @param  int  $dataCount
- * @param  int|NULL  $countAll
+ * @param  ArrayIterator  $columns
+ * @param  ArrayIterator  $filterButtons
+ * @param  Nette\Callback  $data
  * @param  array  $rowActions
  * @param  string  $csrfToken
  * @param  array  $groupActions
- * @param  bool  $timeline
- * @param  int  $page
- * @param  bool  $renderFirstColumn
- * @param  bool  $renderFilterRow
- * @param  bool  $renderLastColumn
- * @param  bool  $renderFooter
- * @param  bool  $isActiveInlineEdit
- * @param  string|NULL  $inlineEditPrimary
+ * @param  bool  $hasRowActions
+ * @param  bool  $hasGroupActions
+ * @param  bool  $hasFilters
+ * @param  bool  $hasInlineEdit
+ * @param  string|NULL  $iePrimary
+ * @param  int  $columnCount number of table columns
  *}
 
 
@@ -42,10 +36,11 @@
 {define datagrid}
 
 	{? }{form $form, class => tw-ajax}
-	{if $errors = $form->errors}
-
-		<div class="alert alert-error hidable" n:foreach="$errors as $error">{$error}</div>
-	{/if}
+		<div n:snippet="form-errors">
+		{if $errors = $form->errors}
+			<div class="alert alert-error hidable" n:foreach="$errors as $error">{$error}</div>
+		{/if}
+		</div>
 
 {include #container|indent:1}
 
@@ -80,7 +75,7 @@
 	<thead n:snippet="header">
 
 		<tr>
-			<th rowspan="2" class="center" n:if="$renderFirstColumn">&nbsp;</th>
+			<th rowspan="2" class="center" n:if="$hasGroupActions">&nbsp;</th>
 
 		{foreach $columns as $name => $column}
 {ifset #header-cell-$name}
@@ -90,10 +85,11 @@
 {/ifset}
 		{/foreach}
 
-			<th n:if="$renderLastColumn">&nbsp;</th>
+			<th n:if="$hasFilters || $hasRowActions">&nbsp;</th>
 		</tr>
 
-		<tr n:if="$renderFilterRow">
+		<tr n:if="$hasFilters">
+{? $form->addFilterCriteria()}
 		{foreach $columns as $name => $column}
 {ifset #filter-cell-$name}
 {include #"filter-cell-$name", column => $name |indent:2}
@@ -187,13 +183,14 @@
 
 	<tbody n:snippet="body">
 
-	{if $dataCount}
-	{foreach $data as $record}
+	{if}{? $hasGroupActions && $form->addGroupActionCheckboxes( callback($template, primaryToString) )}
+
+	{foreach $data() as $record}
 		{var $primaryString = $template->primaryToString( $record ),
-			$isInlineEdited = $inlineEditPrimary === $primaryString}
+			$isInlineEdited = $iePrimary === $primaryString}
 		<tr n:class="$isInlineEdited ? success">
 
-			<td class="center" n:if="$renderFirstColumn">
+			<td class="center" n:if="$hasGroupActions">
 				{var $inputKey = $iterator->counter - 1}
 				{? }{input actions-records-$inputKey}
 			</td>
@@ -202,8 +199,8 @@
 {include #body-cell, record => $record, isInlineEdited => $isInlineEdited, column => $name, value => $template->getValue($record, $name, FALSE) |indent:2}
 		{/foreach}
 
-			<td n:if="$renderLastColumn" class="center">
-			{if $rowActions !== NULL || $isActiveInlineEdit}
+			<td n:if="$hasFilters || $hasRowActions" class="center">
+			{if $rowActions !== NULL || $hasInlineEdit}
 {include #row-actions, i => $iterator->counter - 1, record => $record, isInlineEdited => $isInlineEdited, primaryString => $primaryString |indent:3}
 
 			{else}
@@ -214,11 +211,13 @@
 		</tr>
 	{/foreach}
 
+	{var $template->hasData = (bool) $iterations}
+
 	{else}
 		<tr class="warning">
 			<td colspan="{$columnCount}">{_'No data.'}</td>
 		</tr>
-	{/if}
+	{/if $iterations}
 
 	</tbody>
 
@@ -257,10 +256,15 @@
 
 	{else}
 	{ifset $form[ $buttonName = "inline-buttons-" . ($i) ]}
-		{? }{input $buttonName, class => 'btn btn-info'}
+		{? }{input $buttonName, class => 'btn btn-info btn-small'}
 	{/ifset}
 	{foreach (array) $rowActions as $name => $action}
-{include #row-action, name => $name, action => $action, record => $record, link => $control->link('rowAction!', [ action => $name, primary => $primaryString, token => $csrfToken ]) |indent:1}
+{var $params = [ name => $name, action => $action, record => $record, link => $control->link('rowAction!', [ action => $name, primary => $primaryString, token => $csrfToken ]) ]}
+{ifset #row-action-$name}
+{include #"row-action-$name", (expand) $params |indent:1}
+{else}
+{include #row-action, (expand) $params |indent:1}
+{/ifset}
 	{/foreach}
 	{/if}
 	</div>
@@ -271,8 +275,8 @@
 {* === ... ============================================ *}
 
 {define inline-buttons}
-	{? }{input inline-buttons-edit, class => 'btn btn-success'}
-	{? }{input inline-buttons-cancel, class => 'btn btn-danger'}
+	{? }{input inline-buttons-edit, class => 'btn btn-success btn-small'}
+	{? }{input inline-buttons-cancel, class => 'btn btn-danger btn-small'}
 {/define}
 
 
@@ -280,13 +284,9 @@
 {* === ... ============================================ *}
 
 {define row-action}
-{ifset #row-action-$name}
-{include #"row-action-$name", link => $link, label => $action[label], confirmation => $action[confirmation]}
-{else}
-	<a href="{$link}" n:class="btn, btn-info, tw-ajax" n:attr="data-confirm => $action[confirmation]">
+	<a href="{$link}" n:class="btn, btn-info, btn-small, tw-ajax" n:attr="data-confirm => $action[confirmation]">
 		{$action[label]}
 	</a>
-{/ifset}
 {/define}
 
 
@@ -297,14 +297,10 @@
 
 	<tfoot n:snippet="footer">
 
-		<tr n:if="$renderFooter">
+		<tr n:if="$template->hasData && $hasGroupActions">
 			<td colspan="{$columnCount}" class="center">
 				{if $groupActions !== NULL}
 {include #group-action-buttons |indent:3}
-				{/if}
-
-				{if $timeline}
-{include #timeline-buttons |indent:3}
 				{/if}
 			</td>
 		</tr>
@@ -347,26 +343,4 @@
 
 {define group-action-button}
 	{? }{input actions-buttons-$name, class => btn, data-confirm => $action[confirmation]}
-{/define}
-
-
-
-{* === ... ============================================ *}
-
-{define timeline-buttons}
-
-	<div class="pull-right">
-		<div class="btn-group">
-
-			<a n:href="changePage!, no => $page + 1" n:class="btn, tw-ajax" title="{_'Load next records'}" n:if="$page > 0 && ( $countAll === NULL || $dataCount < $countAll )">
-				<i class="icon-chevron-down"></i>
-			</a>
-
-			<a n:href="changePage!, no => 1" title="{_'Reset timeline'}" n:class="btn, tw-ajax" n:if="$page !== 1">
-				<i class="icon-remove"></i>
-			</a>
-
-		</div>
-	</div>
-
 {/define}
