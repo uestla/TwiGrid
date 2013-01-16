@@ -186,7 +186,7 @@
 
 	<tbody n:snippet="body">
 
-	{if}{? $hasGroupActions && $form->addGroupActionCheckboxes( callback($template, primaryToString) )}
+	{if}{? $control->addGroupActionCheckboxes(); $control->addInlineEditControls() }
 
 	{foreach $data() as $record}
 		{var $primaryString = $template->primaryToString( $record ),

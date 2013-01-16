@@ -544,12 +544,29 @@ class DataGrid extends Nette\Application\UI\Control
 		$this->translator !== NULL && $form->setTranslator( $this->translator );
 		$this->filterFactory !== NULL && $form->setFilterFactory( $this->filterFactory ) && $form->addFilterButtons( reset($this->filters) !== FALSE );
 		$this->groupActions !== NULL && $form->addGroupActionButtons( $this->groupActions );
-		$this->ieContainerFactory !== NULL && $form->addInlineEditControls( $this->getData, $this->record->primaryToString, $this->ieContainerFactory, $this->iePrimary );
 
 		$form->addProtection();
 		$form->onSuccess[] = $this->processForm;
 		$form->onSubmit[] = $this->formSubmitted;
 		return $form;
+	}
+
+
+
+	/** @return void */
+	function addGroupActionCheckboxes()
+	{
+		$this->groupActions !== NULL
+				&& $this['form']->addGroupActionCheckboxes( $this->record->primaryToString );
+	}
+
+
+
+	/** @return void */
+	function addInlineEditControls()
+	{
+		$this->ieContainerFactory !== NULL
+				&& $this['form']->addInlineEditControls( $this->getData, $this->record->primaryToString, $this->ieContainerFactory, $this->iePrimary );
 	}
 
 
@@ -572,6 +589,12 @@ class DataGrid extends Nette\Application\UI\Control
 	function processForm(Forms\Form $form)
 	{
 		$button = $form->submitted;
+
+		if ($button === TRUE) { // submitted by inline edit button that is not attached yet
+			$this->addInlineEditControls();
+			$button = $form->submitted; // refresh the submit button
+		}
+
 		$name = $button->name;
 		$path = $button->parent->lookupPath('TwiGrid\\Forms\\Form');
 
