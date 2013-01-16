@@ -78,10 +78,11 @@
 			<th rowspan="2" class="center" n:if="$hasGroupActions">&nbsp;</th>
 
 		{foreach $columns as $name => $column}
+{var $params = [ name => $name, column => $column ]}
 {ifset #header-cell-$name}
-{include #"header-cell-$name", name => $name, column => $column |indent:2}
+{include #"header-cell-$name", (expand) $params |indent:2}
 {else}
-{include #header-cell, name => $name, column => $column |indent:2}
+{include #header-cell, (expand) $params |indent:2}
 {/ifset}
 		{/foreach}
 
@@ -91,10 +92,11 @@
 		<tr n:if="$hasFilters">
 {? $form->addFilterCriteria()}
 		{foreach $columns as $name => $column}
+{var $params = [ column => $name ]}
 {ifset #filter-cell-$name}
-{include #"filter-cell-$name", column => $name |indent:2}
+{include #"filter-cell-$name", (expand) $params |indent:2}
 {else}
-{include #filter-cell, column => $name |indent:2}
+{include #filter-cell, (expand) $params |indent:2}
 {/ifset}
 		{/foreach}
 
@@ -114,16 +116,17 @@
 {define header-cell}
 
 	<th>
+{var $params = [ column => $column ]}
 	{if $column->sortable}
 		<a n:href="sort!,
 				orderBy => !$column->orderedBy || !$column->orderedDesc ? $name : NULL,
 				orderDesc => $column->orderedBy && !$column->orderedDesc"
 			n:class="tw-ajax">
-{include #header-label, column => $column |indent:2}
+{include #header-label, (expand) $params |indent:2}
 		</a>
 
 	{else}
-{include #header-label, column => $column |indent:1}
+{include #header-label, (expand) $params |indent:1}
 	{/if}
 
 		<i n:class="$column->orderedDesc ? icon-chevron-down : icon-chevron-up" n:if="$column->orderedBy"></i>
@@ -196,7 +199,22 @@
 			</td>
 
 		{foreach $columns as $name => $column}
-{include #body-cell, record => $record, isInlineEdited => $isInlineEdited, column => $name, value => $template->getValue($record, $name, FALSE) |indent:2}
+{var $params = [ record => $record, isInlineEdited => $isInlineEdited, column => $name, value => $template->getValue($record, $name, FALSE) ]}
+{if $isInlineEdited}
+{ifset #body-cell-$name-inline}
+{include #"body-cell-$name-inline", (expand) $params |indent:2}
+{elseifset $form["inline-values-$name"]}
+			<td>{input inline-values-$name}</td>
+{else}
+{include #body-cell, (expand) $params |indent:2}
+{/ifset}
+{else}
+{ifset #body-cell-$name}
+{include #"body-cell-$name", (expand) $params}
+{else}
+{include #body-cell, (expand) $params |indent:2}
+{/ifset}
+{/if}
 		{/foreach}
 
 			<td n:if="$hasFilters || $hasRowActions" class="center">
@@ -228,21 +246,7 @@
 {* === ... ============================================ *}
 
 {define body-cell}
-{if $isInlineEdited}
-{ifset #body-cell-$column-inline}
-{include #"body-cell-$column-inline", record => $record, isInlineEdited => $isInlineEdited, column => $column, value => $value}
-{elseifset $form["inline-values-$column"]}
-	<td>{input inline-values-$column}</td>
-{else}
 	<td>{$value}</td>
-{/ifset}
-{else}
-{ifset #body-cell-$column}
-{include #"body-cell-$column", record => $record, isInlineEdited => $isInlineEdited, column => $column, value => $value}
-{else}
-	<td>{$value}</td>
-{/ifset}
-{/if}
 {/define}
 
 
