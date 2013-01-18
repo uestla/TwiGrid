@@ -18,8 +18,6 @@
  * @param  int  $columnCount number of table columns
  *}
 
-{block |trim}
-
 <div class="twigrid-cnt">
 
 	<div n:snippet="flashes">
@@ -204,10 +202,8 @@
 {if $isInlineEdited}
 {ifset #body-cell-$name-inline}
 {include #"body-cell-$name-inline", (expand) $params |indent:2}
-{elseifset $form["inline-values-$name"]}
-			<td>{input inline-values-$name}</td>
 {else}
-{include #body-cell, (expand) $params |indent:2}
+{include #body-cell-inline, (expand) $params |indent:2}
 {/ifset}
 {else}
 {ifset #body-cell-$name}
@@ -240,6 +236,18 @@
 
 	</tbody>
 
+{/define}
+
+
+
+{* === ... ============================================ *}
+
+{define body-cell-inline}
+{ifset $form["inline-values-$column"]}
+	<td>{input inline-values-$column}</td>
+{else}
+{include #body-cell, (expand) get_defined_vars()}
+{/ifset}
 {/define}
 
 
@@ -304,9 +312,9 @@
 
 		<tr n:if="$template->hasData && $hasGroupActions">
 			<td colspan="{$columnCount}" class="center">
-				{if $groupActions !== NULL}
+			{if $groupActions !== NULL}
 {include #group-action-buttons |indent:3}
-				{/if}
+			{/if}
 			</td>
 		</tr>
 
@@ -349,7 +357,3 @@
 {define group-action-button}
 	{? }{input actions-buttons-$name, class => btn, data-confirm => $action[confirmation]}
 {/define}
-
-
-
-{/block}
