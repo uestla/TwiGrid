@@ -106,12 +106,6 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 
-	// === constants ===========
-
-	const INLINE_EDIT_ACTION = '__inline';
-
-
-
 	// === LIFE CYCLE ======================================================
 
 	/** @param  Nette\Http\Session */
