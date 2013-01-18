@@ -191,7 +191,7 @@
 
 	{foreach $data() as $record}
 		{var $primaryString = $template->primaryToString( $record ),
-			$isInlineEdited = $iePrimary === $primaryString}
+			$isInlineEdited = $hasInlineEdit && $iePrimary === $primaryString}
 		<tr n:class="$isInlineEdited ? success">
 
 			<td class="center" n:if="$hasGroupActions">
