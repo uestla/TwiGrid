@@ -94,8 +94,8 @@ $.nette.ext('twigrid', {
 
 				grid.find('table thead tr:first').off('click.twigrid').on('click.twigrid', function (event) {
 					// prevent checking when clicking on a link or a checkbox
-					var target = $(event.target);
-					!target.is('a') && !target.is('input') && checkbox.twg_toggleChecked();
+					var target = event.target.nodeName.toUpperCase();
+					target !== 'A' && target !== 'INPUT' && checkbox.twg_toggleChecked();
 				}).find('th:first').html( checkbox );
 
 				// toggleCheck single record clicking at the record row
@@ -110,7 +110,7 @@ $.nette.ext('twigrid', {
 
 							} else {
 								row.removeClass('info');
-								!(actionCheckboxes.filter(':checked').length) && actionButtons.attr('disabled', true);
+								!(actionCheckboxes.filter(':checked:first').length) && actionButtons.attr('disabled', true);
 							}
 						};
 
@@ -119,8 +119,8 @@ $.nette.ext('twigrid', {
 
 					row.off('click.twigrid').on('click.twigrid', function (event) {
 						// prevent checking when clicking on a link or a checkbox
-						var target = $(event.target);
-						!target.is('a') && !target.is('input') && checkbox.twg_toggleChecked();
+						var target = event.target.nodeName.toUpperCase();
+						target !== 'A' && target !== 'INPUT' && checkbox.twg_toggleChecked();
 					});
 				});
 			}
