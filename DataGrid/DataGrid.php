@@ -667,7 +667,7 @@ class DataGrid extends Nette\Application\UI\Control
 	{
 		$template = $this->createTemplate();
 		$template->defaultTemplate = __DIR__ . '/DataGrid.latte';
-		$this->templateFile === NULL && ( $this->templateFile = $template->defaultTemplatePath );
+		$this->templateFile === NULL && ( $this->templateFile = $template->defaultTemplate );
 		$template->setFile( $this->templateFile );
 
 		$template->registerHelper('translate', $this->translate);
