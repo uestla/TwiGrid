@@ -22,7 +22,7 @@
 		this.twg_checked( !this.attr('checked') );
 	};
 
-})( jQuery );
+})( window.jQuery );
 
 
 

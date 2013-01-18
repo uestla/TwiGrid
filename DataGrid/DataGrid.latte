@@ -71,9 +71,9 @@
 
 {define header}
 
-	<thead n:snippet="header">
+	<thead>
 
-		<tr>
+		<tr n:snippet="header-sort">
 			<th rowspan="2" class="center" n:if="$hasGroupActions">&nbsp;</th>
 
 		{foreach $columns as $name => $column}
@@ -88,7 +88,8 @@
 			<th n:if="$hasFilters || $hasRowActions">&nbsp;</th>
 		</tr>
 
-		<tr n:if="$hasFilters">
+	{if $hasFilters}
+		<tr n:snippet="filter-controls">
 {? $form->addFilterCriteria()}
 		{foreach $columns as $name => $column}
 {var $params = [ column => $name ]}
@@ -103,6 +104,7 @@
 {include #filter-buttons |indent:3}
 			</th>
 		</tr>
+	{/if}
 
 	</thead>
 

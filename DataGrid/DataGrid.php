@@ -345,7 +345,7 @@ class DataGrid extends Nette\Application\UI\Control
 	function handleSort()
 	{
 		$this->refreshState();
-		$this->invalidate(TRUE, TRUE);
+		$this->invalidate(TRUE, TRUE, 'header-sort', 'body', 'footer');
 	}
 
 
@@ -401,7 +401,7 @@ class DataGrid extends Nette\Application\UI\Control
 	protected function setFilters(array $filters, $refresh = TRUE)
 	{
 		( $diff = $this->filters !== $filters ) && ( $this->filters = $filters );
-		$refresh && $this->refreshState() && $diff && $this->invalidate(TRUE, TRUE);
+		$refresh && $this->refreshState() && $diff && $this->invalidate(TRUE, TRUE, 'filter-controls', 'body', 'footer');
 		return $this;
 	}
 
@@ -661,7 +661,7 @@ class DataGrid extends Nette\Application\UI\Control
 	{
 		return !$this->presenter->isAjax()
 			|| $this->isControlInvalid('form-errors')
-			|| $this->isControlInvalid('header')
+			|| $this->isControlInvalid('filter-controls')
 			|| $this->isControlInvalid('body')
 			|| $this->isControlInvalid('footer');
 	}
