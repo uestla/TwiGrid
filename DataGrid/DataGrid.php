@@ -613,9 +613,10 @@ class DataGrid extends Nette\Application\UI\Control
 
 		} elseif ($path === 'inline-buttons') {
 			if ($name === 'edit') {
-				$this->ieProcessCallback->invokeArgs( array( $this->record->stringToPrimary( $this->iePrimary ),
-					$form['inline']['values']->getValues(TRUE) ) );
-				$this->deactivateInlineEditing();
+				if (($values = $form->getInlineValues()) !== NULL) {
+					$this->ieProcessCallback->invokeArgs( array( $this->record->stringToPrimary( $this->iePrimary ), $values ) );
+					$this->deactivateInlineEditing();
+				}
 
 			} elseif ($name === 'cancel') {
 				$this->deactivateInlineEditing( FALSE );

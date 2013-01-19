@@ -147,7 +147,7 @@ class Form extends Nette\Application\UI\Form
 				$primaryString = $primaryToString( $record );
 				if ($iePrimary === $primaryString) {
 					$this['inline']['values'] = $containerFactory( $record );
-					$buttons->addSubmit('edit', 'Edit');
+					$buttons->addSubmit('edit', 'Edit')->setValidationScope(FALSE);
 					$buttons->addSubmit('cancel', 'Cancel')->setValidationScope(FALSE);
 
 				} else {
@@ -158,6 +158,14 @@ class Form extends Nette\Application\UI\Form
 				$i++;
 			}
 		}
+	}
+
+
+
+	/** @return array */
+	function getInlineValues()
+	{
+		return $this['inline']['values']->isValid() ? $this['inline']['values']->getValues(TRUE) : NULL;
 	}
 
 
