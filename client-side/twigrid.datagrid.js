@@ -93,9 +93,11 @@ $.nette.ext('twigrid', {
 				});
 
 				grid.find('table thead tr:first').off('click.twigrid').on('click.twigrid', function (event) {
-					// prevent checking when clicking on a link or a checkbox
-					var target = event.target.nodeName.toUpperCase();
-					target !== 'A' && target !== 'INPUT' && checkbox.twg_toggleChecked();
+					if (!event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey) {
+						// prevent checking when clicking on a link or a checkbox
+						var target = event.target.nodeName.toUpperCase();
+						target !== 'A' && target !== 'INPUT' && checkbox.twg_toggleChecked();
+					}
 				}).find('th:first').html( checkbox );
 
 				// toggleCheck single record clicking at the record row
@@ -118,9 +120,18 @@ $.nette.ext('twigrid', {
 					checkbox.off('change.twigrid').on('change.twigrid', changeListener);
 
 					row.off('click.twigrid').on('click.twigrid', function (event) {
-						// prevent checking when clicking on a link or a checkbox
 						var target = event.target.nodeName.toUpperCase();
-						target !== 'A' && target !== 'INPUT' && checkbox.twg_toggleChecked();
+						if (target !== 'A' && target !== 'INPUT') { // prevent checking when clicking on a link or a checkbox
+							if (event.ctrlKey) {
+								var editButton = row.find('[name^="inline\\[buttons\\]\\["]:first');
+								if (editButton.length && !(editButton.attr('name') in { 'inline[buttons][edit]': 1, 'inline[buttons][cancel]': 1 })) { // activate inline editing
+									editButton.trigger('click');
+								}
+
+							} else if (!event.shiftKey && !event.altKey && !event.metaKey) {
+								checkbox.twg_toggleChecked();
+							}
+						}
 					});
 				});
 			}
