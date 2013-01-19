@@ -395,7 +395,7 @@ class DataGrid extends Nette\Application\UI\Control
 	protected function setFilters(array $filters, $refresh = TRUE)
 	{
 		( $diff = $this->filters !== $filters ) && ( $this->filters = $filters );
-		$refresh && $this->refreshState() && $diff && $this->invalidate(TRUE, TRUE, 'filter-controls', 'body', 'footer');
+		$refresh && $this->refreshState() && $diff && $this->invalidate(TRUE, TRUE, 'header-sort', 'filter-controls', 'body', 'footer');
 		return $this;
 	}
 
