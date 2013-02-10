@@ -9,7 +9,6 @@
  * @link     https://github.com/uestla/twigrid
  */
 
-
 namespace TwiGrid;
 
 use Nette;
