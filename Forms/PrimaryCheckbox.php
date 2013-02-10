@@ -17,6 +17,7 @@ use Nette;
 
 class PrimaryCheckbox extends Nette\Forms\Controls\Checkbox
 {
+
 	/** @var string|NULL */
 	protected $primary = NULL;
 
@@ -39,4 +40,5 @@ class PrimaryCheckbox extends Nette\Forms\Controls\Checkbox
 	{
 		return $this->primary;
 	}
+
 }

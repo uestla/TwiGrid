@@ -18,6 +18,7 @@ use TwiGrid\Helpers;
 
 class Form extends Nette\Application\UI\Form
 {
+
 	/** @var Nette\Callback|NULL */
 	protected $filterFactory = NULL;
 
@@ -197,4 +198,5 @@ class Form extends Nette\Application\UI\Form
 		return $checkbox->form->submitted->parent->lookupPath('Nette\\Forms\\Form') !== 'actions-buttons'
 				|| in_array(TRUE, $checkbox->parent->getValues(TRUE), TRUE);
 	}
+
 }

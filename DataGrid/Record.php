@@ -17,6 +17,7 @@ use Nette;
 
 class Record extends Nette\Object
 {
+
 	/** @var array */
 	protected $primaryKey = NULL;
 
@@ -131,4 +132,5 @@ class Record extends Nette\Object
 
 		return $primaries;
 	}
+
 }

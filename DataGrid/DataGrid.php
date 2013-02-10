@@ -19,6 +19,7 @@ use Nette\Localization\ITranslator;
 
 class DataGrid extends Nette\Application\UI\Control
 {
+
 	/** @persistent bool */
 	public $poluted = FALSE;
 
@@ -712,4 +713,5 @@ class DataGrid extends Nette\Application\UI\Control
 		$template->columnCount = count($template->columns) + ( $template->hasGroupActions ? 1 : 0 ) + ( $template->hasFilters || $template->hasRowActions ? 1 : 0 );
 		$template->render();
 	}
+
 }

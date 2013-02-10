@@ -17,6 +17,7 @@ use Nette;
 
 class Column extends Nette\ComponentModel\Component
 {
+
 	/** @var string */
 	protected $label;
 
@@ -99,4 +100,5 @@ class Column extends Nette\ComponentModel\Component
 	{
 		return $this->orderedDesc;
 	}
+
 }

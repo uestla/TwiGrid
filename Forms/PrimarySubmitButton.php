@@ -17,6 +17,7 @@ use Nette\Forms\Controls\SubmitButton as NSubmitButton;
 
 class PrimarySubmitButton extends NSubmitButton
 {
+
 	/** @var string|NULL */
 	protected $primary = NULL;
 
@@ -39,4 +40,5 @@ class PrimarySubmitButton extends NSubmitButton
 	{
 		return $this->primary;
 	}
+
 }

@@ -15,8 +15,9 @@ namespace TwiGrid;
 use Nette;
 
 
-final class Helpers extends Nette\Object
+abstract class Helpers extends Nette\Object
 {
+
 	/**
 	 * @param  array
 	 * @param  int
@@ -54,4 +55,5 @@ final class Helpers extends Nette\Object
 
 		return $ret;
 	}
+
 }
