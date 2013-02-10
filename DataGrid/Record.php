@@ -48,31 +48,35 @@ class Record extends Nette\Object
 
 
 	/**
-	 * @param  mixed|NULL
+	 * @param  mixed
 	 * @return DataGrid
 	 */
-	function setValueGetter($callback = NULL)
+	function setValueGetter($callback)
 	{
-		$this->valueGetter = Nette\Callback::create( $callback !== NULL ? $callback : function ($record, $column, $need) {
-			if (!isset($record->$column)) {
-				if ($need) {
-					throw new Nette\InvalidArgumentException("The value of column '$column' not found in the record.");
-				}
-
-				return NULL;
-			}
-
-			return $record->$column;
-		});
+		$this->valueGetter = Nette\Callback::create($callback);
 
 		return $this;
 	}
 
 
 
-	/** @return Nette\Callback|NULL */
+	/** @return Nette\Callback */
 	function getValueGetter()
 	{
+		if ($this->valueGetter === NULL) {
+			$this->setValueGetter(function ($record, $column, $need) {
+				if (!isset($record->$column)) {
+					if ($need) {
+						throw new Nette\InvalidArgumentException("The value of column '$column' not found in the record.");
+					}
+
+					return NULL;
+				}
+
+				return $record->$column;
+			});
+		}
+
 		return $this->valueGetter;
 	}
 
@@ -86,7 +90,7 @@ class Record extends Nette\Object
 	 */
 	function getValue($record, $column, $need = TRUE)
 	{
-		return $this->valueGetter->invokeArgs( array($record, $column, $need) );
+		return $this->getValueGetter()->invokeArgs( array($record, $column, $need) );
 	}
 
 

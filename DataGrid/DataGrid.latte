@@ -18,7 +18,7 @@
  * @param  int  $columnCount number of table columns
  *}
 
-<div class="twigrid-cnt">
+<div class="tw-cnt">
 
 	<div n:snippet="flashes">
 		<div n:foreach="$flashes as $flash" class="alert alert-{$flash->type} hidable">{_$flash->message}</div>
@@ -34,7 +34,7 @@
 
 {define datagrid}
 
-	{? }{form $form, class => tw-ajax}
+	{? }{form $form, class => 'form tw-ajax'}
 		<div n:snippet="form-errors">
 		{if $errors = $form->errors}
 			<div class="alert alert-error hidable" n:foreach="$errors as $error">{$error}</div>
@@ -71,10 +71,10 @@
 
 {define header}
 
-	<thead>
+	<thead class="header">
 
 		<tr n:snippet="header-sort">
-			<th rowspan="2" class="center" n:if="$hasGroupActions">&nbsp;</th>
+			<th rowspan="2" class="header-cell center" n:if="$hasGroupActions">&nbsp;</th>
 
 		{foreach $columns as $name => $column}
 {var $params = [ name => $name, column => $column ]}
@@ -85,7 +85,7 @@
 {/ifset}
 		{/foreach}
 
-			<th n:if="$hasFilters || $hasRowActions">&nbsp;</th>
+			<th class="header-cell" n:if="$hasFilters || $hasRowActions">&nbsp;</th>
 		</tr>
 
 	{if $hasFilters}
@@ -100,7 +100,7 @@
 {/ifset}
 		{/foreach}
 
-			<th class="center">
+			<th class="filter-cell center">
 {include #filter-buttons |indent:3}
 			</th>
 		</tr>
@@ -116,7 +116,7 @@
 
 {define header-cell}
 
-	<th>
+	<th n:class='header-cell, "header-cell-{$column->name}"'>
 {var $params = [ column => $column ]}
 	{if $column->sortable}
 		<a n:href="sort!,
@@ -149,7 +149,7 @@
 
 {define filter-cell}
 
-	<th>
+	<th class="filter-cell">
 	{ifset $form["filters-criteria-$column"]}
 		{? }{input filters-criteria-$column}
 	{else}
@@ -185,7 +185,7 @@
 
 {define body}
 
-	<tbody n:snippet="body">
+	<tbody class="body" n:snippet="body">
 
 	{if}{? $control->addGroupActionCheckboxes(); $control->addInlineEditControls() }
 
@@ -194,7 +194,7 @@
 			$isInlineEdited = $hasInlineEdit && $iePrimary === $primaryString}
 		<tr n:class="$isInlineEdited ? success">
 
-			<td class="center" n:if="$hasGroupActions">
+			<td class="body-cell center" n:if="$hasGroupActions">
 				{var $inputKey = $iterator->counter - 1}
 				{? }{input actions-records-$inputKey}
 			</td>
@@ -216,7 +216,7 @@
 {/if}
 		{/foreach}
 
-			<td n:if="$hasFilters || $hasRowActions" class="center">
+			<td n:if="$hasFilters || $hasRowActions" class="body-cell center">
 			{if $rowActions !== NULL || $hasInlineEdit}
 {include #row-actions, i => $iterator->counter - 1, record => $record, isInlineEdited => $isInlineEdited, primaryString => $primaryString |indent:3}
 
@@ -232,7 +232,7 @@
 
 	{else}
 		<tr class="warning">
-			<td colspan="{$columnCount}">{_'No data.'}</td>
+			<td class="body-cell" colspan="{$columnCount}">{_'No data.'}</td>
 		</tr>
 	{/if $iterations}
 
@@ -246,7 +246,7 @@
 
 {define body-cell-inline}
 {ifset $form["inline-values-$column"]}
-	<td>{input inline-values-$column}</td>
+	<td n:class='body-inline-cell, "body-inline-cell-{$column}"'>{input inline-values-$column}</td>
 {else}
 {include #body-cell, (expand) get_defined_vars()}
 {/ifset}
@@ -257,7 +257,7 @@
 {* === ... ============================================ *}
 
 {define body-cell}
-	<td>{$value}</td>
+	<td n:class='body-cell, "body-cell-{$column}"'>{$value}</td>
 {/define}
 
 
@@ -310,10 +310,10 @@
 
 {define footer}
 
-	<tfoot n:snippet="footer">
+	<tfoot class="footer" n:snippet="footer">
 
 		<tr n:if="$template->hasData && $hasGroupActions">
-			<td colspan="{$columnCount}" class="center">
+			<td colspan="{$columnCount}" class="footer-cell center">
 			{if $groupActions !== NULL}
 {include #group-action-buttons |indent:3}
 			{/if}

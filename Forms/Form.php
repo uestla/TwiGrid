@@ -13,6 +13,7 @@
 namespace TwiGrid\Forms;
 
 use Nette;
+use TwiGrid\Helpers;
 
 
 class Form extends Nette\Application\UI\Form
@@ -53,7 +54,7 @@ class Form extends Nette\Application\UI\Form
 	function addFilterButtons($hasFilters)
 	{
 		if (!$this->lazyCreateContainer('filters', 'buttons', $buttons)) {
-			$buttons->addSubmit('filter', 'Filter')->setValidationScope(FALSE);
+			$buttons->addSubmit('filter', 'Filter')->setValidationScope(FALSE)->setAttribute('data-tw-validate', 'filters[criteria]');
 			$hasFilters && $buttons->addSubmit('reset', 'Cancel')->setValidationScope(FALSE);
 		}
 
@@ -66,7 +67,7 @@ class Form extends Nette\Application\UI\Form
 	function getFilterCriteria()
 	{
 		$this->addFilterCriteria();
-		return $this['filters']['criteria']->isValid() ? static::filterEmpty( $this['filters']['criteria']->getValues(TRUE) ) : NULL;
+		return $this['filters']['criteria']->isValid() ? Helpers::filterEmpty( $this['filters']['criteria']->getValues(TRUE) ) : NULL;
 	}
 
 
@@ -99,7 +100,7 @@ class Form extends Nette\Application\UI\Form
 	{
 		if (!$this->lazyCreateContainer('actions', 'buttons', $buttons)) {
 			foreach ($actions as $name => $action) {
-				$buttons->addSubmit($name, $action['label'])->setValidationScope(FALSE);
+				$buttons->addSubmit($name, $action['label'])->setValidationScope(FALSE)->setAttribute('data-tw-validate', 'actions[records]');
 			}
 		}
 
@@ -147,7 +148,7 @@ class Form extends Nette\Application\UI\Form
 				$primaryString = $primaryToString( $record );
 				if ($iePrimary === $primaryString) {
 					$this['inline']['values'] = $containerFactory( $record );
-					$buttons->addSubmit('edit', 'Edit')->setValidationScope(FALSE);
+					$buttons->addSubmit('edit', 'Edit')->setValidationScope(FALSE)->setAttribute('data-tw-validate', 'inline[values]');
 					$buttons->addSubmit('cancel', 'Cancel')->setValidationScope(FALSE);
 
 				} else {
@@ -183,29 +184,6 @@ class Form extends Nette\Application\UI\Form
 		!isset($this[$parent][$name]) && ($factory !== NULL ? ($this[$parent][$name] = $factory->invoke()) : $this[$parent]->addContainer($name)) && ($created = TRUE);
 		$container = $this[$parent][$name];
 		return !isset($created);
-	}
-
-
-
-	/**
-	 * @param  array
-	 * @return array
-	 */
-	protected static function filterEmpty(array $a)
-	{
-		$ret = array();
-		foreach ($a as $k => $v) {
-			if (is_array($v)) { // recursive
-				if (count( $tmp = static::filterEmpty($v) )) {
-					$ret[$k] = $tmp;
-				}
-
-			} elseif (strlen($v)) {
-				$ret[$k] = $v;
-			}
-		}
-
-		return $ret;
 	}
 
 
