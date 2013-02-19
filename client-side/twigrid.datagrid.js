@@ -19,6 +19,7 @@ $.fn.extend({
 		this.trigger('change');
 		return this;
 	},
+
 	twToggleChecked: function () {
 		return this.twChecked(!this.attr('checked'))
 	}
