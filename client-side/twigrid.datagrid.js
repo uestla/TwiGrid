@@ -13,6 +13,17 @@
 
 // jQuery extensions
 
+$.fn.extend({
+	twChecked: function (bool) {
+		this.attr('checked', !!bool);
+		this.trigger('change');
+		return this;
+	},
+	twToggleChecked: function () {
+		return this.twChecked(!this.attr('checked'))
+	}
+});
+
 $.fn.twChecked = function (bool) {
 	this.attr('checked', !!bool);
 	this.trigger('change');
