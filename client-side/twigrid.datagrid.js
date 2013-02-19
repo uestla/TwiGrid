@@ -24,15 +24,6 @@ $.fn.extend({
 	}
 });
 
-$.fn.twChecked = function (bool) {
-	this.attr('checked', !!bool);
-	this.trigger('change');
-};
-
-$.fn.twToggleChecked = function () {
-	this.twChecked(!this.attr('checked'));
-};
-
 
 
 // nette.ajax extension
