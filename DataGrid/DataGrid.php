@@ -152,8 +152,7 @@ class DataGrid extends Nette\Application\UI\Control
 	/** @return void */
 	protected function validateState()
 	{
-		$columns = $this->getColumns();
-		if (reset($columns) === FALSE) {
+		if ($this->getColumns() === NULL) {
 			throw new Nette\InvalidStateException("No columns set.");
 		}
 
