@@ -181,7 +181,25 @@ class Form extends Nette\Application\UI\Form
 	protected function lazyCreateContainer($parent, $name, & $container = NULL, Nette\Callback $factory = NULL)
 	{
 		!isset($this[$parent]) && $this->addContainer($parent);
-		!isset($this[$parent][$name]) && ($factory !== NULL ? ($this[$parent][$name] = $factory->invoke()) : $this[$parent]->addContainer($name)) && ($created = TRUE);
+
+		if (!isset($this[$parent][$name])) {
+			if ($factory !== NULL) {
+				$subc = $factory->invoke();
+				if (!($subc instanceof Nette\Forms\Container)) {
+					$type = gettype($subc);
+					throw new Nette\InvalidArgumentException("Filter factory is expected to return Nette\Forms\Container, '"
+							. ($type === 'object' ? get_class($subc) : $type) . "' given.");
+				}
+
+				$this[$parent][$name] = $subc;
+
+			} else {
+				$this[$parent]->addContainer($name);
+			}
+
+			$created = TRUE;
+		}
+
 		$container = $this[$parent][$name];
 		return !isset($created);
 	}
