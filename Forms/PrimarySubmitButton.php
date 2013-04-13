@@ -11,10 +11,10 @@
 
 namespace TwiGrid\Forms;
 
-use Nette\Forms\Controls\SubmitButton as NSubmitButton;
+use Nette;
 
 
-class PrimarySubmitButton extends NSubmitButton
+class PrimarySubmitButton extends Nette\Forms\Controls\SubmitButton
 {
 
 	/** @var string|NULL */
