@@ -31,9 +31,9 @@ class Record extends Nette\Object
 	 * @param  string|array
 	 * @return DataGrid
 	 */
-	function setPrimaryKey($primaryKey)
+	function setPrimaryKey($key)
 	{
-		$this->primaryKey = is_array($primaryKey) ? $primaryKey : func_get_args();
+		$this->primaryKey = is_array($key) ? $key : func_get_args();
 		return $this;
 	}
 
@@ -54,7 +54,6 @@ class Record extends Nette\Object
 	function setValueGetter($callback)
 	{
 		$this->valueGetter = Nette\Callback::create($callback);
-
 		return $this;
 	}
 
@@ -63,19 +62,17 @@ class Record extends Nette\Object
 	/** @return Nette\Callback */
 	function getValueGetter()
 	{
-		if ($this->valueGetter === NULL) {
-			$this->setValueGetter(function ($record, $column, $need) {
-				if (!isset($record->$column)) {
-					if ($need) {
-						throw new Nette\InvalidArgumentException("The value of column '$column' not found in the record.");
-					}
-
-					return NULL;
+		$this->valueGetter === NULL && $this->setValueGetter(function ($record, $column, $need) {
+			if (!isset($record->$column)) {
+				if ($need) {
+					throw new Nette\InvalidArgumentException("The value of column '$column' not found in the record.");
 				}
 
-				return $record->$column;
-			});
-		}
+				return NULL;
+			}
+
+			return $record->$column;
+		});
 
 		return $this->valueGetter;
 	}
@@ -101,7 +98,7 @@ class Record extends Nette\Object
 	 */
 	function primaryToString($record)
 	{
-		return implode( static::PRIMARY_SEPARATOR, $this->getPrimary($record) );
+		return implode(static::PRIMARY_SEPARATOR, $this->getPrimary($record));
 	}
 
 
@@ -126,7 +123,7 @@ class Record extends Nette\Object
 	{
 		$primaries = array();
 		foreach ($this->primaryKey as $column) {
-			$primaries[ $column ] = (string) $this->getValue($record, $column); // intentionally string conversion due to later comparison
+			$primaries[$column] = (string) $this->getValue($record, $column); // intentionally string conversion due to later comparison
 		}
 
 		return $primaries;

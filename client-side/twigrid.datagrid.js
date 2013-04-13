@@ -14,14 +14,14 @@
 // jQuery extensions
 
 $.fn.extend({
-	twChecked: function (bool) {
+	twgChecked: function (bool) {
 		this.attr('checked', !!bool);
 		this.trigger('change');
 		return this;
 	},
 
-	twToggleChecked: function () {
-		return this.twChecked(!this.attr('checked'))
+	twgToggleChecked: function () {
+		return this.twgChecked(!this.attr('checked'))
 	}
 });
 
@@ -203,14 +203,14 @@ $.nette.ext('twigrid', {
 			groupCheckbox = $('<input type="checkbox" />')
 			.off('change.tw-rowcheck')
 			.on('change.tw-rowcheck', function (event) {
-				checkboxes.twChecked(groupCheckbox.attr('checked'));
+				checkboxes.twgChecked(groupCheckbox.attr('checked'));
 			});
 
 		header.find('.header-cell')
 			.off('click.tw-rowcheck')
 			.on('click.tw-rowcheck', function (event) {
 				if (!self.isClickable(event.target) && self.noMetaKeysPressed(event)) {
-					groupCheckbox.twToggleChecked();
+					groupCheckbox.twgToggleChecked();
 				}
 			})
 			.first().html(groupCheckbox);
@@ -241,7 +241,7 @@ $.nette.ext('twigrid', {
 			row.off('click.tw-rowcheck')
 				.on('click.tw-rowcheck', function (event) {
 					if (!self.isClickable(event.target) && self.noMetaKeysPressed(event)) {
-						checkbox.twToggleChecked();
+						checkbox.twgToggleChecked();
 					}
 				});
 		});

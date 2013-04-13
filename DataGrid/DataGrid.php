@@ -87,6 +87,9 @@ class DataGrid extends Nette\Application\UI\Control
 	/** @var Nette\Http\Session */
 	protected $session;
 
+	/** @var string */
+	protected $sessNamespace;
+
 
 
 	// === l10n ===========
@@ -109,8 +112,9 @@ class DataGrid extends Nette\Application\UI\Control
 	function __construct(Nette\Http\Session $s)
 	{
 		parent::__construct();
-		$this->record = new Record;
 		$this->session = $s;
+		$this->record = new Record;
+		$this->sessNamespace = __CLASS__ . '-' . $this->name;
 	}
 
 
@@ -122,7 +126,8 @@ class DataGrid extends Nette\Application\UI\Control
 	protected function attached($presenter)
 	{
 		parent::attached($presenter);
-		!isset($this->presenter->payload->twiGrid) && ( $this->presenter->payload->twiGrid = $this->presenter->payload->twiGrid['forms'] = array() );
+		!isset($this->presenter->payload->twiGrid)
+			&& ($this->presenter->payload->twiGrid['forms'] = $this->presenter->payload->twiGrid = array());
 	}
 
 
@@ -138,12 +143,16 @@ class DataGrid extends Nette\Application\UI\Control
 		!$this->poluted && !$this->isInDefaultState() && ($this->poluted = TRUE);
 
 		if (!$this->poluted) {
-			$this->defaultOrderBy !== NULL && ( $this->orderBy = $this->defaultOrderBy[0] ) && ( ($this->orderDesc = $this->defaultOrderBy[1]) || TRUE );
-			$this->defaultFilters !== NULL && $this->setFilters( $this->defaultFilters, FALSE );
+			$this->defaultOrderBy !== NULL
+				&& ($this->orderBy = $this->defaultOrderBy[0]) && ($this->orderDesc = $this->defaultOrderBy[1]);
+
+			$this->defaultFilters !== NULL && $this->setFilters($this->defaultFilters, FALSE);
 			($this->defaultOrderBy !== NULL || $this->defaultFilters !== NULL) && ($this->poluted = TRUE);
 		}
 
-		$this->orderBy !== NULL && $this['columns']->getComponent( $this->orderBy )->setOrderedBy( TRUE, $this->orderDesc );
+		$this->orderBy !== NULL
+			&& $this['columns']->getComponent($this->orderBy)->setOrderedBy( TRUE, $this->orderDesc );
+
 		$this->validateState();
 	}
 
@@ -187,37 +196,13 @@ class DataGrid extends Nette\Application\UI\Control
 
 	/**
 	 * @param  bool
-	 * @return TRUE
+	 * @return bool
 	 */
 	protected function refreshState($cancelInlineEditing = TRUE)
 	{
 		$cancelInlineEditing && ($this->iePrimary = NULL);
 		!$this->presenter->isAjax() && $this->redirect('this');
 		return TRUE;
-	}
-
-
-
-	// === CSRF TOKEN ======================================================
-
-	/**
-	 * @param  bool
-	 * @param  Nette\Http\SessionSection
-	 * @return string|NULL
-	 */
-	protected function getCsrfToken($generate = TRUE, & $session = NULL)
-	{
-		$session = $this->session->getSection( __CLASS__ . '-' . $this->name );
-
-		if ($this->rowActions === NULL) {
-			unset($session->csrfToken);
-
-		} else {
-			$session->setExpiration('+ 5 minutes', 'csrfToken');
-			return isset($session->csrfToken) ? $session->csrfToken : ( $generate ? ( $session->csrfToken = Nette\Utils\Strings::random(16) ) : NULL );
-		}
-
-		return NULL;
 	}
 
 
@@ -243,7 +228,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 */
 	function translate($s, $count = NULL)
 	{
-		return $this->translator === NULL ? $s : $this->translator->translate($s, $count);
+		return $this->translator === NULL ? (string) $s : $this->translator->translate((string) $s, $count);
 	}
 
 
@@ -258,7 +243,7 @@ class DataGrid extends Nette\Application\UI\Control
 	function addColumn($name, $label = NULL)
 	{
 		!isset($this['columns']) && ($this['columns'] = new Nette\ComponentModel\Container);
-		$this['columns']->addComponent( $c = new Column( $this->translate( $label === NULL ? $name : $label ) ), $name );
+		$this['columns']->addComponent($c = new Column($this->translate($label === NULL ? $name : $label)), $name);
 		return $c;
 	}
 
@@ -275,7 +260,7 @@ class DataGrid extends Nette\Application\UI\Control
 	/** @return array */
 	function getColumnNames()
 	{
-		$names = array_keys( iterator_to_array($this->getColumns()) );
+		$names = array_keys(iterator_to_array($this->getColumns()));
 		return array_combine($names, $names);
 	}
 
@@ -297,7 +282,7 @@ class DataGrid extends Nette\Application\UI\Control
 		}
 
 		$this->rowActions[$name] = array(
-			'label' => $this->translate( (string) $label ),
+			'label' => $this->translate($label),
 			'callback' => Nette\Callback::create($callback),
 			'confirmation' => $confirmation === NULL ? $confirmation : $this->translate($confirmation),
 		);
@@ -313,9 +298,8 @@ class DataGrid extends Nette\Application\UI\Control
 	 */
 	function handleRowAction($action, $primary, $token)
 	{
-		if (($sToken = $this->getCsrfToken(FALSE, $session)) !== NULL && $token === $sToken) {
-			unset($session->csrfToken);
-			$this->rowActions[$action]['callback']( $this->record->stringToPrimary($primary) );
+		if (Helpers::checkCsrfToken($this->session, $this->sessNamespace, $token)) {
+			$this->rowActions[$action]['callback']($this->record->stringToPrimary($primary));
 			$this->refreshState();
 			$this->invalidate(TRUE, TRUE, 'body', 'footer');
 
@@ -342,7 +326,7 @@ class DataGrid extends Nette\Application\UI\Control
 		}
 
 		$this->groupActions[$name] = array(
-			'label' => $this->translate( (string) $label ),
+			'label' => $this->translate($label),
 			'callback' => Nette\Callback::create($callback),
 			'confirmation' => $confirmation === NULL ? $confirmation : $this->translate($confirmation),
 		);
@@ -369,7 +353,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 */
 	function setDefaultOrderBy($column, $desc = FALSE)
 	{
-		$this->defaultOrderBy = array( (string) $column, (bool) $desc );
+		$this->defaultOrderBy = array((string) $column, (bool) $desc);
 		return $this;
 	}
 
@@ -413,8 +397,10 @@ class DataGrid extends Nette\Application\UI\Control
 	protected function setFilters(array $filters, $refresh = TRUE)
 	{
 		Helpers::recursiveKSort($filters);
-		( $diff = $this->filters !== $filters ) && ($this->filters = $filters);
-		$refresh && $this->refreshState( $diff ) && $diff && $this->invalidate(TRUE, TRUE, 'header-sort', 'filter-controls', 'body', 'footer');
+		($diff = $this->filters !== $filters) && ($this->filters = $filters);
+		$refresh && $this->refreshState($diff)
+			&& $diff && $this->invalidate(TRUE, TRUE, 'header-sort', 'filter-controls', 'body', 'footer');
+
 		return $this;
 	}
 
@@ -704,7 +690,7 @@ class DataGrid extends Nette\Application\UI\Control
 		$template->filterButtons = $this->getFilterButtons();
 		$template->data = $this->getData;
 		$template->rowActions = $this->rowActions;
-		$template->csrfToken = $this->getCsrfToken();
+		$template->csrfToken = Helpers::getCsrfToken($this->session, $this->sessNamespace);
 		$template->groupActions = $this->groupActions;
 		$template->hasRowActions = $this->rowActions !== NULL;
 		$template->hasGroupActions = $this->groupActions !== NULL;
