@@ -448,8 +448,8 @@ class DataGrid extends Nette\Application\UI\Control
 			$this->data = $this->dataLoader->invokeArgs( array(
 				$this,
 				array_merge( array_combine( $this->record->primaryKey, $this->record->primaryKey ), $this->getColumnNames() ),
-				$order,
 				$this->filters,
+				$order,
 			) );
 		}
 
