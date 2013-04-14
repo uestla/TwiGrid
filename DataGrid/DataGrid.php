@@ -151,7 +151,7 @@ class DataGrid extends Nette\Application\UI\Control
 		}
 
 		$this->orderBy !== NULL
-			&& $this['columns']->getComponent($this->orderBy)->setOrderedBy( TRUE, $this->orderDesc );
+			&& $this['columns']->getComponent($this->orderBy)->setOrderedBy(TRUE, $this->orderDesc);
 
 		$this->validateState();
 	}
@@ -438,19 +438,19 @@ class DataGrid extends Nette\Application\UI\Control
 		if ($this->data === NULL) {
 			$order = array();
 			if ($this->orderBy !== NULL) {
-				$order[ $this->orderBy ] = $this->orderDesc;
+				$order[$this->orderBy] = $this->orderDesc;
 
 				foreach ($this->record->primaryKey as $column) {
-					$order[ $column ] = $this->orderDesc;
+					$order[$column] = $this->orderDesc;
 				}
 			}
 
-			$this->data = $this->dataLoader->invokeArgs( array(
+			$this->data = $this->dataLoader->invokeArgs(array(
 				$this,
-				array_merge( array_combine( $this->record->primaryKey, $this->record->primaryKey ), $this->getColumnNames() ),
+				array_merge(array_combine($this->record->primaryKey, $this->record->primaryKey), $this->getColumnNames()),
 				$this->filters,
 				$order,
-			) );
+			));
 		}
 
 		return $this->data;
@@ -517,7 +517,7 @@ class DataGrid extends Nette\Application\UI\Control
 	{
 		$this->iePrimary = $primary;
 		$this->refreshState(FALSE);
-		$this->invalidate( FALSE, TRUE, 'body' );
+		$this->invalidate(FALSE, TRUE, 'body');
 	}
 
 
@@ -529,7 +529,23 @@ class DataGrid extends Nette\Application\UI\Control
 	protected function deactivateInlineEditing($dataAsWell = TRUE)
 	{
 		$this->refreshState();
-		$this->invalidate( $dataAsWell, TRUE, 'body' );
+		$this->invalidate($dataAsWell, TRUE, 'body');
+	}
+
+
+
+	// === PAGINATING ======================================================
+
+	/**
+	 * @param  int
+	 * @param  mixed
+	 * @return DataGrid
+	 */
+	function setPaginating($itemsPerPage, $itemCounter)
+	{
+		$this->itemsPerPage = max(0, (int) $itemsPerPage);
+		$this->itemCounter =  Nette\Callback::create($itemCounter);
+		return $this;
 	}
 
 
@@ -540,11 +556,14 @@ class DataGrid extends Nette\Application\UI\Control
 	protected function createComponentForm()
 	{
 		$form = new Forms\Form;
-		$this->translator !== NULL && $form->setTranslator( $this->translator );
-		$this->filterFactory !== NULL && $form->setFilterFactory( $this->filterFactory ) && $form->addFilterButtons( reset($this->filters) !== FALSE );
-		$this->groupActions !== NULL && $form->addGroupActionButtons( $this->groupActions );
-
 		$form->addProtection();
+		$this->translator !== NULL && $form->setTranslator($this->translator);
+
+		$this->filterFactory !== NULL
+			&& $form->setFilterFactory($this->filterFactory) && $form->addFilterButtons(reset($this->filters) !== FALSE);
+
+		$this->groupActions !== NULL && $form->addGroupActionButtons($this->groupActions);
+
 		$form->onSuccess[] = $this->processForm;
 		$form->onSubmit[] = $this->formSubmitted;
 		return $form;
@@ -556,7 +575,7 @@ class DataGrid extends Nette\Application\UI\Control
 	function addGroupActionCheckboxes()
 	{
 		$this->groupActions !== NULL
-				&& $this['form']->addGroupActionCheckboxes( $this->record->primaryToString );
+			&& $this['form']->addGroupActionCheckboxes($this->record->primaryToString);
 	}
 
 
@@ -565,7 +584,9 @@ class DataGrid extends Nette\Application\UI\Control
 	function addInlineEditControls()
 	{
 		$this->ieContainerFactory !== NULL
-				&& $this['form']->addInlineEditControls( $this->getData, $this->record->primaryToString, $this->ieContainerFactory, $this->iePrimary );
+			&& $this['form']->addInlineEditControls(
+				$this->getData, $this->record->primaryToString, $this->ieContainerFactory, $this->iePrimary
+			);
 	}
 
 
@@ -602,16 +623,16 @@ class DataGrid extends Nette\Application\UI\Control
 
 		} elseif ("$path-$name" === 'filters-buttons-reset') {
 			$this->poluted = TRUE;
-			$this->setFilters( array() );
+			$this->setFilters(array());
 
 		} elseif ($path === 'actions-buttons') {
-			if (($checked = $form->getCheckedRecords( $this->record->primaryToString, $this->record->stringToPrimary )) !== NULL) {
+			if (($checked = $form->getCheckedRecords($this->record->primaryToString, $this->record->stringToPrimary)) !== NULL) {
 				$primaries = array();
 				foreach ($checked as $primaryString) {
-					$primaries[] = $this->record->stringToPrimary( $primaryString );
+					$primaries[] = $this->record->stringToPrimary($primaryString);
 				}
 
-				$this->groupActions[ $name ]['callback']( $primaries );
+				$this->groupActions[$name]['callback']($primaries);
 				$this->refreshState();
 				$this->invalidate(TRUE, TRUE, 'body', 'footer');
 			}
@@ -620,17 +641,17 @@ class DataGrid extends Nette\Application\UI\Control
 			if ($name === 'edit') {
 				if (($values = $form->getInlineValues()) !== NULL) {
 					$this->ieProcessCallback->invokeArgs(
-						array( $this->record->stringToPrimary( $this->iePrimary ), $values )
+						array($this->record->stringToPrimary($this->iePrimary), $values)
 					);
 
 					$this->deactivateInlineEditing();
 				}
 
 			} elseif ($name === 'cancel') {
-				$this->deactivateInlineEditing( FALSE );
+				$this->deactivateInlineEditing(FALSE);
 
 			} else {
-				$this->activateInlineEditing( $button->primary );
+				$this->activateInlineEditing($button->primary);
 			}
 		}
 	}
@@ -677,7 +698,7 @@ class DataGrid extends Nette\Application\UI\Control
 		$template = $this->createTemplate();
 		$template->defaultTemplate = __DIR__ . '/DataGrid.latte';
 		$this->templateFile === NULL && ($this->templateFile = $template->defaultTemplate);
-		$template->setFile( $this->templateFile );
+		$template->setFile($this->templateFile);
 
 		$template->registerHelper('translate', $this->translate);
 		$template->registerHelper('primaryToString', $this->record->primaryToString);
@@ -685,7 +706,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 		$this->isControlInvalid() && $this->invalidate(FALSE, 'flashes');
 		$this->passForm() && ($template->form = $template->_form = $form = $this['form'])
-				&& $this->presenter->payload->twiGrid['forms'][ $form->elementPrototype->id ] = (string) $form->getAction();
+				&& $this->presenter->payload->twiGrid['forms'][$form->elementPrototype->id] = (string) $form->getAction();
 		$template->columns = $this->getColumns();
 		$template->filterButtons = $this->getFilterButtons();
 		$template->data = $this->getData;
@@ -697,7 +718,7 @@ class DataGrid extends Nette\Application\UI\Control
 		$template->hasFilters = $template->filterButtons !== NULL;
 		$template->hasInlineEdit = $this->ieContainerFactory !== NULL;
 		$template->iePrimary = $this->iePrimary;
-		$template->columnCount = count($template->columns) + ( $template->hasGroupActions ? 1 : 0 ) + ( $template->hasFilters || $template->hasRowActions ? 1 : 0 );
+		$template->columnCount = count($template->columns) + ($template->hasGroupActions ? 1 : 0) + ($template->hasFilters || $template->hasRowActions ? 1 : 0);
 		$template->render();
 	}
 
