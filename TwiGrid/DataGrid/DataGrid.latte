@@ -218,7 +218,7 @@
 		{/foreach}
 
 			<td n:if="$hasFilters || $hasRowActions" class="body-cell center">
-			{if $rowActions !== NULL || $hasInlineEdit}
+			{if $hasRowActions || $hasInlineEdit}
 {include #row-actions, i => $iterator->counter - 1, record => $record, isInlineEdited => $isInlineEdited, primaryString => $primaryString |indent:3}
 
 			{else}
