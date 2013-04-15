@@ -1,24 +1,7 @@
-.tw-cnt thead th {
-	background: #eee;
-	white-space: nowrap;
-}
+/* === COMMON ================ */
 
-.tw-cnt th, .tw-cnt td {
-	vertical-align: middle;
-}
-
-.tw-cnt select, .tw-cnt input[type="text"], .tw-cnt input[type="date"] {
-	display: block;
-	margin: 0;
-	width: 100%;
-	height: 100%;
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	box-sizing: border-box;
-}
-
-.tw-cnt .action-buttons-label {
-	display: inline-block;
+.tw-cnt.js .js-hid {
+	display: none;
 }
 
 .tw-cnt .left {
@@ -35,4 +18,64 @@
 
 .tw-cnt .nowrap {
 	white-space: nowrap;
+}
+
+
+
+/* === TABLE CELLS ================ */
+
+.tw-cnt thead th {
+	background: #eee;
+	white-space: nowrap;
+}
+
+.tw-cnt th, .tw-cnt td {
+	vertical-align: middle;
+}
+
+
+
+/* === FORM CONTROLS ================ */
+
+.tw-cnt select, .tw-cnt input[type="text"], .tw-cnt input[type="date"] {
+	display: block;
+	margin: 0;
+	width: 100%;
+	height: 100%;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+
+
+/* === FOOTER ================ */
+
+.tw-cnt .footer-cell > div {
+	
+	line-height: 32px;
+}
+
+
+
+/* === GROUP ACTIONS ================ */
+
+.tw-cnt .action-buttons-label {
+	display: inline-block;
+}
+
+
+
+/* === PAGINATION ================ */
+
+.tw-cnt .pager {
+	margin: 0;
+}
+
+.tw-cnt .pager select {
+	display: inline-block;
+	margin: 0 8px;
+	padding: 5px 8px;
+	width: auto;
+	font-size: 16px;
 }

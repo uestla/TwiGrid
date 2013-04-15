@@ -87,7 +87,7 @@ class Record extends Nette\Object
 	 */
 	function getValue($record, $column, $need = TRUE)
 	{
-		return $this->getValueGetter()->invokeArgs( array($record, $column, $need) );
+		return $this->getValueGetter()->invokeArgs(array($record, $column, $need));
 	}
 
 
@@ -109,8 +109,8 @@ class Record extends Nette\Object
 	 */
 	function stringToPrimary($s)
 	{
-		$primaries = explode( static::PRIMARY_SEPARATOR, $s );
-		return count($primaries) === 1 ? (string) $primaries[0] : array_combine( $this->primary, $primaries );
+		$primaries = explode(static::PRIMARY_SEPARATOR, $s);
+		return count($primaries) === 1 ? (string) $primaries[0] : array_combine($this->primary, $primaries);
 	}
 
 

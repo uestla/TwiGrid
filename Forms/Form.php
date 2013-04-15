@@ -18,28 +18,15 @@ use TwiGrid\Helpers;
 class Form extends Nette\Application\UI\Form
 {
 
-	/** @var Nette\Callback|NULL */
-	protected $filterFactory = NULL;
-
-
-
 	/**
 	 * @param  Nette\Callback
+	 * @param  array
 	 * @return Form
 	 */
-	function setFilterFactory(Nette\Callback $factory)
+	function addFilterCriteria(Nette\Callback $factory, array $defaults)
 	{
-		$this->filterFactory = $factory;
-		return $this;
-	}
-
-
-
-	/** @return Form */
-	function addFilterCriteria()
-	{
-		if (!$this->lazyCreateContainer('filters', 'criteria', $criteria, $this->filterFactory)) {
-			$criteria->setDefaults($this->parent->filters);
+		if (!$this->lazyCreateContainer('filters', 'criteria', $criteria, $factory)) {
+			$criteria->setDefaults($defaults);
 		}
 
 		return $this;
@@ -66,10 +53,9 @@ class Form extends Nette\Application\UI\Form
 
 
 
-	/** @return array */
+	/** @return array|NULL */
 	function getFilterCriteria()
 	{
-		$this->addFilterCriteria();
 		return $this['filters']['criteria']->isValid()
 			? Helpers::filterEmpty($this['filters']['criteria']->getValues(TRUE))
 			: NULL;
@@ -88,7 +74,7 @@ class Form extends Nette\Application\UI\Form
 			foreach ($this->parent->data as $record) {
 				$records->addComponent($c = new PrimaryCheckbox, $i);
 				$c->setPrimary($primaryToString($record));
-				$i++ === 0 && $c->addRule(__CLASS__ . '::validateCheckedCount', 'Choose at least one record!');
+				$i++ === 0 && $c->addRule(__CLASS__ . '::validateCheckedCount', 'Choose at least one record.');
 			}
 		}
 
@@ -123,7 +109,7 @@ class Form extends Nette\Application\UI\Form
 	 */
 	function getCheckedRecords(Nette\Callback $primaryToString)
 	{
-		$this->addGroupActionCheckboxes( $primaryToString );
+		$this->addGroupActionCheckboxes($primaryToString);
 		if ($this['actions']['records']->isValid()) {
 			$checked = array();
 			foreach ($this['actions']['records']->components as $checkbox) {
@@ -145,7 +131,7 @@ class Form extends Nette\Application\UI\Form
 	 * @param  Nette\Callback
 	 * @param  Nette\Callback
 	 * @param  string|NULL
-	 * @return void
+	 * @return Form
 	 */
 	function addInlineEditControls(Nette\Callback $dataLoader, Nette\Callback $primaryToString, Nette\Callback $containerFactory, $iePrimary)
 	{
@@ -169,6 +155,8 @@ class Form extends Nette\Application\UI\Form
 				$i++;
 			}
 		}
+
+		return $this;
 	}
 
 
@@ -177,6 +165,39 @@ class Form extends Nette\Application\UI\Form
 	function getInlineValues()
 	{
 		return $this['inline']['values']->isValid() ? $this['inline']['values']->getValues(TRUE) : NULL;
+	}
+
+
+
+	/**
+	 * @param  int
+	 * @param  int
+	 * @return Form
+	 */
+	function addPaginationControls($current, $pageCount)
+	{
+		if (!$this->lazyCreateContainer('pagination', 'controls', $controls)) {
+			$controls->addSelect('page', 'Page')
+				->setItems(range(1, $pageCount), FALSE)
+				->setRequired('Please select a page to go to.')
+				->setDefaultValue($current);
+		}
+
+		if (!$this->lazyCreateContainer('pagination', 'buttons', $buttons)) {
+			$buttons->addSubmit('change', 'Change page')
+				->setValidationScope(FALSE)
+				->setAttribute('data-tw-validate', 'pagination[controls]');
+		}
+
+		return $this;
+	}
+
+
+
+	/** @return int */
+	function getPage()
+	{
+		return (int) $this['pagination']['controls']['page']->value;
 	}
 
 

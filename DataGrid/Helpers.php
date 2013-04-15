@@ -57,6 +57,20 @@ abstract class Helpers extends Nette\Object
 
 
 
+	// === PAGINATING ======================================================
+
+	/**
+	 * @param  int
+	 * @param  int
+	 * @return int
+	 */
+	static function fixPage($page, $pageCount)
+	{
+		return max(1, min((int) $page, $pageCount));
+	}
+
+
+
 	// === CSRF PROTECTION ======================================================
 
 	/**

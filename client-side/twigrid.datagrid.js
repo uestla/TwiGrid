@@ -46,6 +46,9 @@ $.nette.ext('twigrid', {
 				gFooter = grid.find(self.footerSelector);
 
 
+			grid.addClass('js');
+
+
 			// filtering
 			self.filterBehavior(
 				gHeader.find('select[name^="' + self.escape('filters[criteria][') + '"]'),
@@ -82,6 +85,13 @@ $.nette.ext('twigrid', {
 					gHeader
 				);
 			}
+
+
+			// pagination
+			self.paginationBehavior(
+				gFooter.find('select[name^="' + self.escape('pagination[controls][') + '"]'),
+				gFooter.find(self.buttonSelector('[name="' + self.escape('pagination[buttons][change]') + '"]'))
+			);
 
 
 			// client validation
@@ -247,6 +257,13 @@ $.nette.ext('twigrid', {
 		});
 	},
 
+	paginationBehavior: function (selects, submit) {
+		selects.off('change.tw-pagination')
+			.on('change.tw-pagination', function (event) {
+				submit.trigger('click');
+			});
+	},
+
 	clientValidation: function (form, buttons) {
 		var self = this;
 		if (window.Nette !== undefined) {
@@ -288,10 +305,8 @@ $.nette.ext('twigrid', {
 				.on('click.tw-ajax', self.buttonSelector(), handler);
 		}
 
-		buttons.each(function (key, val) {
-			form.off('click.tw-ajax', buttons.selector)
-				.on('click.tw-ajax', buttons.selector, handler);
-		});
+		form.off('click.tw-ajax', buttons.selector)
+			.on('click.tw-ajax', buttons.selector, handler);
 	},
 
 

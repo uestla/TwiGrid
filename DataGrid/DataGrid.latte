@@ -1,11 +1,11 @@
 {**
  * Default DataGrid template
  *
- * @param  array  $flashes
+ * @param  TwiGrid\DataGrid  $grid
  * @param  string  $defaultTemplate
- * @param  Nette\Application\UI\Form  $form
+ * @param  array  $flashes
+ * @param  TwiGrid\Forms\Form  $form
  * @param  ArrayIterator  $columns
- * @param  ArrayIterator  $filterButtons
  * @param  Nette\Callback  $data
  * @param  array  $rowActions
  * @param  string  $csrfToken
@@ -14,6 +14,7 @@
  * @param  bool  $hasGroupActions
  * @param  bool  $hasFilters
  * @param  bool  $hasInlineEdit
+ * @param  bool  $isPaginated
  * @param  string|NULL  $iePrimary
  * @param  int  $columnCount number of table columns
  *}
@@ -77,7 +78,7 @@
 			<th rowspan="2" class="header-cell center" n:if="$hasGroupActions">&nbsp;</th>
 
 		{foreach $columns as $name => $column}
-{var $params = [ name => $name, column => $column ]}
+{var $params = [name => $name, column => $column]}
 {ifset #header-cell-$name}
 {include #"header-cell-$name", (expand) $params |indent:2}
 {else}
@@ -90,9 +91,9 @@
 
 	{if $hasFilters}
 		<tr n:snippet="filter-controls">
-{? $form->addFilterCriteria()}
+{? $grid->addFilterCriteria(); $grid->addFilterButtons() }
 		{foreach $columns as $name => $column}
-{var $params = [ column => $name ]}
+{var $params = [column => $name]}
 {ifset #filter-cell-$name}
 {include #"filter-cell-$name", (expand) $params |indent:2}
 {else}
@@ -117,7 +118,7 @@
 {define header-cell}
 
 	<th n:class='header-cell, "header-cell-{$column->name}"'>
-{var $params = [ column => $column ]}
+{var $params = [column => $column]}
 	{if $column->sortable}
 		<a n:href="sort!,
 				orderBy => !$column->orderedBy || !$column->orderedDesc ? $name : NULL,
@@ -165,7 +166,7 @@
 
 {define filter-buttons}
 	<div class="btn-group">
-	{foreach $filterButtons as $name => $button}
+	{foreach $form['filters-buttons']->components as $name => $button}
 {include #filter-button, name => $name, button => $button |indent:1}
 	{/foreach}
 	</div>
@@ -187,10 +188,10 @@
 
 	<tbody class="body" n:snippet="body">
 
-	{if}{? $control->addGroupActionCheckboxes(); $control->addInlineEditControls() }
+	{if}{? $grid->addGroupActionCheckboxes(); $grid->addInlineEditControls() }
 
 	{foreach $data() as $record}
-		{var $primaryString = $template->primaryToString( $record ),
+		{var $primaryString = $template->primaryToString($record),
 			$isInlineEdited = $hasInlineEdit && $iePrimary === $primaryString}
 		<tr n:class="$isInlineEdited ? success">
 
@@ -200,7 +201,7 @@
 			</td>
 
 		{foreach $columns as $name => $column}
-{var $params = [ record => $record, isInlineEdited => $isInlineEdited, column => $name, value => $template->getValue($record, $name, FALSE) ]}
+{var $params = [record => $record, isInlineEdited => $isInlineEdited, column => $name, value => $template->getValue($record, $name, FALSE)]}
 {if $isInlineEdited}
 {ifset #body-cell-$name-inline}
 {include #"body-cell-$name-inline", (expand) $params |indent:2}
@@ -270,11 +271,11 @@
 {include #inline-buttons |indent:1}
 
 	{else}
-	{ifset $form[ $buttonName = "inline-buttons-" . ($i) ]}
+	{ifset $form[$buttonName = "inline-buttons-$i"]}
 		{? }{input $buttonName, class => 'btn btn-info btn-small'}
 	{/ifset}
 	{foreach (array) $rowActions as $name => $action}
-{var $params = [ name => $name, action => $action, record => $record, link => $control->link('rowAction!', [ action => $name, primary => $primaryString, token => $csrfToken ]) ]}
+{var $params = [name => $name, action => $action, record => $record, link => $grid->link('rowAction!', [action => $name, primary => $primaryString, token => $csrfToken])]}
 {ifset #row-action-$name}
 {include #"row-action-$name", (expand) $params |indent:1}
 {else}
@@ -312,11 +313,19 @@
 
 	<tfoot class="footer" n:snippet="footer">
 
-		<tr n:if="$template->hasData && $hasGroupActions">
-			<td colspan="{$columnCount}" class="footer-cell center">
-			{if $groupActions !== NULL}
+{capture $footerInfo}{include #footer-info |indent:3}{/capture}
+
+		<tr n:if="$template->hasData && (strlen(trim($footerInfo)) || $hasGroupActions || $grid->pageCount > 1)">
+			<td colspan="{$columnCount}" class="row-fluid footer-cell">
+			{if $hasGroupActions}
 {include #group-action-buttons |indent:3}
 			{/if}
+
+			{if $grid->pageCount > 1}
+{include #pagination |indent:3}
+			{/if}
+
+{!$footerInfo}
 			</td>
 		</tr>
 
@@ -329,8 +338,9 @@
 {* === ... ============================================ *}
 
 {define group-action-buttons}
+{? $grid->addGroupActionButtons() }
 
-	<div class="pull-left">
+	<div n:class="$isPaginated ? span4 : span12">
 
 {include #group-action-buttons-label |indent:1}
 
@@ -358,4 +368,44 @@
 
 {define group-action-button}
 	{? }{input actions-buttons-$name, class => btn, data-confirm => $action[confirmation]}
+{/define}
+
+
+
+{* === ... ============================================ *}
+
+{define pagination}
+{? $grid->addPaginationControls() }
+	<div class="span4" n:if="!$hasGroupActions"></div>
+
+	<div class="span4">
+		<ul class="pager center">
+			<li n:class="$grid->page === 1 ? disabled">
+				<a n:href="paginate!, p => max(1, $grid->page - 1)" class="tw-ajax">
+					{_'Previous'}
+				</a>
+			</li>
+
+			<li>
+				{? }{input pagination-controls-page}
+				{? }{input pagination-buttons-change, class => 'js-hid btn'}
+			</li>
+
+			<li n:class="$grid->page === $grid->pageCount ? disabled">
+				<a n:href="paginate!, p => min($grid->pageCount, $grid->page + 1)" class="tw-ajax">
+					{_'Next'}
+				</a>
+			</li>
+		</ul>
+	</div>
+{/define}
+
+
+
+{* === ... ============================================ *}
+
+{define footer-info}
+	<div n:class="!$hasGroupActions && $grid->pageCount <= 1 ? span12 : span4, right" n:if="$isPaginated">
+		{_'%d items', $grid->itemCount}
+	</div>
 {/define}
