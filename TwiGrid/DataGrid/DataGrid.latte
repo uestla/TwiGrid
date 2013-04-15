@@ -340,7 +340,7 @@
 {define group-action-buttons}
 {? $grid->addGroupActionButtons() }
 
-	<div n:class="$isPaginated ? span4 : span12">
+	<div n:class="$isPaginated ? ($grid->pageCount <= 1 ? span8 : span4) : span12">
 
 {include #group-action-buttons-label |indent:1}
 
@@ -380,7 +380,7 @@
 
 	<div class="span4">
 		<ul class="pager center">
-			<li n:class="$grid->page === 1 ? disabled">
+			<li n:class="$grid->page <= 1 ? disabled">
 				<a n:href="paginate!, p => max(1, $grid->page - 1)" class="tw-ajax">
 					{_'Previous'}
 				</a>
