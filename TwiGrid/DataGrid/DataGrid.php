@@ -841,8 +841,8 @@ class DataGrid extends Nette\Application\UI\Control
 		$template->hasRowActions = $this->rowActions !== NULL;
 		$template->hasGroupActions = $this->groupActions !== NULL;
 		$template->hasFilters = $this->filterFactory !== NULL;
-		$template->hasInlineEdit = $this->ieContainerFactory !== NULL;
 		$template->isPaginated = $this->itemsPerPage !== NULL;
+		$template->hasInlineEdit = $this->ieContainerFactory !== NULL;
 		$template->iePrimary = $this->iePrimary;
 		$template->columnCount = count($template->columns) + ($template->hasGroupActions ? 1 : 0) + ($template->hasFilters || $template->hasRowActions ? 1 : 0);
 		$template->render();
