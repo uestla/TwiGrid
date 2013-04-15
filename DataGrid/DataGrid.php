@@ -34,7 +34,7 @@ class DataGrid extends Nette\Application\UI\Control
 	public $orderDesc = FALSE;
 
 	/** @var array */
-	protected $defaultOrderBy = NULL;
+	private $defaultOrderBy = NULL;
 
 
 
@@ -44,10 +44,10 @@ class DataGrid extends Nette\Application\UI\Control
 	public $filters = array();
 
 	/** @var array */
-	protected $defaultFilters = NULL;
+	private $defaultFilters = NULL;
 
 	/** @var Nette\Callback */
-	protected $filterFactory = NULL;
+	private $filterFactory = NULL;
 
 
 
@@ -57,10 +57,10 @@ class DataGrid extends Nette\Application\UI\Control
 	public $iePrimary = NULL;
 
 	/** @var Nette\Callback */
-	protected $ieContainerFactory = NULL;
+	private $ieContainerFactory = NULL;
 
 	/** @var Nette\Callback */
-	protected $ieProcessCallback = NULL;
+	private $ieProcessCallback = NULL;
 
 
 
@@ -70,59 +70,59 @@ class DataGrid extends Nette\Application\UI\Control
 	public $page = 1;
 
 	/** @var int */
-	protected $itemsPerPage = NULL;
+	private $itemsPerPage = NULL;
 
 	/** @var Nette\Callback */
-	protected $itemCounter = NULL;
+	private $itemCounter = NULL;
 
 	/** @var int */
-	protected $itemCount = NULL;
+	private $itemCount = NULL;
 
 	/** @var int */
-	protected $pageCount = NULL;
+	private $pageCount = NULL;
 
 
 
 	// === data ===========
 
 	/** @var Record */
-	protected $record;
+	private $record;
 
 	/** @var Nette\Callback */
-	protected $dataLoader = NULL;
+	private $dataLoader = NULL;
 
 	/** @var array|\Traversable */
-	protected $data = NULL;
+	private $data = NULL;
 
 
 
 	// === actions ===========
 
 	/** @var array */
-	protected $rowActions = NULL;
+	private $rowActions = NULL;
 
 	/** @var array */
-	protected $groupActions = NULL;
+	private $groupActions = NULL;
 
 	/** @var Nette\Http\Session */
-	protected $session;
+	private $session;
 
 	/** @var string */
-	protected $sessNamespace;
+	private $sessNamespace;
 
 
 
 	// === l10n ===========
 
 	/** @var ITranslator */
-	protected $translator = NULL;
+	private $translator = NULL;
 
 
 
 	// === rendering ===========
 
 	/** @var string */
-	protected $templateFile = NULL;
+	private $templateFile = NULL;
 
 
 
@@ -282,7 +282,7 @@ class DataGrid extends Nette\Application\UI\Control
 	function getColumnNames()
 	{
 		$names = array_keys(iterator_to_array($this->getColumns()));
-		return array_combine($names, $names);
+		return array_merge(array_combine($this->record->primaryKey, $this->record->primaryKey), $names);
 	}
 
 
@@ -468,7 +468,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 			$args = array(
 				$this,
-				array_merge(array_combine($this->record->primaryKey, $this->record->primaryKey), $this->getColumnNames()),
+				$this->getColumnNames(),
 				$this->filters,
 				$order,
 			);
@@ -601,7 +601,7 @@ class DataGrid extends Nette\Application\UI\Control
 	protected function initPagination()
 	{
 		if ($this->itemCount === NULL) {
-			$this->itemCount = max(0, (int) $this->itemCounter->invokeArgs(array($this->filters)));
+			$this->itemCount = max(0, (int) $this->itemCounter->invokeArgs(array($this->getColumnNames(), $this->filters)));
 			$this->pageCount = (int) ceil($this->itemCount / $this->itemsPerPage);
 			$this->page = Helpers::fixPage($this->page, $this->pageCount);
 		}
