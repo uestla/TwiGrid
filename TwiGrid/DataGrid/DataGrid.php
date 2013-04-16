@@ -96,13 +96,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 
-	// === actions ===========
-
-	/** @var array */
-	private $rowActions = NULL;
-
-	/** @var array */
-	private $groupActions = NULL;
+	// === sessions ===========
 
 	/** @var Nette\Http\Session */
 	private $session;
@@ -264,7 +258,8 @@ class DataGrid extends Nette\Application\UI\Control
 	function addColumn($name, $label = NULL)
 	{
 		!isset($this['columns']) && ($this['columns'] = new Nette\ComponentModel\Container);
-		$this['columns']->addComponent($c = new Column($this->translate($label === NULL ? $name : $label)), $name);
+		$c = new Column($this->translate($label === NULL ? $name : $label));
+		$this['columns']->addComponent($c, $name);
 		return $c;
 	}
 
@@ -293,21 +288,22 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  string
 	 * @param  string
 	 * @param  mixed
-	 * @param  string|NULL
+	 * @return RowAction
 	 */
-	function addRowAction($name, $label, $callback, $confirmation = NULL)
+	function addRowAction($name, $label, $callback)
 	{
-		$this->rowActions === NULL && ($this->rowActions = array());
-		if (isset($this->rowActions[$name])) {
-			throw new Nette\InvalidArgumentException("Row action '$name' already set.");
-		}
+		!isset($this['rowActions']) && ($this['rowActions'] = new Nette\ComponentModel\Container);
+		$a = new RowAction($label, Nette\Callback::create($callback));
+		$this['rowActions']->addComponent($a, $name);
+		return $a;
+	}
 
-		$this->rowActions[$name] = array(
-			'label' => $this->translate($label),
-			'callback' => Nette\Callback::create($callback),
-			'confirmation' => $confirmation === NULL ? $confirmation : $this->translate($confirmation),
-		);
-		return $this;
+
+
+	/** @return \ArrayIterator|NULL */
+	function getRowActions()
+	{
+		return isset($this['rowActions']) ? $this['rowActions']->components : NULL;
 	}
 
 
@@ -315,12 +311,13 @@ class DataGrid extends Nette\Application\UI\Control
 	/**
 	 * @param  string
 	 * @param  string
-	 * @param  string
+	 * @param  string|NULL
 	 */
-	function handleRowAction($action, $primary, $token)
+	function handleRowAction($action, $primary, $token = NULL)
 	{
-		if (Helpers::checkCsrfToken($this->session, $this->sessNamespace, $token)) {
-			$this->rowActions[$action]['callback']($this->record->stringToPrimary($primary));
+		$a = $this['rowActions']->getComponent($action);
+		if (!$a->protected || Helpers::checkCsrfToken($this->session, $this->sessNamespace, $token)) {
+			$a->callback->invokeArgs(array($this->record->stringToPrimary($primary)));
 			$this->refreshState();
 			$this->invalidate(TRUE, TRUE, 'body', 'footer');
 
@@ -336,22 +333,22 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  string
 	 * @param  string
 	 * @param  mixed
-	 * @param  string|NULL
-	 * @return DataGrid
+	 * @return Action
 	 */
-	function addGroupAction($name, $label, $callback, $confirmation = NULL)
+	function addGroupAction($name, $label, $callback)
 	{
-		$this->groupActions === NULL && ($this->groupActions = array());
-		if (isset($this->groupActions[$name])) {
-			throw new Nette\InvalidArgumentException("Group action '$name' already set.");
-		}
+		!isset($this['groupActions']) && ($this['groupActions'] = new Nette\ComponentModel\Container);
+		$a = new Action($label, Nette\Callback::create($callback));
+		$this['groupActions']->addComponent($a, $name);
+		return $a;
+	}
 
-		$this->groupActions[$name] = array(
-			'label' => $this->translate($label),
-			'callback' => Nette\Callback::create($callback),
-			'confirmation' => $confirmation === NULL ? $confirmation : $this->translate($confirmation),
-		);
-		return $this;
+
+
+	/** @return \ArrayIterator|NULL */
+	function getGroupActions()
+	{
+		return isset($this['groupActions']) ? $this['groupActions']->components : NULL;
 	}
 
 
@@ -680,7 +677,7 @@ class DataGrid extends Nette\Application\UI\Control
 	function addGroupActionButtons()
 	{
 		$this->groupActions !== NULL
-			&& $this['form']->addGroupActionButtons($this->groupActions);
+			&& $this['form']->addGroupActionButtons($this->getGroupActions());
 
 		return $this;
 	}
@@ -765,7 +762,7 @@ class DataGrid extends Nette\Application\UI\Control
 					$primaries[] = $this->record->stringToPrimary($primaryString);
 				}
 
-				$this->groupActions[$name]['callback']($primaries);
+				$this['groupActions']->getComponent($name)->callback->invokeArgs(array($primaries));
 				$this->refreshState();
 				$this->invalidate(TRUE, TRUE, 'body', 'footer');
 			}
@@ -821,6 +818,7 @@ class DataGrid extends Nette\Application\UI\Control
 	function render()
 	{
 		$template = $this->createTemplate();
+
 		$template->grid = $this;
 		$template->defaultTemplate = __DIR__ . '/DataGrid.latte';
 		$this->templateFile === NULL && ($this->templateFile = $template->defaultTemplate);
@@ -835,16 +833,19 @@ class DataGrid extends Nette\Application\UI\Control
 				&& $this->presenter->payload->twiGrid['forms'][$form->elementPrototype->id] = (string) $form->getAction();
 		$template->columns = $this->getColumns();
 		$template->data = $this->getData;
-		$template->rowActions = $this->rowActions;
 		$template->csrfToken = Helpers::getCsrfToken($this->session, $this->sessNamespace);
-		$template->groupActions = $this->groupActions;
-		$template->hasRowActions = $this->rowActions !== NULL;
-		$template->hasGroupActions = $this->groupActions !== NULL;
+		$template->rowActions = $this->getRowActions();
+		$template->hasRowActions = $template->rowActions !== NULL;
+		$template->groupActions = $this->getGroupActions();
+		$template->hasGroupActions = $template->groupActions !== NULL;
 		$template->hasFilters = $this->filterFactory !== NULL;
-		$template->isPaginated = $this->itemsPerPage !== NULL;
 		$template->hasInlineEdit = $this->ieContainerFactory !== NULL;
 		$template->iePrimary = $this->iePrimary;
-		$template->columnCount = count($template->columns) + ($template->hasGroupActions ? 1 : 0) + ($template->hasFilters || $template->hasRowActions ? 1 : 0);
+		$template->isPaginated = $this->itemsPerPage !== NULL;
+		$template->columnCount = count($template->columns)
+				+ ($template->hasGroupActions ? 1 : 0)
+				+ ($template->hasFilters || $template->hasRowActions ? 1 : 0);
+
 		$template->render();
 	}
 

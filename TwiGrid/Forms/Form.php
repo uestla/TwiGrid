@@ -84,14 +84,14 @@ class Form extends Nette\Application\UI\Form
 
 
 	/**
-	 * @param  array
+	 * @param  \ArrayIterator
 	 * @return Form
 	 */
-	function addGroupActionButtons(array $actions)
+	function addGroupActionButtons(\ArrayIterator $actions)
 	{
 		if (!$this->lazyCreateContainer('actions', 'buttons', $buttons)) {
 			foreach ($actions as $name => $action) {
-				$buttons->addSubmit($name, $action['label'])
+				$buttons->addSubmit($name, $action->label)
 					->setValidationScope(FALSE)
 					->setAttribute('data-tw-validate', 'actions[records]');
 			}
