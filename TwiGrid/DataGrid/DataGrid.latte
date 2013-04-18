@@ -78,7 +78,7 @@
 			<th rowspan="2" class="header-cell center" n:if="$hasGroupActions">&nbsp;</th>
 
 		{foreach $columns as $name => $column}
-{var $params = [name => $name, column => $column]}
+{var $params = [name => $name, column => $column, sortLink => $control->link('sort!', [ 'orderBy' => !$column->orderedBy || !$column->orderedDesc ? $name : NULL, 'orderDesc' => $column->orderedBy && !$column->orderedDesc ])]}
 {ifset #header-cell-$name}
 {include #"header-cell-$name", (expand) $params |indent:2}
 {else}
@@ -119,19 +119,11 @@
 
 	<th n:class='header-cell, "header-cell-{$column->name}"'>
 {var $params = [column => $column]}
-	{if $column->sortable}
-		<a n:href="sort!,
-				orderBy => !$column->orderedBy || !$column->orderedDesc ? $name : NULL,
-				orderDesc => $column->orderedBy && !$column->orderedDesc"
-			n:class="tw-ajax">
-{include #header-label, (expand) $params |indent:2}
-		</a>
+	<a href="{$sortLink}" n:class="tw-ajax" n:tag-if="$column->sortable">
+		{$column->label}
+	</a>
 
-	{else}
-{include #header-label, (expand) $params |indent:1}
-	{/if}
-
-		<i n:class="$column->orderedDesc ? icon-chevron-down : icon-chevron-up" n:if="$column->orderedBy"></i>
+{include #sort-arrow, (expand) $params |indent:1}
 	</th>
 
 {/define}
@@ -140,8 +132,8 @@
 
 {* === ... ============================================ *}
 
-{define header-label}
-	{$column->label}
+{define sort-arrow}
+	<i n:class="$column->orderedDesc ? icon-chevron-down : icon-chevron-up" n:if="$column->orderedBy"></i>
 {/define}
 
 
