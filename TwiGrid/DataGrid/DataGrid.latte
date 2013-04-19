@@ -266,6 +266,8 @@
 	{ifset $form[$buttonName = "inline-buttons-$i"]}
 		{? }{input $buttonName, class => 'btn btn-info btn-small'}
 	{/ifset}
+
+{if $hasRowActions}
 	{foreach $rowActions as $name => $action}
 {var $params = [name => $name, action => $action, record => $record, link => $grid->link('rowAction!', [action => $name, primary => $primaryString, token => $action->protected ? $csrfToken])]}
 {ifset #row-action-$name}
@@ -274,6 +276,7 @@
 {include #row-action, (expand) $params |indent:1}
 {/ifset}
 	{/foreach}
+{/if}
 	{/if}
 	</div>
 {/define}
