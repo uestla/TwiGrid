@@ -21,13 +21,21 @@
 
 <div class="tw-cnt">
 
-	<div n:snippet="flashes">
-		<div n:foreach="$flashes as $flash" class="alert alert-{$flash->type} hidable">{_$flash->message}</div>
-	</div>
+{include #flashes}
 
 {include #datagrid}
 
 </div>
+
+
+
+{* === ... ============================================ *}
+
+{define flashes}
+	<div n:snippet="flashes">
+		<div n:foreach="$flashes as $flash" class="alert alert-{$flash->type} hidable">{_$flash->message}</div>
+	</div>
+{/define}
 
 
 
