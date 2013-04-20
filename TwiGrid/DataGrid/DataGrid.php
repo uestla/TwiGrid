@@ -560,7 +560,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 
-	// === PAGINATING ======================================================
+	// === PAGINATION ======================================================
 
 	/**
 	 * @param  int

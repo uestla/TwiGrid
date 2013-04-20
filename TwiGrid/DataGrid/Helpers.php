@@ -57,7 +57,7 @@ abstract class Helpers extends Nette\Object
 
 
 
-	// === PAGINATING ======================================================
+	// === PAGINATION ======================================================
 
 	/**
 	 * @param  int
