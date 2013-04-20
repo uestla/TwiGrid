@@ -9,7 +9,7 @@
  * @link     https://github.com/uestla/twigrid
  */
 
-namespace TwiGrid;
+namespace TwiGrid\Components;
 
 
 /** @property bool $protected */

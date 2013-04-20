@@ -9,12 +9,12 @@
  * @link     https://github.com/uestla/twigrid
  */
 
-namespace TwiGrid;
+namespace TwiGrid\Components;
 
 use Nette;
 
 
-class Column extends Nette\ComponentModel\Component
+class Column extends DataGridComponent
 {
 
 	/** @var string */
@@ -43,7 +43,7 @@ class Column extends Nette\ComponentModel\Component
 	/** @return string */
 	function getLabel()
 	{
-		return $this->label;
+		return $this->getDataGrid()->translate($this->label);
 	}
 
 

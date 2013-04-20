@@ -9,7 +9,7 @@
  * @link     https://github.com/uestla/twigrid
  */
 
-namespace TwiGrid;
+namespace TwiGrid\Components;
 
 use Nette;
 
@@ -20,7 +20,7 @@ use Nette;
  * @property string $confirmation
  * @property-read DataGrid $grid
  */
-class Action extends Nette\ComponentModel\Component
+class Action extends DataGridComponent
 {
 
 	/** @var string */
@@ -51,7 +51,7 @@ class Action extends Nette\ComponentModel\Component
 	/** @return string */
 	function getLabel()
 	{
-		return $this->getGrid()->translate($this->label);
+		return $this->getDataGrid()->translate($this->label);
 	}
 
 
@@ -79,18 +79,7 @@ class Action extends Nette\ComponentModel\Component
 	/** @return string|NULL */
 	function getConfirmation()
 	{
-		return $this->confirmation === NULL ? NULL : $this->getGrid()->translate($this->confirmation);
-	}
-
-
-
-	/**
-	 * @param  bool
-	 * @return DataGrid
-	 */
-	function getGrid($need = TRUE)
-	{
-		return $this->lookup('TwiGrid\DataGrid', $need);
+		return $this->confirmation === NULL ? NULL : $this->getDataGrid()->translate($this->confirmation);
 	}
 
 }

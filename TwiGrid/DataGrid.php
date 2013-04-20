@@ -253,12 +253,12 @@ class DataGrid extends Nette\Application\UI\Control
 	/**
 	 * @param  string
 	 * @param  string
-	 * @return Column
+	 * @return Components\Column
 	 */
 	function addColumn($name, $label = NULL)
 	{
 		!isset($this['columns']) && ($this['columns'] = new Nette\ComponentModel\Container);
-		$c = new Column($this->translate($label === NULL ? $name : $label));
+		$c = new Components\Column($label === NULL ? $name : $label);
 		$this['columns']->addComponent($c, $name);
 		return $c;
 	}
@@ -288,12 +288,12 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  string
 	 * @param  string
 	 * @param  mixed
-	 * @return RowAction
+	 * @return Components\RowAction
 	 */
 	function addRowAction($name, $label, $callback)
 	{
 		!isset($this['rowActions']) && ($this['rowActions'] = new Nette\ComponentModel\Container);
-		$a = new RowAction($label, Nette\Callback::create($callback));
+		$a = new Components\RowAction($label, Nette\Callback::create($callback));
 		$this['rowActions']->addComponent($a, $name);
 		return $a;
 	}
@@ -333,12 +333,12 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  string
 	 * @param  string
 	 * @param  mixed
-	 * @return Action
+	 * @return Components\Action
 	 */
 	function addGroupAction($name, $label, $callback)
 	{
 		!isset($this['groupActions']) && ($this['groupActions'] = new Nette\ComponentModel\Container);
-		$a = new Action($label, Nette\Callback::create($callback));
+		$a = new Components\Action($label, Nette\Callback::create($callback));
 		$this['groupActions']->addComponent($a, $name);
 		return $a;
 	}
