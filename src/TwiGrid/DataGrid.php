@@ -322,7 +322,7 @@ class DataGrid extends Nette\Application\UI\Control
 			$this->invalidate(TRUE, TRUE, 'body', 'footer');
 
 		} else {
-			$this->flashMessage('Security token does not match.', 'error');
+			$this->flashMessage('Security token does not match. Please try again.', 'error');
 			$this->redirect('this');
 		}
 	}
