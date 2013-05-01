@@ -22,6 +22,36 @@ $.fn.extend({
 
 	twgToggleChecked: function () {
 		return this.twgChecked(!this.attr('checked'))
+	},
+
+	twgDisableSelection: function () {
+		this.attr('unselectable', 'on')
+			.css('user-select', 'none')
+			.off('selectstart.twg').on('selectstart.twg', false);
+
+		return this;
+	},
+
+	twgClearSelection: function () {
+		if (window.getSelection) {
+			var selection = window.getSelection();
+			if (selection.removeAllRanges) {
+				selection.removeAllRanges();
+			}
+
+		} else if (window.document.selection) {
+			window.document.selection.empty();
+		}
+	},
+
+	twgEnableSelection: function () {
+		this.twgClearSelection();
+
+		this.attr('unselectable', 'off')
+			.attr('style', null)
+			.off('selectstart.twg');
+
+		return this;
 	}
 });
 
@@ -80,6 +110,7 @@ $.nette.ext('twigrid', {
 			var checkboxes = grid.find(':checkbox[name^="' + self.escape('actions[records][') + '"]');
 			if (checkboxes.length) {
 				self.rowsChecking(
+					grid,
 					checkboxes,
 					gFooter.find(self.buttonSelector('[name^="' + self.escape('actions[buttons][') + '"]')),
 					gHeader
@@ -208,7 +239,7 @@ $.nette.ext('twigrid', {
 			});
 	},
 
-	rowsChecking: function (checkboxes, buttons, header) {
+	rowsChecking: function (grid, checkboxes, buttons, header) {
 		var self = this,
 			groupCheckbox = $('<input type="checkbox" />')
 			.off('change.tw-rowcheck')
@@ -250,8 +281,26 @@ $.nette.ext('twigrid', {
 
 			row.off('click.tw-rowcheck')
 				.on('click.tw-rowcheck', function (event) {
-					if (!self.isClickable(event.target) && self.noMetaKeysPressed(event)) {
-						checkbox.twgToggleChecked();
+					if (!self.isClickable(event.target)) {
+						grid.twgDisableSelection();
+
+						if (self.onlyShiftKeyPressed(event)) {
+							if (self.lastChecked !== null) {
+								for (var i = 0; i < Math.abs(k - self.lastChecked); i++) {
+									checkboxes.eq(Math.abs(k > self.lastChecked ? k - i : k + i))
+										.twgChecked(checkboxes.eq(self.lastChecked).attr('checked'));
+								}
+
+							} else {
+								checkbox.twgToggleChecked();
+							}
+
+						} else if (self.noMetaKeysPressed(event)) {
+							checkbox.twgToggleChecked();
+						}
+
+						self.lastChecked = k;
+						grid.twgEnableSelection();
 					}
 				});
 		});
@@ -312,6 +361,8 @@ $.nette.ext('twigrid', {
 
 	// helpers
 
+	lastChecked: null, // index of last checked row checkbox
+
 	escape: function (selector) {
 		return selector.replace(/[\!"#\$%&'\(\)\*\+,\.\/:;<=>\?@\[\\\]\^`\{\|\}~]/g, '\\$&');
 	},
@@ -326,6 +377,10 @@ $.nette.ext('twigrid', {
 
 	onlyCtrlKeyPressed: function (event) {
 		return event.ctrlKey && !event.shiftKey && !event.altKey && !event.metaKey;
+	},
+
+	onlyShiftKeyPressed: function (event) {
+		return event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey;
 	}
 
 });
