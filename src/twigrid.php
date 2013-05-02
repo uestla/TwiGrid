@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/TwiGrid/DataGrid.php';
-require_once __DIR__ . '/TwiGrid/Components/DataGridComponent.php';
+require_once __DIR__ . '/TwiGrid/Components/Component.php';
 require_once __DIR__ . '/TwiGrid/Components/Column.php';
 require_once __DIR__ . '/TwiGrid/Components/Action.php';
 require_once __DIR__ . '/TwiGrid/Components/RowAction.php';
