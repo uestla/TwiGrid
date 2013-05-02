@@ -15,7 +15,7 @@ use Nette;
 use TwiGrid\DataGrid;
 
 
-abstract class DataGridComponent extends Nette\ComponentModel\Component
+abstract class Component extends Nette\ComponentModel\Component
 {
 
 	/**

@@ -20,7 +20,7 @@ use Nette;
  * @property string $confirmation
  * @property-read DataGrid $grid
  */
-class Action extends DataGridComponent
+class Action extends Component
 {
 
 	/** @var string */

@@ -14,7 +14,7 @@ namespace TwiGrid\Components;
 use Nette;
 
 
-class Column extends DataGridComponent
+class Column extends Component
 {
 
 	/** @var string */
