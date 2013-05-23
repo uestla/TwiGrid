@@ -22,7 +22,7 @@ class RowAction extends Action
 
 
 	/**
-	 * @param  bool
+	 * @param  bool $bool
 	 * @return RowAction
 	 */
 	function setProtected($bool = TRUE)

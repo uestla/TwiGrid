@@ -31,7 +31,7 @@ class Column extends Component
 
 
 
-	/** @param  string */
+	/** @param  string $label */
 	function __construct($label)
 	{
 		parent::__construct();
@@ -49,7 +49,7 @@ class Column extends Component
 
 
 	/**
-	 * @param  bool
+	 * @param  bool $bool
 	 * @return Column
 	 */
 	function setSortable($bool = TRUE)
@@ -69,8 +69,8 @@ class Column extends Component
 
 
 	/**
-	 * @param  bool
-	 * @param  bool
+	 * @param  bool $bool
+	 * @param  bool $orderedDesc
 	 * @return Column
 	 */
 	function setOrderedBy($bool = TRUE, $orderedDesc = FALSE)

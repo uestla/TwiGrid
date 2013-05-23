@@ -28,7 +28,7 @@ class Record extends Nette\Object
 
 
 	/**
-	 * @param  string|array
+	 * @param  string|array $key
 	 * @return DataGrid
 	 */
 	function setPrimaryKey($key)
@@ -48,7 +48,7 @@ class Record extends Nette\Object
 
 
 	/**
-	 * @param  mixed
+	 * @param  mixed $callback
 	 * @return DataGrid
 	 */
 	function setValueGetter($callback)
@@ -80,9 +80,9 @@ class Record extends Nette\Object
 
 
 	/**
-	 * @param  mixed
-	 * @param  string
-	 * @param  bool
+	 * @param  mixed $record
+	 * @param  string $column
+	 * @param  bool $need
 	 * @return mixed
 	 */
 	function getValue($record, $column, $need = TRUE)
@@ -93,7 +93,7 @@ class Record extends Nette\Object
 
 
 	/**
-	 * @param  mixed
+	 * @param  mixed $record
 	 * @return string
 	 */
 	function primaryToString($record)
@@ -104,7 +104,7 @@ class Record extends Nette\Object
 
 
 	/**
-	 * @param  string
+	 * @param  string $s
 	 * @return array|string
 	 */
 	function stringToPrimary($s)
@@ -116,7 +116,7 @@ class Record extends Nette\Object
 
 
 	/**
-	 * @param  mixed
+	 * @param  mixed $record
 	 * @return array
 	 */
 	protected function getPrimary($record)

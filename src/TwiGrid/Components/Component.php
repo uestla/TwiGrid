@@ -19,7 +19,7 @@ abstract class Component extends Nette\ComponentModel\Component
 {
 
 	/**
-	 * @param  bool
+	 * @param  bool $need
 	 * @return DataGrid
 	 */
 	function getDataGrid($need = TRUE)

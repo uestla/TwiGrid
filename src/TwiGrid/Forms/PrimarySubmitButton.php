@@ -23,7 +23,7 @@ class PrimarySubmitButton extends Nette\Forms\Controls\SubmitButton
 
 
 	/**
-	 * @param  string
+	 * @param  string $value
 	 * @return PrimarySubmitButton
 	 */
 	function setPrimary($value)

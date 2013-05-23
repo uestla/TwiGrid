@@ -19,8 +19,8 @@ class Form extends Nette\Application\UI\Form
 {
 
 	/**
-	 * @param  Nette\Callback
-	 * @param  array
+	 * @param  Nette\Callback $factory
+	 * @param  array $defaults
 	 * @return Form
 	 */
 	function addFilterCriteria(Nette\Callback $factory, array $defaults)
@@ -35,7 +35,7 @@ class Form extends Nette\Application\UI\Form
 
 
 	/**
-	 * @param  bool
+	 * @param  bool $hasFilters
 	 * @return Form
 	 */
 	function addFilterButtons($hasFilters)
@@ -64,7 +64,7 @@ class Form extends Nette\Application\UI\Form
 
 
 	/**
-	 * @param  Nette\Callback
+	 * @param  Nette\Callback $primaryToString
 	 * @return Form
 	 */
 	function addGroupActionCheckboxes(Nette\Callback $primaryToString)
@@ -84,7 +84,7 @@ class Form extends Nette\Application\UI\Form
 
 
 	/**
-	 * @param  \ArrayIterator
+	 * @param  \ArrayIterator $actions
 	 * @return Form
 	 */
 	function addGroupActionButtons(\ArrayIterator $actions)
@@ -103,8 +103,7 @@ class Form extends Nette\Application\UI\Form
 
 
 	/**
-	 * @param  Nette\Callback
-	 * @param  Nette\Callback
+	 * @param  Nette\Callback $primaryToString
 	 * @return array
 	 */
 	function getCheckedRecords(Nette\Callback $primaryToString)
@@ -127,10 +126,10 @@ class Form extends Nette\Application\UI\Form
 
 
 	/**
-	 * @param  Nette\Callback
-	 * @param  Nette\Callback
-	 * @param  Nette\Callback
-	 * @param  string|NULL
+	 * @param  Nette\Callback $dataLoader
+	 * @param  Nette\Callback $primaryToString
+	 * @param  Nette\Callback $containerFactory
+	 * @param  string|NULL $iePrimary
 	 * @return Form
 	 */
 	function addInlineEditControls(Nette\Callback $dataLoader, Nette\Callback $primaryToString, Nette\Callback $containerFactory, $iePrimary)
@@ -170,8 +169,8 @@ class Form extends Nette\Application\UI\Form
 
 
 	/**
-	 * @param  int
-	 * @param  int
+	 * @param  int $current
+	 * @param  int $pageCount
 	 * @return Form
 	 */
 	function addPaginationControls($current, $pageCount)
@@ -203,10 +202,10 @@ class Form extends Nette\Application\UI\Form
 
 
 	/**
-	 * @param  string
-	 * @param  string
-	 * @param  mixed
-	 * @param  Nette\Callback|NULL
+	 * @param  string $parent
+	 * @param  string $name
+	 * @param  mixed $container
+	 * @param  Nette\Callback|NULL $factory
 	 * @return bool does container already exist?
 	 */
 	protected function lazyCreateContainer($parent, $name, & $container = NULL, Nette\Callback $factory = NULL)
@@ -238,7 +237,7 @@ class Form extends Nette\Application\UI\Form
 
 
 	/**
-	 * @param  PrimaryCheckbox
+	 * @param  PrimaryCheckbox $checkbox
 	 * @return bool
 	 */
 	static function validateCheckedCount(PrimaryCheckbox $checkbox)

@@ -20,8 +20,8 @@ abstract class Helpers extends Nette\Object
 {
 
 	/**
-	 * @param  array
-	 * @param  int
+	 * @param  array $array
+	 * @param  int $flags
 	 * @return void
 	 */
 	static function recursiveKSort(array & $array, $flags = SORT_REGULAR)
@@ -35,7 +35,7 @@ abstract class Helpers extends Nette\Object
 
 
 	/**
-	 * @param  array
+	 * @param  array $a
 	 * @return array
 	 */
 	static function filterEmpty(array $a)
@@ -60,8 +60,8 @@ abstract class Helpers extends Nette\Object
 	// === PAGINATION ======================================================
 
 	/**
-	 * @param  int
-	 * @param  int
+	 * @param  int $page
+	 * @param  int $pageCount
 	 * @return int
 	 */
 	static function fixPage($page, $pageCount)
@@ -74,9 +74,9 @@ abstract class Helpers extends Nette\Object
 	// === CSRF PROTECTION ======================================================
 
 	/**
-	 * @param  NSession
-	 * @param  string
-	 * @param  bool
+	 * @param  NSession $session
+	 * @param  string $namespace
+	 * @param  bool $generate
 	 * @return string|NULL
 	 */
 	static function getCsrfToken(NSession $session, $namespace, $generate = TRUE)
@@ -89,9 +89,9 @@ abstract class Helpers extends Nette\Object
 
 
 	/**
-	 * @param  NSession
-	 * @param  string
-	 * @param  string
+	 * @param  NSession $session
+	 * @param  string $namespace
+	 * @param  string $token
 	 * @return bool
 	 */
 	static function checkCsrfToken(NSession $session, $namespace, $token)
@@ -108,8 +108,8 @@ abstract class Helpers extends Nette\Object
 
 
 	/**
-	 * @param  NSession
-	 * @param  string
+	 * @param  NSession $session
+	 * @param  string $namespace
 	 * @return Nette\Http\SessionSection
 	 */
 	protected static function getCsrfTokenSession(NSession $session, $namespace)

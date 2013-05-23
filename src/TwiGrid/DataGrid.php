@@ -12,7 +12,6 @@
 namespace TwiGrid;
 
 use Nette;
-use Nette\Templating\IFileTemplate;
 use Nette\Localization\ITranslator;
 
 
@@ -122,7 +121,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 	// === LIFE CYCLE ======================================================
 
-	/** @param  Nette\Http\Session */
+	/** @param  Nette\Http\Session $s */
 	function __construct(Nette\Http\Session $s)
 	{
 		parent::__construct();
@@ -134,7 +133,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/**
-	 * @param  Nette\ComponentModel\IComponent
+	 * @param  Nette\ComponentModel\IComponent $presenter
 	 * @return void
 	 */
 	protected function attached($presenter)
@@ -147,7 +146,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/**
-	 * @param  array
+	 * @param  array $params
 	 * @return void
 	 */
 	function loadState(array $params)
@@ -209,7 +208,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/**
-	 * @param  bool
+	 * @param  bool $cancelInlineEditing
 	 * @return DataGrid
 	 */
 	protected function refreshState($cancelInlineEditing = TRUE)
@@ -224,7 +223,7 @@ class DataGrid extends Nette\Application\UI\Control
 	// === L10N ======================================================
 
 	/**
-	 * @param  ITranslator
+	 * @param  ITranslator $translator
 	 * @return DataGrid
 	 */
 	function setTranslator(ITranslator $translator)
@@ -236,8 +235,8 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/**
-	 * @param  string
-	 * @param  int|NULL
+	 * @param  string $s
+	 * @param  int|NULL $count
 	 * @return string
 	 */
 	function translate($s, $count = NULL)
@@ -251,8 +250,8 @@ class DataGrid extends Nette\Application\UI\Control
 	// === COLUMNS ======================================================
 
 	/**
-	 * @param  string
-	 * @param  string
+	 * @param  string $name
+	 * @param  string $label
 	 * @return Components\Column
 	 */
 	function addColumn($name, $label = NULL)
@@ -285,9 +284,9 @@ class DataGrid extends Nette\Application\UI\Control
 	// === ACTIONS ======================================================
 
 	/**
-	 * @param  string
-	 * @param  string
-	 * @param  mixed
+	 * @param  string $name
+	 * @param  string $label
+	 * @param  mixed $callback
 	 * @return Components\RowAction
 	 */
 	function addRowAction($name, $label, $callback)
@@ -309,9 +308,10 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/**
-	 * @param  string
-	 * @param  string
-	 * @param  string|NULL
+	 * @param  string $action
+	 * @param  string $primary
+	 * @param  string|NULL $token
+	 * @return void
 	 */
 	function handleRowAction($action, $primary, $token = NULL)
 	{
@@ -330,9 +330,9 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/**
-	 * @param  string
-	 * @param  string
-	 * @param  mixed
+	 * @param  string $name
+	 * @param  string $label
+	 * @param  mixed $callback
 	 * @return Components\Action
 	 */
 	function addGroupAction($name, $label, $callback)
@@ -365,8 +365,8 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/**
-	 * @param  string
-	 * @param  bool
+	 * @param  string $column
+	 * @param  bool $desc
 	 * @return DataGrid
 	 */
 	function setDefaultOrderBy($column, $desc = FALSE)
@@ -380,7 +380,7 @@ class DataGrid extends Nette\Application\UI\Control
 	// === FILTERING ======================================================
 
 	/**
-	 * @param  mixed
+	 * @param  mixed $factory
 	 * @return DataGrid
 	 */
 	function setFilterFactory($factory)
@@ -392,7 +392,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/**
-	 * @param  array
+	 * @param  array $filters
 	 * @return DataGrid
 	 */
 	function setDefaultFilters(array $filters)
@@ -408,8 +408,8 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/**
-	 * @param  array
-	 * @param  bool
+	 * @param  array $filters
+	 * @param  bool $refresh
 	 * @return DataGrid
 	 */
 	protected function setFilters(array $filters, $refresh = TRUE)
@@ -427,7 +427,7 @@ class DataGrid extends Nette\Application\UI\Control
 	// === DATA LOADING ======================================================
 
 	/**
-	 * @param  string|array
+	 * @param  string|array $primaryKey
 	 * @return DataGrid
 	 */
 	function setPrimaryKey($primaryKey)
@@ -439,7 +439,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/**
-	 * @param  mixed
+	 * @param  mixed $loader
 	 * @return DataGrid
 	 */
 	function setDataLoader($loader)
@@ -485,7 +485,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/**
-	 * @param  mixed|NULL
+	 * @param  mixed|NULL $callback
 	 * @return DataGrid
 	 */
 	function setValueGetter($callback = NULL)
@@ -500,7 +500,8 @@ class DataGrid extends Nette\Application\UI\Control
 	 * API:
 	 * $c->invalidate( [bool $data, [bool $form, ]] [string $snippet1 [, string $snippet2 [, ...]]] )
 	 *
-	 * @param  bool|string|NULL
+	 * @param  bool|string|NULL $reloadData
+	 * @param  bool|string $reloadForm
 	 * @return void
 	 */
 	protected function invalidate($reloadData = TRUE, $reloadForm = FALSE)
@@ -523,8 +524,8 @@ class DataGrid extends Nette\Application\UI\Control
 	// === INLINE EDITING ======================================================
 
 	/**
-	 * @param  mixed
-	 * @param  mixed
+	 * @param  mixed $containerCb
+	 * @param  mixed $processCb
 	 * @return DataGrid
 	 */
 	function setInlineEditing($containerCb, $processCb)
@@ -536,7 +537,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/**
-	 * @param  string
+	 * @param  string $primary
 	 * @return void
 	 */
 	protected function activateInlineEditing($primary)
@@ -549,7 +550,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/**
-	 * @param  bool
+	 * @param  bool $dataAsWell
 	 * @return void
 	 */
 	protected function deactivateInlineEditing($dataAsWell = TRUE)
@@ -563,8 +564,8 @@ class DataGrid extends Nette\Application\UI\Control
 	// === PAGINATION ======================================================
 
 	/**
-	 * @param  int
-	 * @param  mixed
+	 * @param  int $itemsPerPage
+	 * @param  mixed $itemCounter
 	 * @return DataGrid
 	 */
 	function setPagination($itemsPerPage, $itemCounter)
@@ -577,8 +578,8 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/**
-	 * @param  int
-	 * @param  bool
+	 * @param  int $p
+	 * @param  bool $refresh
 	 * @return void
 	 */
 	function handlePaginate($p, $refresh = TRUE)
@@ -710,7 +711,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/**
-	 * @param  Forms\Form
+	 * @param  Forms\Form $form
 	 * @return void
 	 */
 	function formSubmitted(Forms\Form $form)
@@ -721,7 +722,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/**
-	 * @param  Forms\Form
+	 * @param  Forms\Form $form
 	 * @return void
 	 */
 	function processForm(Forms\Form $form)
@@ -791,7 +792,7 @@ class DataGrid extends Nette\Application\UI\Control
 	// === RENDERING ======================================================
 
 	/**
-	 * @param  string|IFileTemplate
+	 * @param  string $templateFile
 	 * @return DataGrid
 	 */
 	function setTemplateFile($templateFile)

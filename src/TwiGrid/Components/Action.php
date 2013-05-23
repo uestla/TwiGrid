@@ -35,9 +35,8 @@ class Action extends Component
 
 
 	/**
-	 * @param  string
-	 * @param  Nette\Callback
-	 * @param  mixed
+	 * @param  string $label
+	 * @param  Nette\Callback $callback
 	 */
 	function __construct($label, Nette\Callback $callback)
 	{
@@ -65,7 +64,7 @@ class Action extends Component
 
 
 	/**
-	 * @param  string
+	 * @param  string $confirmation
 	 * @return RowAction
 	 */
 	function setConfirmation($confirmation = NULL)
