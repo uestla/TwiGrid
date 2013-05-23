@@ -286,9 +286,10 @@ $.nette.ext('twigrid', {
 
 						if (self.onlyShiftKeyPressed(event)) {
 							if (self.lastChecked !== null) {
+								var checked = checkboxes.eq(self.lastChecked).attr('checked');
 								for (var i = 0; i < Math.abs(k - self.lastChecked); i++) {
 									checkboxes.eq(Math.abs(k > self.lastChecked ? k - i : k + i))
-										.twgChecked(checkboxes.eq(self.lastChecked).attr('checked'));
+										.twgChecked(checked);
 								}
 
 							} else {
