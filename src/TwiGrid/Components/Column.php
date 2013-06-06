@@ -27,7 +27,10 @@ class Column extends Component
 	protected $orderedBy = FALSE;
 
 	/** @var bool */
-	protected $orderedDesc = FALSE;
+	protected $sortDir = self::ASC;
+
+	const ASC = FALSE;
+	const DESC = TRUE;
 
 
 
@@ -70,17 +73,17 @@ class Column extends Component
 
 	/**
 	 * @param  bool $bool
-	 * @param  bool $orderedDesc
+	 * @param  bool $sortDir
 	 * @return Column
 	 */
-	function setOrderedBy($bool = TRUE, $orderedDesc = FALSE)
+	function setOrderedBy($bool = TRUE, $sortDir = self::ASC)
 	{
 		if (!$this->sortable) {
 			throw new Nette\InvalidStateException("Column '{$this->name}' is not sortable.");
 		}
 
 		$this->orderedBy = (bool) $bool;
-		$this->orderedDesc = $bool && (bool) $orderedDesc;
+		$this->sortDir = $bool && (bool) $sortDir;
 		return $this;
 	}
 
@@ -95,9 +98,9 @@ class Column extends Component
 
 
 	/** @return bool */
-	function isOrderedDesc()
+	function getSortDir()
 	{
-		return $this->orderedDesc;
+		return $this->sortDir;
 	}
 
 }

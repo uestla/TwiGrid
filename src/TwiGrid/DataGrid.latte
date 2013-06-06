@@ -86,7 +86,16 @@
 			<th rowspan="2" class="header-cell center" n:if="$hasGroupActions">&nbsp;</th>
 
 		{foreach $columns as $name => $column}
-{var $params = [name => $name, column => $column, sortLink => $control->link('sort!', [ 'orderBy' => !$column->orderedBy || !$column->orderedDesc ? $name : NULL, 'orderDesc' => $column->orderedBy && !$column->orderedDesc ])]}
+{var $params = [
+	name => $name,
+	column => $column,
+	sortLink => $control->link('sort!', [
+		'orderBy' => !$column->orderedBy || $column->sortDir !== TwiGrid\Components\Column::DESC ? $name : NULL,
+		'sortDir' => $column->orderedBy
+			? $template->toggle($column->sortDir, TwiGrid\Components\Column::DESC, TwiGrid\Components\Column::ASC)
+			: NULL
+	]),
+]}
 {ifset #header-cell-$name}
 {include #"header-cell-$name", (expand) $params |indent:2}
 {else}
@@ -141,7 +150,7 @@
 {* === ... ============================================ *}
 
 {define sort-arrow}
-	<i n:class="$column->orderedDesc ? icon-chevron-down : icon-chevron-up" n:if="$column->orderedBy"></i>
+	<i n:class="$column->sortDir === TwiGrid\Components\Column::DESC ? icon-chevron-down : icon-chevron-up" n:if="$column->orderedBy"></i>
 {/define}
 
 
