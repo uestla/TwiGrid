@@ -376,12 +376,12 @@ class DataGrid extends Nette\Application\UI\Control
 
 	/**
 	 * @param  string $column
-	 * @param  bool $desc
+	 * @param  bool $dir
 	 * @return DataGrid
 	 */
-	function setDefaultOrderBy($column, $desc = FALSE)
+	function setDefaultOrderBy($column, $dir = Components\Column::ASC)
 	{
-		$this->defaultOrderBy = array((string) $column, (bool) $desc);
+		$this->defaultOrderBy = array((string) $column, (bool) $dir);
 		return $this;
 	}
 
