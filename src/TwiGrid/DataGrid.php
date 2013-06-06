@@ -835,6 +835,7 @@ class DataGrid extends Nette\Application\UI\Control
 		$template->registerHelper('translate', $this->translate);
 		$template->registerHelper('primaryToString', $this->getRecord()->primaryToString);
 		$template->registerHelper('getValue', $this->getRecord()->getValue);
+		$template->registerHelper('toggle', function ($x, $a, $b) { return $x === $a ? $b : $a; });
 
 		$this->isControlInvalid() && $this->invalidate(FALSE, 'flashes');
 		$this->passForm() && ($template->form = $template->_form = $form = $this['form'])
