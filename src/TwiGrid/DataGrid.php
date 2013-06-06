@@ -15,7 +15,15 @@ use Nette;
 use Nette\Localization\ITranslator;
 
 
-/** @property-read mixed $data */
+/**
+ * @property-read \ArrayIterator|NULL $columns
+ * @property-read array $columnNames
+ * @property-read \ArrayIterator|NULL $rowActions
+ * @property-read \ArrayIterator|NULL $groupActions
+ * @property-read mixed $data
+ * @property-read int|NULL $pageCount
+ * @property-read int|NULL $itemCount
+ */
 class DataGrid extends Nette\Application\UI\Control
 {
 
@@ -26,7 +34,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 	// === sorting ===========
 
-	/** @persistent */
+	/** @persistent string */
 	public $orderBy = NULL;
 
 	/**

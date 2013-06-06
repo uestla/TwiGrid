@@ -14,6 +14,12 @@ namespace TwiGrid\Components;
 use Nette;
 
 
+/**
+ * @property-read string $label
+ * @property-read bool $sortable
+ * @property-read bool $orderedBy
+ * @property-read bool $sortDir
+ */
 class Column extends Component
 {
 
