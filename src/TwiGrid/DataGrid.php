@@ -34,14 +34,8 @@ class DataGrid extends Nette\Application\UI\Control
 
 	// === sorting ===========
 
-	/** @persistent string */
-	public $orderBy = NULL;
-
-	/**
-	 * @persistent bool
-	 * @see Components\Column::ASC
-	 */
-	public $sortDir = FALSE;
+	/** @persistent array */
+	public $orderBy = array();
 
 	/** @var array */
 	private $defaultOrderBy = NULL;
@@ -161,22 +155,42 @@ class DataGrid extends Nette\Application\UI\Control
 	 */
 	function loadState(array $params)
 	{
-		parent::loadState($params);
-
+		parent::loadState($this->processParams($params));
 		!$this->poluted && !$this->isInDefaultState() && ($this->poluted = TRUE);
 
 		if (!$this->poluted) {
 			$this->defaultOrderBy !== NULL
-				&& ($this->orderBy = $this->defaultOrderBy[0]) && ($this->sortDir = $this->defaultOrderBy[1]);
+				&& ($this->orderBy = array_merge($this->defaultOrderBy, $this->orderBy));
 
 			$this->defaultFilters !== NULL && $this->setFilters($this->defaultFilters, FALSE);
 			($this->defaultOrderBy !== NULL || $this->defaultFilters !== NULL) && ($this->poluted = TRUE);
 		}
 
-		$this->orderBy !== NULL
-			&& $this['columns']->getComponent($this->orderBy)->setOrderedBy(TRUE, $this->sortDir);
+		if (count($this->orderBy)) {
+			$i = 0;
+			foreach ($this->orderBy as $column => $dir) {
+				$this['columns']->getComponent($column)->setOrderedBy(TRUE, $dir, $i++);
+			}
+		}
 
 		$this->validateState();
+	}
+
+
+
+	/**
+	 * @param  array $params
+	 * @return array
+	 */
+	protected function processParams(array $params)
+	{
+		if (isset($params['orderBy'])) {
+			foreach ($params['orderBy'] as & $dir) {
+				$dir = (bool) $dir;
+			}
+		}
+
+		return $params;
 	}
 
 
@@ -365,8 +379,11 @@ class DataGrid extends Nette\Application\UI\Control
 
 	// === SORTING ======================================================
 
-	/** @return void */
-	function handleSort()
+	/**
+	 * @param  array $orderBy
+	 * @return void
+	 */
+	function handleSort(array $orderBy)
 	{
 		$this->refreshState();
 		$this->invalidate(TRUE, TRUE, 'header-sort', 'body', 'footer');
@@ -381,7 +398,15 @@ class DataGrid extends Nette\Application\UI\Control
 	 */
 	function setDefaultOrderBy($column, $dir = Components\Column::ASC)
 	{
-		$this->defaultOrderBy = array((string) $column, (bool) $dir);
+		if (is_array($column)) {
+			$this->defaultOrderBy = $column;
+
+		} else {
+			$this->defaultOrderBy = array(
+				(string) $column => (bool) $dir,
+			);
+		}
+
 		return $this;
 	}
 
@@ -474,11 +499,11 @@ class DataGrid extends Nette\Application\UI\Control
 	{
 		if ($this->data === NULL) {
 			$order = array();
-			if ($this->orderBy !== NULL) {
-				$order[$this->orderBy] = $this->sortDir;
-
+			if (count($this->orderBy)) {
+				$order = $this->orderBy;
+				$primaryDir = reset($order);
 				foreach ($this->getRecord()->primaryKey as $column) {
-					$order[$column] = $this->sortDir;
+					!isset($order[$column]) && ($order[$column] = $primaryDir);
 				}
 			}
 
