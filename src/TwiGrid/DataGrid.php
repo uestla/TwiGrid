@@ -195,7 +195,7 @@ class DataGrid extends Nette\Application\UI\Control
 	/** @return bool */
 	protected function isInDefaultState()
 	{
-		foreach ($this->reflection->getPersistentParams() as $name => $meta) {
+		foreach (static::getReflection()->getPersistentParams() as $name => $meta) {
 			if ($this->$name !== $meta['def']) {
 				return FALSE;
 			}
