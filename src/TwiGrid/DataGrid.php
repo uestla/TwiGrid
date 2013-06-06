@@ -532,7 +532,7 @@ class DataGrid extends Nette\Application\UI\Control
 		$reloadData && ($this->data = NULL);
 		if ($reloadForm) { unset($this['form']); }
 
-		reset($snippets) === FALSE && ($snippets[] = NULL);
+		!count($snippets) && ($snippets[] = NULL);
 		foreach ($snippets as $snippet) {
 			$this->invalidateControl($snippet);
 		}
@@ -675,7 +675,7 @@ class DataGrid extends Nette\Application\UI\Control
 	function addFilterButtons()
 	{
 		$this->filterFactory !== NULL
-			&& $this['form']->addFilterButtons(reset($this->filters) !== FALSE);
+			&& $this['form']->addFilterButtons(count($this->filters));
 
 		return $this;
 	}
