@@ -85,7 +85,7 @@ class DataGrid extends Nette\Application\UI\Control
 	// === data ===========
 
 	/** @var Record */
-	private $record;
+	private $record = NULL;
 
 	/** @var Nette\Callback */
 	private $dataLoader = NULL;
@@ -126,7 +126,6 @@ class DataGrid extends Nette\Application\UI\Control
 	{
 		parent::__construct();
 		$this->session = $s;
-		$this->record = new Record;
 		$this->sessNamespace = __CLASS__ . '-' . $this->name;
 	}
 
@@ -182,7 +181,7 @@ class DataGrid extends Nette\Application\UI\Control
 			throw new Nette\InvalidStateException("Data loader not set.");
 		}
 
-		if ($this->record->primaryKey === NULL) {
+		if ($this->getRecord()->primaryKey === NULL) {
 			throw new Nette\InvalidStateException("Primary key not set.");
 		}
 
@@ -276,7 +275,7 @@ class DataGrid extends Nette\Application\UI\Control
 	function getColumnNames()
 	{
 		$names = array_keys(iterator_to_array($this->getColumns()));
-		return array_merge(array_combine($this->record->primaryKey, $this->record->primaryKey), $names);
+		return array_merge(array_combine($this->getRecord()->primaryKey, $this->getRecord()->primaryKey), $names);
 	}
 
 
@@ -317,7 +316,7 @@ class DataGrid extends Nette\Application\UI\Control
 	{
 		$a = $this['rowActions']->getComponent($action);
 		if (!$a->protected || Helpers::checkCsrfToken($this->session, $this->sessNamespace, $token)) {
-			$a->callback->invokeArgs(array($this->record->stringToPrimary($primary)));
+			$a->callback->invokeArgs(array($this->getRecord()->stringToPrimary($primary)));
 			$this->refreshState();
 			$this->invalidate(TRUE, TRUE, 'body', 'footer');
 
@@ -426,13 +425,22 @@ class DataGrid extends Nette\Application\UI\Control
 
 	// === DATA LOADING ======================================================
 
+	/** @return Record */
+	private function getRecord()
+	{
+		$this->record === NULL && ($this->record = new Record);
+		return $this->record;
+	}
+
+
+
 	/**
 	 * @param  string|array $primaryKey
 	 * @return DataGrid
 	 */
 	function setPrimaryKey($primaryKey)
 	{
-		$this->record->setPrimaryKey($primaryKey);
+		$this->getRecord()->setPrimaryKey($primaryKey);
 		return $this;
 	}
 
@@ -458,8 +466,7 @@ class DataGrid extends Nette\Application\UI\Control
 			if ($this->orderBy !== NULL) {
 				$order[$this->orderBy] = $this->orderDesc;
 
-				foreach ($this->record->primaryKey as $column) {
-					$order[$column] = $this->orderDesc;
+				foreach ($this->getRecord()->primaryKey as $column) {
 				}
 			}
 
@@ -490,7 +497,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 */
 	function setValueGetter($callback = NULL)
 	{
-		$this->record->setValueGetter($callback);
+		$this->getRecord()->setValueGetter($callback);
 		return $this;
 	}
 
@@ -667,7 +674,7 @@ class DataGrid extends Nette\Application\UI\Control
 	function addGroupActionCheckboxes()
 	{
 		$this->groupActions !== NULL
-			&& $this['form']->addGroupActionCheckboxes($this->record->primaryToString);
+			&& $this['form']->addGroupActionCheckboxes($this->getRecord()->primaryToString);
 
 		return $this;
 	}
@@ -690,7 +697,7 @@ class DataGrid extends Nette\Application\UI\Control
 	{
 		$this->ieContainerFactory !== NULL
 			&& $this['form']->addInlineEditControls(
-				$this->getData, $this->record->primaryToString, $this->ieContainerFactory, $this->iePrimary
+				$this->getData, $this->getRecord()->primaryToString, $this->ieContainerFactory, $this->iePrimary
 			);
 
 		return $this;
@@ -757,10 +764,10 @@ class DataGrid extends Nette\Application\UI\Control
 			$this->handlePaginate($form->getPage());
 
 		} elseif ($path === 'actions-buttons') {
-			if (($checked = $form->getCheckedRecords($this->record->primaryToString, $this->record->stringToPrimary)) !== NULL) {
+			if (($checked = $form->getCheckedRecords($this->getRecord()->primaryToString, $this->getRecord()->stringToPrimary)) !== NULL) {
 				$primaries = array();
 				foreach ($checked as $primaryString) {
-					$primaries[] = $this->record->stringToPrimary($primaryString);
+					$primaries[] = $this->getRecord()->stringToPrimary($primaryString);
 				}
 
 				$this['groupActions']->getComponent($name)->callback->invokeArgs(array($primaries));
@@ -772,7 +779,7 @@ class DataGrid extends Nette\Application\UI\Control
 			if ($name === 'edit') {
 				if (($values = $form->getInlineValues()) !== NULL) {
 					$this->ieProcessCallback->invokeArgs(
-						array($this->record->stringToPrimary($this->iePrimary), $values)
+						array($this->getRecord()->stringToPrimary($this->iePrimary), $values)
 					);
 
 					$this->deactivateInlineEditing();
@@ -826,8 +833,8 @@ class DataGrid extends Nette\Application\UI\Control
 		$template->setFile($this->templateFile);
 
 		$template->registerHelper('translate', $this->translate);
-		$template->registerHelper('primaryToString', $this->record->primaryToString);
-		$template->registerHelper('getValue', $this->record->getValue);
+		$template->registerHelper('primaryToString', $this->getRecord()->primaryToString);
+		$template->registerHelper('getValue', $this->getRecord()->getValue);
 
 		$this->isControlInvalid() && $this->invalidate(FALSE, 'flashes');
 		$this->passForm() && ($template->form = $template->_form = $form = $this['form'])
