@@ -135,11 +135,13 @@
 {define header-cell}
 
 	<th n:class='header-cell, "header-cell-{$column->name}"'>
-{var $params = [column => $column]}
-	<a href="{$sortLink}" n:class="tw-ajax" n:tag-if="$column->sortable">
-		{$column->label}
-	</a>
+{var $params = [column => $column], $indent = $column->sortable ? 2 : 1}
 
+{block |indent:$indent}
+<a href="{$sortLink}" n:class="tw-ajax" n:tag-if="$column->sortable">
+	{$column->label}
+</a>
+{/block}
 {include #sort-arrow, (expand) $params |indent:1}
 	</th>
 
