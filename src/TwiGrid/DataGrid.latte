@@ -210,7 +210,12 @@
 			</td>
 
 		{foreach $columns as $name => $column}
-{var $params = [record => $record, isInlineEdited => $isInlineEdited, column => $name, value => $template->getValue($record, $name, FALSE)]}
+{var $params = [
+	record => $record,
+	isInlineEdited => $isInlineEdited,
+	column => $name,
+	value => $template->getValue($record, $name, FALSE)
+]}
 {if $isInlineEdited}
 {ifset #body-cell-$name-inline}
 {include #"body-cell-$name-inline", (expand) $params |indent:2}
@@ -286,7 +291,16 @@
 
 {if $hasRowActions}
 	{foreach $rowActions as $name => $action}
-{var $params = [name => $name, action => $action, record => $record, link => $grid->link('rowAction!', [action => $name, primary => $primaryString, token => $action->protected ? $csrfToken])]}
+{var $params = [
+	name => $name,
+	action => $action,
+	record => $record,
+	link => $grid->link('rowAction!', [
+		action => $name,
+		primary => $primaryString,
+		token => $action->protected ? $csrfToken
+	]),
+]}
 {ifset #row-action-$name}
 {include #"row-action-$name", (expand) $params |indent:1}
 {else}
