@@ -58,39 +58,6 @@ abstract class Helpers extends Nette\Object
 
 
 
-	/**
-	 * @param  mixed $x
-	 * @param  mixed $a
-	 * @param  mixed $b
-	 * @return mixed
-	 */
-	static function toggleValue($x, $a, $b)
-	{
-		return $x === $a ? $b : $a;
-	}
-
-
-
-	/**
-	 * @param  string $column
-	 * @param  array $old
-	 * @param  array $new
-	 * @return array
-	 */
-	static function mergeSortParam($column, array $old, array $new)
-	{
-		if (!isset($new[$column])) {
-			unset($old[$column]);
-
-		} else {
-			$old[$column] = $new[$column];
-		}
-
-		return $old;
-	}
-
-
-
 	// === SORTING ======================================================
 
 	const SORT_LINK_SINGLE = 0;

@@ -872,8 +872,6 @@ class DataGrid extends Nette\Application\UI\Control
 		$template->registerHelper('translate', $this->translate);
 		$template->registerHelper('primaryToString', $this->getRecord()->primaryToString);
 		$template->registerHelper('getValue', $this->getRecord()->getValue);
-		$template->registerHelper('toggle', 'TwiGrid\Helpers::toggleValue');
-		$template->registerHelper('mergeSortParam', 'TwiGrid\Helpers::mergeSortParam');
 		$template->registerHelper('sortLink', function (Components\Column $c, $m = Helpers::SORT_LINK_SINGLE) use ($me) {
 			return Helpers::createSortLink($me, $c, $m);
 		});
