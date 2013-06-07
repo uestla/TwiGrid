@@ -85,24 +85,19 @@
 		<tr n:snippet="header-sort">
 			<th rowspan="2" class="header-cell center" n:if="$hasGroupActions">&nbsp;</th>
 
-		{foreach $columns as $name => $column}
+			{foreach $columns as $name => $column}
 {var $params = [
 	name => $name,
 	column => $column,
-	sortLink => $control->link('sort!', [
-		orderBy => !$column->sortedBy || $column->sortDir !== TwiGrid\Components\Column::DESC ? [
-			$name => $column->sortedBy
-				? $template->toggle($column->sortDir, TwiGrid\Components\Column::DESC, TwiGrid\Components\Column::ASC)
-				: TwiGrid\Components\Column::ASC,
-		] : NULL,
-	]),
+	sortLink => $template->sortLink($column),
+	multiSortLink => $template->sortLink($column, TwiGrid\Helpers::SORT_LINK_MULTI)
 ]}
 {ifset #header-cell-$name}
 {include #"header-cell-$name", (expand) $params |indent:2}
 {else}
 {include #header-cell, (expand) $params |indent:2}
 {/ifset}
-		{/foreach}
+			{/foreach}
 
 			<th class="header-cell" n:if="$hasFilters || $hasRowActions || $hasInlineEdit">&nbsp;</th>
 		</tr>
@@ -139,7 +134,7 @@
 {var $params = [column => $column], $indent = $column->sortable ? 2 : 1}
 
 {block |indent:$indent}
-<a href="{$sortLink}" n:class="tw-ajax" n:tag-if="$column->sortable">
+<a href="{$sortLink}" data-multi-sort-link="{$multiSortLink}" n:class='sort, "sort-{$column->name}", tw-ajax' n:tag-if="$column->sortable">
 	{$column->label}
 </a>
 {/block}

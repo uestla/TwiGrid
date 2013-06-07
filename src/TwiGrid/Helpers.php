@@ -12,6 +12,7 @@
 namespace TwiGrid;
 
 use Nette;
+use TwiGrid\Components\Column;
 use Nette\Http\Session as NSession;
 use Nette\Utils\Strings as NStrings;
 
@@ -53,6 +54,81 @@ abstract class Helpers extends Nette\Object
 		}
 
 		return $ret;
+	}
+
+
+
+	/**
+	 * @param  mixed $x
+	 * @param  mixed $a
+	 * @param  mixed $b
+	 * @return mixed
+	 */
+	static function toggleValue($x, $a, $b)
+	{
+		return $x === $a ? $b : $a;
+	}
+
+
+
+	/**
+	 * @param  string $column
+	 * @param  array $old
+	 * @param  array $new
+	 * @return array
+	 */
+	static function mergeSortParam($column, array $old, array $new)
+	{
+		if (!isset($new[$column])) {
+			unset($old[$column]);
+
+		} else {
+			$old[$column] = $new[$column];
+		}
+
+		return $old;
+	}
+
+
+
+	// === SORTING ======================================================
+
+	const SORT_LINK_SINGLE = 0;
+	const SORT_LINK_MULTI = 1;
+
+	/**
+	 * @param  DataGrid $grid
+	 * @param  Column $column
+	 * @param  int $mode
+	 * @return string
+	 */
+	static function createSortLink(DataGrid $grid, Column $column, $mode = self::SORT_LINK_SINGLE)
+	{
+		if ($mode === self::SORT_LINK_SINGLE) {
+			$by = array();
+			if (!$column->sortedBy || count($grid->orderBy) > 1) {
+				$by[$column->name] = Column::ASC;
+
+			} elseif ($column->sortedBy && $column->sortDir === Column::ASC) {
+				$by[$column->name] = Column::DESC;
+			}
+
+		} elseif ($mode === self::SORT_LINK_MULTI) {
+			$by = $grid->orderBy;
+			if (!$column->sortedBy) {
+				$by[$column->name] = Column::ASC;
+
+			} elseif ($column->sortDir === Column::ASC) {
+				$by[$column->name] = Column::DESC;
+
+			} else {
+				unset($by[$column->name]);
+			}
+		}
+
+		return $grid->link('sort!', array(
+			'orderBy' => $by,
+		));
 	}
 
 

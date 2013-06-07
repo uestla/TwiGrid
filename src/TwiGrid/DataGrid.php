@@ -498,9 +498,8 @@ class DataGrid extends Nette\Application\UI\Control
 	function getData()
 	{
 		if ($this->data === NULL) {
-			$order = array();
-			if (count($this->orderBy)) {
-				$order = $this->orderBy;
+			$order = $this->orderBy;
+			if (count($order)) {
 				$primaryDir = end($order);
 				foreach ($this->getRecord()->primaryKey as $column) {
 					!isset($order[$column]) && ($order[$column] = $primaryDir);
@@ -869,10 +868,15 @@ class DataGrid extends Nette\Application\UI\Control
 		$this->templateFile === NULL && ($this->templateFile = $template->defaultTemplate);
 		$template->setFile($this->templateFile);
 
+		$me = $this;
 		$template->registerHelper('translate', $this->translate);
 		$template->registerHelper('primaryToString', $this->getRecord()->primaryToString);
 		$template->registerHelper('getValue', $this->getRecord()->getValue);
-		$template->registerHelper('toggle', function ($x, $a, $b) { return $x === $a ? $b : $a; });
+		$template->registerHelper('toggle', 'TwiGrid\Helpers::toggleValue');
+		$template->registerHelper('mergeSortParam', 'TwiGrid\Helpers::mergeSortParam');
+		$template->registerHelper('sortLink', function (Components\Column $c, $m = Helpers::SORT_LINK_SINGLE) use ($me) {
+			return Helpers::createSortLink($me, $c, $m);
+		});
 
 		$this->isControlInvalid() && $this->invalidate(FALSE, 'flashes');
 		$this->passForm() && ($template->form = $template->_form = $form = $this['form'])
