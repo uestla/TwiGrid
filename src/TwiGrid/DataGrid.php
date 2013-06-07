@@ -155,7 +155,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 */
 	function loadState(array $params)
 	{
-		parent::loadState($this->processParams($params));
+		parent::loadState(static::processParams($params));
 		!$this->poluted && !$this->isInDefaultState() && ($this->poluted = TRUE);
 
 		if (!$this->poluted) {
@@ -182,7 +182,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  array $params
 	 * @return array
 	 */
-	protected function processParams(array $params)
+	protected static function processParams(array $params)
 	{
 		if (isset($params['orderBy'])) {
 			foreach ($params['orderBy'] as & $dir) {
