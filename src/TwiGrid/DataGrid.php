@@ -501,7 +501,7 @@ class DataGrid extends Nette\Application\UI\Control
 			$order = array();
 			if (count($this->orderBy)) {
 				$order = $this->orderBy;
-				$primaryDir = reset($order);
+				$primaryDir = end($order);
 				foreach ($this->getRecord()->primaryKey as $column) {
 					!isset($order[$column]) && ($order[$column] = $primaryDir);
 				}
