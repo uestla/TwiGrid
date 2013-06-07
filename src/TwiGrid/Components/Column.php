@@ -17,7 +17,7 @@ use Nette;
 /**
  * @property-read string $label
  * @property-read bool $sortable
- * @property-read bool $orderedBy
+ * @property-read bool $sortedBy
  * @property-read bool $sortDir
  * @property-read int $sortIndex
  */
@@ -31,7 +31,7 @@ class Column extends Component
 	protected $sortable = FALSE;
 
 	/** @var bool */
-	protected $orderedBy = FALSE;
+	protected $sortedBy = FALSE;
 
 	/** @var bool */
 	protected $sortDir = self::ASC;
@@ -87,13 +87,13 @@ class Column extends Component
 	 * @param  int $sortIndex
 	 * @return Column
 	 */
-	function setOrderedBy($bool = TRUE, $sortDir = self::ASC, $sortIndex = 0)
+	function setSortedBy($bool = TRUE, $sortDir = self::ASC, $sortIndex = 0)
 	{
 		if (!$this->sortable) {
 			throw new Nette\InvalidStateException("Column '{$this->name}' is not sortable.");
 		}
 
-		$this->orderedBy = (bool) $bool;
+		$this->sortedBy = (bool) $bool;
 		$this->sortDir = $bool && (bool) $sortDir;
 		$this->sortIndex = (int) $sortIndex;
 		return $this;
@@ -102,9 +102,9 @@ class Column extends Component
 
 
 	/** @return bool */
-	function isOrderedBy()
+	function isSortedBy()
 	{
-		return $this->orderedBy;
+		return $this->sortedBy;
 	}
 
 

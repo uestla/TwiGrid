@@ -169,7 +169,7 @@ class DataGrid extends Nette\Application\UI\Control
 		if (count($this->orderBy)) {
 			$i = 0;
 			foreach ($this->orderBy as $column => $dir) {
-				$this['columns']->getComponent($column)->setOrderedBy(TRUE, $dir, $i++);
+				$this['columns']->getComponent($column)->setSortedBy(TRUE, $dir, $i++);
 			}
 		}
 

@@ -90,8 +90,8 @@
 	name => $name,
 	column => $column,
 	sortLink => $control->link('sort!', [
-		orderBy => !$column->orderedBy || $column->sortDir !== TwiGrid\Components\Column::DESC ? [
-			$name => $column->orderedBy
+		orderBy => !$column->sortedBy || $column->sortDir !== TwiGrid\Components\Column::DESC ? [
+			$name => $column->sortedBy
 				? $template->toggle($column->sortDir, TwiGrid\Components\Column::DESC, TwiGrid\Components\Column::ASC)
 				: TwiGrid\Components\Column::ASC,
 		] : NULL,
@@ -153,7 +153,7 @@
 {* === ... ============================================ *}
 
 {define sort-arrow}
-	<div class="pull-right" n:if="$column->orderedBy">
+	<div class="pull-right" n:if="$column->sortedBy">
 		<span class="label label-info" n:if="count($grid->orderBy) > 1">{$column->sortIndex + 1}</span>
 		<i n:class="$column->sortDir === TwiGrid\Components\Column::DESC ? icon-chevron-down : icon-chevron-up"></i>
 	</div>
