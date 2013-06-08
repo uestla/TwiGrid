@@ -166,11 +166,9 @@ class DataGrid extends Nette\Application\UI\Control
 			($this->defaultOrderBy !== NULL || $this->defaultFilters !== NULL) && ($this->polluted = TRUE);
 		}
 
-		if (count($this->orderBy)) {
-			$i = 0;
-			foreach ($this->orderBy as $column => $dir) {
-				$this['columns']->getComponent($column)->setSortedBy(TRUE, $dir, $i++);
-			}
+		$i = 0;
+		foreach ($this->orderBy as $column => $dir) {
+			$this['columns']->getComponent($column)->setSortedBy(TRUE, $dir, $i++);
 		}
 
 		$this->validateState();
