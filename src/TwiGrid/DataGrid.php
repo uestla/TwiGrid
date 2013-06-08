@@ -28,7 +28,7 @@ class DataGrid extends Nette\Application\UI\Control
 {
 
 	/** @persistent bool */
-	public $poluted = FALSE;
+	public $polluted = FALSE;
 
 
 
@@ -156,14 +156,14 @@ class DataGrid extends Nette\Application\UI\Control
 	function loadState(array $params)
 	{
 		parent::loadState(static::processParams($params));
-		!$this->poluted && !$this->isInDefaultState() && ($this->poluted = TRUE);
+		!$this->polluted && !$this->isInDefaultState() && ($this->polluted = TRUE);
 
-		if (!$this->poluted) {
+		if (!$this->polluted) {
 			$this->defaultOrderBy !== NULL
 				&& ($this->orderBy = array_merge($this->defaultOrderBy, $this->orderBy));
 
 			$this->defaultFilters !== NULL && $this->setFilters($this->defaultFilters, FALSE);
-			($this->defaultOrderBy !== NULL || $this->defaultFilters !== NULL) && ($this->poluted = TRUE);
+			($this->defaultOrderBy !== NULL || $this->defaultFilters !== NULL) && ($this->polluted = TRUE);
 		}
 
 		if (count($this->orderBy)) {
@@ -794,7 +794,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 		} elseif ("$path-$name" === 'filters-buttons-reset') {
 			$this->setFilters(array());
-			$this->defaultFilters !== NULL && ($this->poluted = TRUE);
+			$this->defaultFilters !== NULL && ($this->polluted = TRUE);
 
 		} elseif ("$path-$name" === 'pagination-buttons-change') {
 			$this->handlePaginate($form->getPage());
