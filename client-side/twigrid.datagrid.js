@@ -392,11 +392,11 @@ $.nette.ext('twigrid', {
 	},
 
 	noMetaKeysPressed: function (event) {
-		return !event.ctrlKey && !event.shiftKey && !event.altKey && !event.metaKey;
+		return !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey;
 	},
 
 	onlyCtrlKeyPressed: function (event) {
-		return event.ctrlKey && !event.shiftKey && !event.altKey && !event.metaKey;
+		return (event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey;
 	},
 
 	onlyShiftKeyPressed: function (event) {
