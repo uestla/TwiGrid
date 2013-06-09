@@ -35,6 +35,14 @@
 
 
 
+/* === SORTING ================ */
+
+.tw-cnt .header-cell .multi-sort {
+	display: inline-block;
+}
+
+
+
 /* === FORM CONTROLS ================ */
 
 .tw-cnt select, .tw-cnt input[type="text"], .tw-cnt input[type="date"] {

@@ -79,12 +79,6 @@ $.nette.ext('twigrid', {
 			grid.addClass('js');
 
 
-			// sorting
-			self.sortBehavior(
-				gHeader.find('a.sort')
-			);
-
-
 			// filtering
 			self.filterBehavior(
 				gHeader.find('select[name^="' + self.escape('filters[criteria][') + '"]'),
@@ -196,19 +190,6 @@ $.nette.ext('twigrid', {
 		}
 
 		return els.join(', ');
-	},
-
-	sortBehavior: function (links) {
-		var self = this;
-		links.off('click.tw-sort').on('click.tw-sort', function (event) {
-			if (self.onlyCtrlKeyPressed(event)) {
-				var el = $(this);
-				event.preventDefault();
-				event.stopImmediatePropagation();
-				el.attr('href', el.attr('data-multi-sort-link'))
-					.trigger('click');
-			}
-		});
 	},
 
 	filterBehavior: function (selects, submit) {

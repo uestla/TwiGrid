@@ -134,11 +134,11 @@
 {var $params = [column => $column], $indent = $column->sortable ? 2 : 1}
 
 {block |indent:$indent}
-<a href="{$sortLink}" data-multi-sort-link="{$multiSortLink}" n:class='sort, "sort-{$column->name}", tw-ajax' n:tag-if="$column->sortable">
+<a href="{$sortLink}" n:class='sort, "sort-{$column->name}", tw-ajax' n:tag-if="$column->sortable">
 	{$column->label}
 </a>
 {/block}
-{include #sort-arrow, (expand) $params |indent:1}
+{include #sort-labels, (expand) get_defined_vars() |indent:1}
 	</th>
 
 {/define}
@@ -147,10 +147,19 @@
 
 {* === ... ============================================ *}
 
-{define sort-arrow}
-	<div class="pull-right" n:if="$column->sortedBy">
+{define sort-labels}
+	<i n:class="$column->sortDir === TwiGrid\Components\Column::DESC ? icon-chevron-down : icon-chevron-up"
+	   n:if="$column->sortedBy"></i>
+
+	<div class="pull-right">
+	{if $column->sortedBy}
 		<span class="label label-info" n:if="count($grid->orderBy) > 1">{$column->sortIndex + 1}</span>
-		<i n:class="$column->sortDir === TwiGrid\Components\Column::DESC ? icon-chevron-down : icon-chevron-up"></i>
+	{/if}
+		<a href="{$multiSortLink}" class="multi-sort tw-ajax" n:if="$column->sortable">
+			<span class="label label-info">
+				<i class="icon-plus-sign icon-white"></i>
+			</span>
+		</a>
 	</div>
 {/define}
 
