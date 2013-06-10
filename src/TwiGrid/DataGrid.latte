@@ -169,12 +169,12 @@
 
 {define filter-cell}
 
-	<th class="filter-cell">
-	{ifset $form["filters-criteria-$column"]}
+	<th n:class='filter-cell, ($hasControl = isset($form["filters-criteria-$column"])) && !($isControl = ($form["filters-criteria-$column"] instanceof Nette\Forms\IControl)) ? alert-warning'>
+	{if $hasControl && $isControl}
 		{? }{input filters-criteria-$column}
 	{else}
 		&nbsp;
-	{/ifset}
+	{/if}
 	</th>
 
 {/define}

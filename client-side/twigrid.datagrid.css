@@ -33,6 +33,10 @@
 	vertical-align: middle;
 }
 
+.tw-cnt .alert-warning {
+	background: #f2dede;
+}
+
 
 
 /* === SORTING ================ */
