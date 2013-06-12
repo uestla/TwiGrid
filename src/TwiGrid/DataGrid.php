@@ -390,7 +390,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/**
-	 * @param  string $column
+	 * @param  string|array $column
 	 * @param  bool $dir
 	 * @return DataGrid
 	 */
