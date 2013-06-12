@@ -200,11 +200,14 @@ $.nette.ext('twigrid', {
 	},
 
 	keyboardBehavior: function (inputs, submit, cancel) {
+		var self = this;
 		inputs.off('focus.tw-keyboard')
 			.on('focus.tw-keyboard', function (event) {
 				inputs.off('keypress.tw-keyboard')
 					.on('keypress.tw-keyboard', function (e) {
-						if (e.keyCode === 13 && submit) { // [enter]
+						if ((e.keyCode === 13 || e.keyCode === 10) && submit
+								&& (self.isInlineSubmitter(e.target) || self.onlyCtrlKeyPressed(e))) { // [enter]
+
 							e.preventDefault();
 							submit.trigger('click');
 						}
@@ -372,6 +375,10 @@ $.nette.ext('twigrid', {
 		return target.nodeName.toUpperCase() in {'A': 1, 'INPUT': 1};
 	},
 
+	isInlineSubmitter: function (target) {
+		return !(target.nodeName.toUpperCase() in {'TEXTAREA': 1, 'SELECT': 1});
+	},
+
 	noMetaKeysPressed: function (event) {
 		return !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey;
 	},
@@ -387,4 +394,4 @@ $.nette.ext('twigrid', {
 });
 
 
-})( window, window.jQuery );
+})(window, window.jQuery);
