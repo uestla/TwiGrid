@@ -49,7 +49,7 @@
 
 /* === FORM CONTROLS ================ */
 
-.tw-cnt select, .tw-cnt input[type="text"], .tw-cnt input[type="date"] {
+.tw-cnt select, .tw-cnt input[type="text"], .tw-cnt input[type="date"], .tw-cnt textarea {
 	display: block;
 	margin: 0;
 	width: 100%;
