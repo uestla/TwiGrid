@@ -40,6 +40,9 @@ class DataGrid extends Nette\Application\UI\Control
 	/** @var array */
 	private $defaultOrderBy = NULL;
 
+	/** @var bool */
+	private $multiSort = TRUE;
+
 
 
 	// === filtering ===========
@@ -169,6 +172,10 @@ class DataGrid extends Nette\Application\UI\Control
 		$i = 0;
 		foreach ($this->orderBy as $column => $dir) {
 			$this['columns']->getComponent($column)->setSortedBy(TRUE, $dir, $i++);
+
+			if (!$this->multiSort) {
+				break;
+			}
 		}
 
 		$this->validateState();
@@ -406,6 +413,26 @@ class DataGrid extends Nette\Application\UI\Control
 		}
 
 		return $this;
+	}
+
+
+
+	/**
+	 * @param  bool $bool
+	 * @return DataGrid
+	 */
+	function setMultiSort($bool = TRUE)
+	{
+		$this->multiSort = (bool) $bool;
+		return $this;
+	}
+
+
+
+	/** @return bool */
+	function hasMultiSort()
+	{
+		return $this->multiSort;
 	}
 
 

@@ -151,7 +151,7 @@
 	<i n:class="$column->sortDir === TwiGrid\Components\Column::DESC ? icon-chevron-down : icon-chevron-up"
 	   n:if="$column->sortedBy"></i>
 
-	<div class="pull-right">
+	<div class="pull-right" n:if="$grid->hasMultiSort()">
 	{if $column->sortedBy}
 		<span class="label label-info" n:if="count($grid->orderBy) > 1">{$column->sortIndex + 1}</span>
 	{/if}
