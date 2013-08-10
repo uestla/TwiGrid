@@ -41,6 +41,7 @@ class Action extends Component
 	function __construct($label, Nette\Callback $callback)
 	{
 		parent::__construct();
+
 		$this->label = (string) $label;
 		$this->callback = $callback;
 	}

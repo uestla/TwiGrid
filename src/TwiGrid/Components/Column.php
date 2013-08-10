@@ -50,6 +50,7 @@ class Column extends Component
 	function __construct($label)
 	{
 		parent::__construct();
+
 		$this->label = (string) $label;
 	}
 

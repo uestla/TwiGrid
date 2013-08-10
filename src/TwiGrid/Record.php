@@ -23,6 +23,8 @@ class Record extends Nette\Object
 	/** @var Nette\Callback */
 	private $valueGetter = NULL;
 
+
+
 	const PRIMARY_SEPARATOR = '|';
 
 

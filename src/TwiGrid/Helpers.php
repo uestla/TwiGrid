@@ -63,6 +63,8 @@ abstract class Helpers extends Nette\Object
 	const SORT_LINK_SINGLE = 0;
 	const SORT_LINK_MULTI = 1;
 
+
+
 	/**
 	 * @param  DataGrid $grid
 	 * @param  Column $column
