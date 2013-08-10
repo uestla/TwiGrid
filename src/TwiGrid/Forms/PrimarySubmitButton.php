@@ -18,7 +18,7 @@ class PrimarySubmitButton extends Nette\Forms\Controls\SubmitButton
 {
 
 	/** @var string|NULL */
-	protected $primary = NULL;
+	private $primary = NULL;
 
 
 

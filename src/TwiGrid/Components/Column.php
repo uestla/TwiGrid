@@ -25,19 +25,21 @@ class Column extends Component
 {
 
 	/** @var string */
-	protected $label;
+	private $label;
 
 	/** @var bool */
-	protected $sortable = FALSE;
+	private $sortable = FALSE;
 
 	/** @var bool */
-	protected $sortedBy = FALSE;
+	private $sortedBy = FALSE;
 
 	/** @var bool */
-	protected $sortDir = self::ASC;
+	private $sortDir = self::ASC;
 
 	/** @var int */
-	protected $sortIndex;
+	private $sortIndex;
+
+
 
 	const ASC = FALSE;
 	const DESC = TRUE;

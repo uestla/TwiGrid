@@ -18,7 +18,7 @@ class PrimaryCheckbox extends Nette\Forms\Controls\Checkbox
 {
 
 	/** @var string|NULL */
-	protected $primary = NULL;
+	private $primary = NULL;
 
 
 

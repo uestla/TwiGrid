@@ -141,7 +141,7 @@ abstract class Helpers extends Nette\Object
 	{
 		$sToken = static::getCsrfToken($session, $namespace, FALSE);
 		if ($sToken !== NULL && $sToken === $token) {
-			unset(static::getCsrfTokenSession($session, $namespace)->token);
+			unset(self::getCsrfTokenSession($session, $namespace)->token);
 			return TRUE;
 		}
 
@@ -155,7 +155,7 @@ abstract class Helpers extends Nette\Object
 	 * @param  string $namespace
 	 * @return Nette\Http\SessionSection
 	 */
-	protected static function getCsrfTokenSession(NSession $session, $namespace)
+	private static function getCsrfTokenSession(NSession $session, $namespace)
 	{
 		return $session->getSection($namespace);
 	}

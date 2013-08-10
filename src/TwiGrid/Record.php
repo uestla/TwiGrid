@@ -18,10 +18,10 @@ class Record extends Nette\Object
 {
 
 	/** @var array */
-	protected $primaryKey = NULL;
+	private $primaryKey = NULL;
 
 	/** @var Nette\Callback */
-	protected $valueGetter = NULL;
+	private $valueGetter = NULL;
 
 	const PRIMARY_SEPARATOR = '|';
 
