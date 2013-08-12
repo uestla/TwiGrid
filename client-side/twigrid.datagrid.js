@@ -131,7 +131,7 @@ $.nette.ext('twigrid', {
 				grid.find(self.buttonSelector('[data-tw-validate][formnovalidate]'))
 			);
 
-			self.confirmationDialog($('*[data-confirm]'));
+			self.confirmationDialog($('*[data-tw-confirm]'));
 
 
 			// ajaxification
@@ -339,7 +339,7 @@ $.nette.ext('twigrid', {
 	confirmationDialog: function (els) {
 		els.off('click.tw-confirm')
 			.on('click.tw-confirm', function (event) {
-				if (!window.confirm($(this).attr('data-confirm'))) {
+				if (!window.confirm($(this).attr('data-tw-confirm'))) {
 					event.preventDefault();
 					event.stopImmediatePropagation();
 				}

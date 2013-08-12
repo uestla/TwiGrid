@@ -336,7 +336,7 @@
 {* === ... ============================================ *}
 
 {define row-action}
-	<a href="{$link}" n:class="btn, btn-info, btn-small, tw-ajax" n:attr="data-confirm => $action->confirmation">
+	<a href="{$link}" n:class="btn, btn-info, btn-small, tw-ajax" n:attr="data-tw-confirm => $action->confirmation">
 		{$action->label}
 	</a>
 {/define}
@@ -403,7 +403,7 @@
 {* === ... ============================================ *}
 
 {define group-action-button}
-	{? }{input actions-buttons-$name, class => btn, data-confirm => $action->confirmation}
+	{? }{input actions-buttons-$name, class => btn, data-tw-confirm => $action->confirmation}
 {/define}
 
 
