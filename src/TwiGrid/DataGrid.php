@@ -13,6 +13,7 @@ namespace TwiGrid;
 
 use Nette;
 use Nette\Localization\ITranslator;
+use Nette\Utils\Callback as NCallback;
 
 
 /**
@@ -53,7 +54,7 @@ class DataGrid extends Nette\Application\UI\Control
 	/** @var array */
 	private $defaultFilters = NULL;
 
-	/** @var Nette\Callback */
+	/** @var \Closure */
 	private $filterFactory = NULL;
 
 
@@ -63,10 +64,10 @@ class DataGrid extends Nette\Application\UI\Control
 	/** @persistent string|NULL */
 	public $iePrimary = NULL;
 
-	/** @var Nette\Callback */
+	/** @var \Closure */
 	private $ieContainerFactory = NULL;
 
-	/** @var Nette\Callback */
+	/** @var \Closure */
 	private $ieProcessCallback = NULL;
 
 
@@ -79,7 +80,7 @@ class DataGrid extends Nette\Application\UI\Control
 	/** @var int */
 	private $itemsPerPage = NULL;
 
-	/** @var Nette\Callback */
+	/** @var \Closure */
 	private $itemCounter = NULL;
 
 	/** @var int */
@@ -95,7 +96,7 @@ class DataGrid extends Nette\Application\UI\Control
 	/** @var Record */
 	private $record = NULL;
 
-	/** @var Nette\Callback */
+	/** @var \Closure */
 	private $dataLoader = NULL;
 
 	/** @var array|\Traversable */
@@ -321,7 +322,7 @@ class DataGrid extends Nette\Application\UI\Control
 	function addRowAction($name, $label, $callback)
 	{
 		!isset($this['rowActions']) && ($this['rowActions'] = new Nette\ComponentModel\Container);
-		$a = new Components\RowAction($label, Nette\Callback::create($callback));
+		$a = new Components\RowAction($label, NCallback::closure($callback));
 		$this['rowActions']->addComponent($a, $name);
 		return $a;
 	}
@@ -346,9 +347,9 @@ class DataGrid extends Nette\Application\UI\Control
 	{
 		$a = $this['rowActions']->getComponent($action);
 		if (!$a->protected || Helpers::checkCsrfToken($this->session, $this->sessNamespace, $token)) {
-			$a->callback->invokeArgs(array($this->getRecord()->stringToPrimary($primary)));
+			NCallback::invoke($a->getCallback(), $this->getRecord()->stringToPrimary($primary));
 			$this->refreshState();
-			$this->invalidate(TRUE, TRUE, 'body', 'footer');
+			$this->redraw(TRUE, TRUE, 'body', 'footer');
 
 		} else {
 			$this->flashMessage('Security token does not match. Please try again.', 'error');
@@ -367,7 +368,7 @@ class DataGrid extends Nette\Application\UI\Control
 	function addGroupAction($name, $label, $callback)
 	{
 		!isset($this['groupActions']) && ($this['groupActions'] = new Nette\ComponentModel\Container);
-		$a = new Components\Action($label, Nette\Callback::create($callback));
+		$a = new Components\Action($label, NCallback::closure($callback));
 		$this['groupActions']->addComponent($a, $name);
 		return $a;
 	}
@@ -391,7 +392,7 @@ class DataGrid extends Nette\Application\UI\Control
 	function handleSort(array $orderBy)
 	{
 		$this->refreshState();
-		$this->invalidate(TRUE, TRUE, 'header-sort', 'body', 'footer');
+		$this->redraw(TRUE, TRUE, 'header-sort', 'body', 'footer');
 	}
 
 
@@ -445,7 +446,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 */
 	function setFilterFactory($factory)
 	{
-		$this->filterFactory = Nette\Callback::create($factory);
+		$this->filterFactory = NCallback::closure($factory);
 		return $this;
 	}
 
@@ -477,7 +478,7 @@ class DataGrid extends Nette\Application\UI\Control
 		Helpers::recursiveKSort($filters);
 		($diff = $this->filters !== $filters) && (($this->filters = $filters) || TRUE) && $this->handlePaginate(1, FALSE);
 		$refresh && $this->refreshState($diff)
-			&& $diff && $this->invalidate(TRUE, TRUE, 'header-sort', 'filter-controls', 'body', 'footer');
+			&& $diff && $this->redraw(TRUE, TRUE, 'header-sort', 'filter-controls', 'body', 'footer');
 
 		return $this;
 	}
@@ -513,7 +514,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 */
 	function setDataLoader($loader)
 	{
-		$this->dataLoader = Nette\Callback::create($loader);
+		$this->dataLoader = NCallback::closure($loader);
 		return $this;
 	}
 
@@ -544,7 +545,7 @@ class DataGrid extends Nette\Application\UI\Control
 				$args[] = ($this->page - 1) * $this->itemsPerPage;
 			}
 
-			$this->data = $this->dataLoader->invokeArgs($args);
+			$this->data = NCallback::invokeArgs($this->dataLoader, $args);
 		}
 
 		return $this->data;
@@ -572,7 +573,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  bool|string $reloadForm
 	 * @return void
 	 */
-	protected function invalidate($reloadData = TRUE, $reloadForm = FALSE)
+	protected function redraw($reloadData = TRUE, $reloadForm = FALSE)
 	{
 		$snippets = func_get_args();
 		!is_bool($reloadData) ? ($reloadData = TRUE) : array_shift($snippets);
@@ -583,7 +584,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 		!count($snippets) && ($snippets[] = NULL);
 		foreach ($snippets as $snippet) {
-			$this->invalidateControl($snippet);
+			$this->redrawControl($snippet);
 		}
 	}
 
@@ -598,8 +599,8 @@ class DataGrid extends Nette\Application\UI\Control
 	 */
 	function setInlineEditing($containerCb, $processCb)
 	{
-		$this->ieContainerFactory = Nette\Callback::create($containerCb);
-		$this->ieProcessCallback = Nette\Callback::create($processCb);
+		$this->ieContainerFactory = NCallback::closure($containerCb);
+		$this->ieProcessCallback = NCallback::closure($processCb);
 	}
 
 
@@ -612,7 +613,7 @@ class DataGrid extends Nette\Application\UI\Control
 	{
 		$this->iePrimary = $primary;
 		$this->refreshState(FALSE);
-		$this->invalidate(FALSE, TRUE, 'body');
+		$this->redraw(FALSE, TRUE, 'body');
 	}
 
 
@@ -624,7 +625,7 @@ class DataGrid extends Nette\Application\UI\Control
 	protected function deactivateInlineEditing($dataAsWell = TRUE)
 	{
 		$this->refreshState();
-		$this->invalidate($dataAsWell, TRUE, 'body');
+		$this->redraw($dataAsWell, TRUE, 'body');
 	}
 
 
@@ -639,7 +640,7 @@ class DataGrid extends Nette\Application\UI\Control
 	function setPagination($itemsPerPage, $itemCounter)
 	{
 		$this->itemsPerPage = max(0, (int) $itemsPerPage);
-		$this->itemCounter = Nette\Callback::create($itemCounter);
+		$this->itemCounter = NCallback::closure($itemCounter);
 		return $this;
 	}
 
@@ -655,7 +656,7 @@ class DataGrid extends Nette\Application\UI\Control
 		if ($this->itemsPerPage !== NULL) {
 			$this->initPagination();
 			$p = Helpers::fixPage($p, $this->pageCount);
-			$this->page !== $p && ($this->page = $p) && $this->invalidate('body', 'footer');
+			$this->page !== $p && ($this->page = $p) && $this->redraw('body', 'footer');
 		}
 
 		$refresh && $this->refreshState();
@@ -667,7 +668,7 @@ class DataGrid extends Nette\Application\UI\Control
 	protected function initPagination()
 	{
 		if ($this->itemCount === NULL) {
-			$this->itemCount = max(0, (int) $this->itemCounter->invokeArgs(array($this->getColumnNames(), $this->filters)));
+			$this->itemCount = max(0, (int) NCallback::invoke($this->itemCounter, $this->getColumnNames(), $this->filters));
 			$this->pageCount = (int) ceil($this->itemCount / $this->itemsPerPage);
 			$this->page = Helpers::fixPage($this->page, $this->pageCount);
 		}
@@ -784,7 +785,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 */
 	function formSubmitted(Forms\Form $form)
 	{
-		$this->invalidate(FALSE, 'form-errors');
+		$this->redraw(FALSE, 'form-errors');
 	}
 
 
@@ -831,17 +832,16 @@ class DataGrid extends Nette\Application\UI\Control
 					$primaries[] = $this->getRecord()->stringToPrimary($primaryString);
 				}
 
-				$this['groupActions']->getComponent($name)->callback->invokeArgs(array($primaries));
+				NCallback::invoke($this['groupActions']->getComponent($name)->getCallback(), $primaries);
 				$this->refreshState();
-				$this->invalidate(TRUE, TRUE, 'body', 'footer');
+				$this->redraw(TRUE, TRUE, 'body', 'footer');
 			}
 
 		} elseif ($path === 'inline-buttons') {
 			if ($name === 'edit') {
 				if (($values = $form->getInlineValues()) !== NULL) {
-					$this->ieProcessCallback->invokeArgs(
-						array($this->getRecord()->stringToPrimary($this->iePrimary), $values)
-					);
+					NCallback::invoke($this->ieProcessCallback,
+							$this->getRecord()->stringToPrimary($this->iePrimary), $values);
 
 					$this->deactivateInlineEditing();
 				}
@@ -901,7 +901,7 @@ class DataGrid extends Nette\Application\UI\Control
 			return Helpers::createSortLink($me, $c, $m);
 		});
 
-		$this->isControlInvalid() && $this->invalidate(FALSE, 'flashes');
+		$this->isControlInvalid() && $this->redraw(FALSE, 'flashes');
 		$this->passForm() && ($template->form = $template->_form = $form = $this['form'])
 				&& $this->presenter->payload->twiGrid['forms'][$form->elementPrototype->id] = (string) $form->getAction();
 		$template->columns = $this->getColumns();

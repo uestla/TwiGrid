@@ -12,6 +12,7 @@
 namespace TwiGrid;
 
 use Nette;
+use Nette\Utils\Callback as NCallback;
 
 
 class Record extends Nette\Object
@@ -20,7 +21,7 @@ class Record extends Nette\Object
 	/** @var array */
 	private $primaryKey = NULL;
 
-	/** @var Nette\Callback */
+	/** @var \Closure */
 	private $valueGetter = NULL;
 
 
@@ -55,13 +56,13 @@ class Record extends Nette\Object
 	 */
 	function setValueGetter($callback)
 	{
-		$this->valueGetter = Nette\Callback::create($callback);
+		$this->valueGetter = NCallback::closure($callback);
 		return $this;
 	}
 
 
 
-	/** @return Nette\Callback */
+	/** @return \Closure */
 	function getValueGetter()
 	{
 		$this->valueGetter === NULL && $this->setValueGetter(function ($record, $column, $need) {
@@ -89,7 +90,7 @@ class Record extends Nette\Object
 	 */
 	function getValue($record, $column, $need = TRUE)
 	{
-		return $this->getValueGetter()->invokeArgs(array($record, $column, $need));
+		return NCallback::invoke($this->getValueGetter(), $record, $column, $need);
 	}
 
 

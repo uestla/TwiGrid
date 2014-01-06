@@ -46,7 +46,7 @@
 	{? }{form $form, class => 'form tw-ajax'}
 		<div n:snippet="form-errors">
 		{if $errors = $form->errors}
-			<div class="alert alert-error hidable" n:foreach="$errors as $error">{$error}</div>
+			<div class="alert alert-danger hidable" n:foreach="$errors as $error">{$error}</div>
 		{/if}
 		</div>
 
@@ -62,7 +62,7 @@
 
 {define container}
 
-	<table class="table table-striped table-bordered table-hover">
+	<table class="table table-bordered table-striped table-hover">
 
 {include #header|indent:1}
 
@@ -148,17 +148,15 @@
 {* === ... ============================================ *}
 
 {define sort-labels}
-	<i n:class="$column->sortDir === TwiGrid\Components\Column::DESC ? icon-chevron-down : icon-chevron-up"
-	   n:if="$column->sortedBy"></i>
+	<span n:class="glyphicon, $column->sortDir === TwiGrid\Components\Column::DESC ? glyphicon-chevron-down : glyphicon-chevron-up"
+	   n:if="$column->sortedBy"></span>
 
 	<div class="pull-right" n:if="$grid->hasMultiSort()">
 	{if $column->sortedBy}
-		<span class="label label-info" n:if="count($grid->orderBy) > 1">{$column->sortIndex + 1}</span>
+		<span class="badge" n:if="count($grid->orderBy) > 1">{$column->sortIndex + 1}</span>
 	{/if}
-		<a href="{$multiSortLink}" class="multi-sort tw-ajax" n:if="$column->sortable">
-			<span class="label label-info">
-				<i class="icon-plus-sign icon-white"></i>
-			</span>
+		<a href="{$multiSortLink}" class="multi-sort btn btn-xs btn-primary tw-ajax" n:if="$column->sortable">
+			<span class="glyphicon glyphicon-plus-sign"></span>
 		</a>
 	</div>
 {/define}
@@ -171,7 +169,7 @@
 
 	<th n:class='filter-cell, ($hasControl = isset($form["filters-criteria-$column"])) && !($isControl = ($form["filters-criteria-$column"] instanceof Nette\Forms\IControl)) ? alert-warning'>
 	{if $hasControl && $isControl}
-		{? }{input filters-criteria-$column}
+		{? }{input filters-criteria-$column, class => 'form-control'}
 	{else}
 		&nbsp;
 	{/if}
@@ -196,7 +194,7 @@
 {* === ... ============================================ *}
 
 {define filter-button}
-	{? }{input $button, class => btn}
+	{? }{input $button, class => 'btn btn-default'}
 {/define}
 
 
@@ -216,7 +214,7 @@
 
 			<td class="body-cell center" n:if="$hasGroupActions">
 				{var $inputKey = $iterator->counter - 1}
-				{? }{input actions-records-$inputKey}
+				{? }{input actions-records-$inputKey:}
 			</td>
 
 		{foreach $columns as $name => $column}
@@ -271,7 +269,7 @@
 
 {define body-cell-inline}
 {ifset $form["inline-values-$column"]}
-	<td n:class='body-inline-cell, "body-inline-cell-{$column}"'>{input inline-values-$column}</td>
+	<td n:class='body-inline-cell, "body-inline-cell-{$column}"'>{input inline-values-$column, class => 'form-control'}</td>
 {else}
 {include #body-cell, (expand) get_defined_vars()}
 {/ifset}
@@ -296,7 +294,7 @@
 
 	{else}
 	{ifset $form[$buttonName = "inline-buttons-$i"]}
-		{? }{input $buttonName, class => 'btn btn-info btn-small'}
+		{? }{input $buttonName, class => 'btn btn-primary btn-sm'}
 	{/ifset}
 
 {if $hasRowActions}
@@ -327,8 +325,8 @@
 {* === ... ============================================ *}
 
 {define inline-buttons}
-	{? }{input inline-buttons-edit, class => 'btn btn-success btn-small'}
-	{? }{input inline-buttons-cancel, class => 'btn btn-danger btn-small'}
+	{? }{input inline-buttons-edit, class => 'btn btn-success btn-sm'}
+	{? }{input inline-buttons-cancel, class => 'btn btn-danger btn-sm'}
 {/define}
 
 
@@ -336,7 +334,7 @@
 {* === ... ============================================ *}
 
 {define row-action}
-	<a href="{$link}" n:class="btn, btn-info, btn-small, tw-ajax" n:attr="data-tw-confirm => $action->confirmation">
+	<a href="{$link}" n:class="btn, btn-primary, btn-sm, tw-ajax" n:attr="data-tw-confirm => $action->confirmation">
 		{$action->label}
 	</a>
 {/define}
@@ -352,16 +350,18 @@
 {capture $footerInfo}{include #footer-info |indent:3}{/capture}
 
 		<tr n:if="$template->hasData && (strlen(trim($footerInfo)) || $hasGroupActions || $grid->pageCount > 1)">
-			<td colspan="{$columnCount}" class="row-fluid footer-cell">
+			<td colspan="{$columnCount}" class="container footer-cell">
+				<div class="row">
 			{if $hasGroupActions}
-{include #group-action-buttons |indent:3}
+{include #group-action-buttons |indent:4}
 			{/if}
 
 			{if $grid->pageCount > 1}
-{include #pagination |indent:3}
+{include #pagination |indent:4}
 			{/if}
 
 {!$footerInfo}
+				</div>
 			</td>
 		</tr>
 
@@ -376,7 +376,7 @@
 {define group-action-buttons}
 {? $grid->addGroupActionButtons() }
 
-	<div n:class="$isPaginated ? ($grid->pageCount <= 1 ? span8 : span4) : span12">
+	<div n:class="$isPaginated ? ($grid->pageCount <= 1 ? col-xs-8 : col-xs-4) : col-xs-12">
 
 {include #group-action-buttons-label |indent:1}
 
@@ -403,7 +403,7 @@
 {* === ... ============================================ *}
 
 {define group-action-button}
-	{? }{input actions-buttons-$name, class => btn, data-tw-confirm => $action->confirmation}
+	{? }{input actions-buttons-$name, class => 'btn btn-default', data-tw-confirm => $action->confirmation}
 {/define}
 
 
@@ -412,9 +412,9 @@
 
 {define pagination}
 {? $grid->addPaginationControls() }
-	<div class="span4" n:if="!$hasGroupActions"></div>
+	<div class="col-xs-4" n:if="!$hasGroupActions"></div>
 
-	<div class="span4">
+	<div class="col-xs-4">
 		<ul class="pager center">
 			<li n:class="$grid->page <= 1 ? disabled">
 				<a n:href="paginate!, p => max(1, $grid->page - 1)" class="tw-ajax">
@@ -423,8 +423,8 @@
 			</li>
 
 			<li>
-				{? }{input pagination-controls-page}
-				{? }{input pagination-buttons-change, class => 'js-hid btn'}
+				{? }{input pagination-controls-page, class => 'form-control'}
+				{? }{input pagination-buttons-change, class => 'js-hid btn btn-sm btn-primary'}
 			</li>
 
 			<li n:class="$grid->page === $grid->pageCount ? disabled">
@@ -441,7 +441,7 @@
 {* === ... ============================================ *}
 
 {define footer-info}
-	<div n:class="!$hasGroupActions && $grid->pageCount <= 1 ? span12 : span4, right" n:if="$isPaginated">
+	<div n:class="!$hasGroupActions && $grid->pageCount <= 1 ? col-xs-12 : col-xs-4, right" n:if="$isPaginated">
 		{_'%d items', $grid->itemCount}
 	</div>
 {/define}

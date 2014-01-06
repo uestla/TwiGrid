@@ -14,19 +14,13 @@ namespace TwiGrid\Components;
 use Nette;
 
 
-/**
- * @property-read string $label
- * @property-read string $callback
- * @property string $confirmation
- * @property-read DataGrid $grid
- */
 class Action extends Component
 {
 
 	/** @var string */
 	protected $label;
 
-	/** @var Nette\Callback */
+	/** @var \Closure */
 	protected $callback;
 
 	/** @var string */
@@ -36,9 +30,9 @@ class Action extends Component
 
 	/**
 	 * @param  string $label
-	 * @param  Nette\Callback $callback
+	 * @param  \Closure $callback
 	 */
-	function __construct($label, Nette\Callback $callback)
+	function __construct($label, \Closure $callback)
 	{
 		parent::__construct();
 
@@ -56,7 +50,7 @@ class Action extends Component
 
 
 
-	/** @return Nette\Callback */
+	/** @return \Closure */
 	function getCallback()
 	{
 		return $this->callback;

@@ -13,17 +13,18 @@ namespace TwiGrid\Forms;
 
 use Nette;
 use TwiGrid\Helpers;
+use Nette\Utils\Callback as NCallback;
 
 
 class Form extends Nette\Application\UI\Form
 {
 
 	/**
-	 * @param  Nette\Callback $factory
+	 * @param  \Closure $factory
 	 * @param  array $defaults
 	 * @return Form
 	 */
-	function addFilterCriteria(Nette\Callback $factory, array $defaults)
+	function addFilterCriteria(\Closure $factory, array $defaults)
 	{
 		if (!$this->lazyCreateContainer('filters', 'criteria', $criteria, $factory)) {
 			$criteria->setDefaults($defaults);
@@ -64,10 +65,10 @@ class Form extends Nette\Application\UI\Form
 
 
 	/**
-	 * @param  Nette\Callback $primaryToString
+	 * @param  \Closure $primaryToString
 	 * @return Form
 	 */
-	function addGroupActionCheckboxes(Nette\Callback $primaryToString)
+	function addGroupActionCheckboxes(\Closure $primaryToString)
 	{
 		if (!$this->lazyCreateContainer('actions', 'records', $records)) {
 			$i = 0;
@@ -103,10 +104,10 @@ class Form extends Nette\Application\UI\Form
 
 
 	/**
-	 * @param  Nette\Callback $primaryToString
+	 * @param  \Closure $primaryToString
 	 * @return array
 	 */
-	function getCheckedRecords(Nette\Callback $primaryToString)
+	function getCheckedRecords(\Closure $primaryToString)
 	{
 		$this->addGroupActionCheckboxes($primaryToString);
 		if ($this['actions']['records']->isValid()) {
@@ -126,13 +127,13 @@ class Form extends Nette\Application\UI\Form
 
 
 	/**
-	 * @param  Nette\Callback $dataLoader
-	 * @param  Nette\Callback $primaryToString
-	 * @param  Nette\Callback $containerFactory
+	 * @param  \Closure $dataLoader
+	 * @param  \Closure $primaryToString
+	 * @param  \Closure $containerFactory
 	 * @param  string|NULL $iePrimary
 	 * @return Form
 	 */
-	function addInlineEditControls(Nette\Callback $dataLoader, Nette\Callback $primaryToString, Nette\Callback $containerFactory, $iePrimary)
+	function addInlineEditControls(\Closure $dataLoader, \Closure $primaryToString, \Closure $containerFactory, $iePrimary)
 	{
 		if (!$this->lazyCreateContainer('inline', 'buttons', $buttons)) {
 			$i = 0;
@@ -176,8 +177,9 @@ class Form extends Nette\Application\UI\Form
 	function addPaginationControls($current, $pageCount)
 	{
 		if (!$this->lazyCreateContainer('pagination', 'controls', $controls)) {
-			$controls->addSelect('page', 'Page')
-				->setItems(range(1, $pageCount), FALSE)
+			$pages = range(1, $pageCount);
+
+			$controls->addSelect('page', 'Page', array_combine($pages, $pages))
 				->setRequired('Please select a page to go to.')
 				->setDefaultValue($current);
 		}
@@ -205,16 +207,16 @@ class Form extends Nette\Application\UI\Form
 	 * @param  string $parent
 	 * @param  string $name
 	 * @param  mixed $container
-	 * @param  Nette\Callback|NULL $factory
+	 * @param  \Closure|NULL $factory
 	 * @return bool does container already exist?
 	 */
-	protected function lazyCreateContainer($parent, $name, & $container = NULL, Nette\Callback $factory = NULL)
+	protected function lazyCreateContainer($parent, $name, & $container = NULL, \Closure $factory = NULL)
 	{
 		!isset($this[$parent]) && $this->addContainer($parent);
 
 		if (!isset($this[$parent][$name])) {
 			if ($factory !== NULL) {
-				$subc = $factory->invoke();
+				$subc = NCallback::invoke($factory);
 				if (!($subc instanceof Nette\Forms\Container)) {
 					$type = gettype($subc);
 					throw new Nette\InvalidArgumentException("Filter factory is expected to return Nette\Forms\Container, '"

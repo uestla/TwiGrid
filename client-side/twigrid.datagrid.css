@@ -1,3 +1,4 @@
+
 /* === COMMON ================ */
 
 .tw-cnt.js .js-hid {
@@ -37,12 +38,28 @@
 	background: #f2dede;
 }
 
+.tw-cnt tr.checked > td {
+	background: #d9edf7 !important;
+}
+
+.tw-cnt tr.checked:hover > td {
+	background: #c4e3f3 !important;
+}
+
 
 
 /* === SORTING ================ */
 
 .tw-cnt .header-cell .multi-sort {
-	display: inline-block;
+	padding: 2px 4px 4px;
+}
+
+
+
+/* === BUTTONS ================ */
+
+.tw-cnt .btn-group {
+	white-space: nowrap;
 }
 
 
@@ -85,8 +102,5 @@
 
 .tw-cnt .pager select {
 	display: inline-block;
-	margin: 0 8px;
-	padding: 5px 8px;
 	width: auto;
-	font-size: 16px;
 }
