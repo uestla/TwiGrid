@@ -414,25 +414,20 @@
 {? $grid->addPaginationControls() }
 	<div class="col-xs-4" n:if="!$hasGroupActions"></div>
 
-	<div class="col-xs-4">
-		<ul class="pager center">
-			<li n:class="$grid->page <= 1 ? disabled">
-				<a n:href="paginate!, p => max(1, $grid->page - 1)" class="tw-ajax">
-					{_'Previous'}
-				</a>
-			</li>
+	<div class="col-xs-4 tw-pagination center">
+		<a n:href="paginate!, p => max(1, $grid->page - 1)" n:class="btn, btn-default, $grid->page <= 1 ? disabled, tw-ajax">
+			{_'Previous'}
+		</a>
 
-			<li>
-				{? }{input pagination-controls-page, class => 'form-control'}
-				{? }{input pagination-buttons-change, class => 'js-hid btn btn-sm btn-primary'}
-			</li>
+		<div class="actual">
+			{? }{input pagination-controls-page, class => 'form-control'}
+			/ {$grid->pageCount}
+			{? }{input pagination-buttons-change, class => 'js-hid btn btn-default'}
+		</div>
 
-			<li n:class="$grid->page === $grid->pageCount ? disabled">
-				<a n:href="paginate!, p => min($grid->pageCount, $grid->page + 1)" class="tw-ajax">
-					{_'Next'}
-				</a>
-			</li>
-		</ul>
+		<a n:href="paginate!, p => min($grid->pageCount, $grid->page + 1)" n:class="btn, btn-default, $grid->page === $grid->pageCount ? disabled, tw-ajax">
+			{_'Next'}
+		</a>
 	</div>
 {/define}
 

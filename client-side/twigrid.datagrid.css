@@ -96,11 +96,17 @@
 
 /* === PAGINATION ================ */
 
-.tw-cnt .pager {
+.tw-cnt .tw-pagination {
 	margin: 0;
 }
 
-.tw-cnt .pager select {
-	display: inline-block;
+.tw-cnt .tw-pagination select {
 	width: auto;
+	padding: 5px 4px;
+	display: inline-block;
+}
+
+.tw-cnt .tw-pagination .actual {
+	margin: 0 8px;
+	display: inline-block;
 }
