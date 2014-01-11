@@ -88,31 +88,24 @@ $.nette.ext('twigrid', {
 			grid.addClass('js');
 
 
+			self.focusingBehavior(grid.find(':input'));
+
+
 			// filtering
 			self.filterBehavior(
-				gHeader.find('select[name^="' + self.escape('filters[criteria][') + '"]'),
-				filterSubmit
-			);
-
-			self.keyboardBehavior(
 				gHeader.find(':input:not(' + self.buttonSelector() + ')'),
+				gHeader.find('select[name^="' + self.escape('filters[criteria][') + '"]'),
 				filterSubmit
 			);
 
 
 			// inline editing
-			var inlines = gBody.find(':input[name^="' + self.escape('inline[values][') + '"]');
-			if (inlines.length) {
-				self.keyboardBehavior(
-					inlines,
-					gBody.find(self.buttonSelector('[name="' + self.escape('inline[buttons][edit]') + '"]')),
-					gBody.find(self.buttonSelector('[name="' + self.escape('inline[buttons][cancel]') + '"]'))
-				);
-
-				inlines.first().trigger('focus');
-			}
-
-			self.inlineActivation(gBody.children());
+			self.inlineEditBehavior(
+				gBody.find(':input[name^="' + self.escape('inline[values][') + '"]'),
+				gBody.find(self.buttonSelector('[name="' + self.escape('inline[buttons][edit]') + '"]')),
+				gBody.find(self.buttonSelector('[name="' + self.escape('inline[buttons][cancel]') + '"]')),
+				gBody.children()
+			);
 
 
 			// rows checkboxes
@@ -201,44 +194,55 @@ $.nette.ext('twigrid', {
 		return els.join(', ');
 	},
 
-	filterBehavior: function (selects, submit) {
+	focusingBehavior: function (inputs) {
+		var self = this,
+			focusedTmp = null;
+
+		if (!self.focusingInitialized) {
+			var doc = $(document);
+
+			doc.off('click.tw-focus')
+				.on('click.tw-focus', function (event) {
+					var target = $(event.target);
+
+					if (!target.is(':input')) {
+						var grid = target.closest(self.gridSelector);
+						self.focusedGrid = grid.length ? grid : null;
+					}
+				});
+
+			self.focusingInitialized = true;
+		}
+
+		inputs.off('focus.tw-focus')
+			.on('focus.tw-focus', function (event) {
+				focusedTmp = self.focusedGrid;
+				self.focusedGrid = null;
+			})
+			.off('blur.tw-blur')
+			.on('blur.tw-blur', function (event) {
+				self.focusedGrid = focusedTmp;
+				focusedTmp = null;
+			});
+	},
+
+	filterBehavior: function (inputs, selects, submit) {
+		this.submittingBehavior(inputs, submit);
+
 		selects.off('change.tw-filter')
 			.on('change.tw-filter', function (event) {
 				submit.trigger('click');
 			});
 	},
 
-	keyboardBehavior: function (inputs, submit, cancel) {
+	inlineEditBehavior: function (inputs, submit, cancel, rows) {
 		var self = this;
-		inputs.off('focus.tw-keyboard')
-			.on('focus.tw-keyboard', function (event) {
-				inputs.off('keypress.tw-keyboard')
-					.on('keypress.tw-keyboard', function (e) {
-						if ((e.keyCode === 13 || e.keyCode === 10) && submit
-								&& (self.isInlineSubmitter(e.target) || self.onlyCtrlKeyPressed(e))) { // [enter]
+		self.submittingBehavior(inputs, submit, cancel);
 
-							e.preventDefault();
-							submit.trigger('click');
-						}
-					})
-					.off('keydown.tw-keyboard')
-					.on('keydown.tw-keyboard', function (e) {
-						if (e.keyCode === 27 && cancel) { // [esc]
-							e.preventDefault();
-							e.stopImmediatePropagation();
-							cancel.trigger('click');
-						}
-					});
-			})
-			.off('blur.tw-keyboard')
-			.on('blur.tw-keyboard', function (event) {
-				inputs.off('keypress.tw-keyboard')
-					.off('keydown.tw-keyboard');
-			});
-	},
+		if (inputs.length) {
+			inputs.first().trigger('focus');
+		}
 
-	inlineActivation: function (rows) {
-		var self = this;
 		rows.off('click.tw-inline')
 			.on('click.tw-inline', function (event) {
 				var row = $(this),
@@ -249,6 +253,36 @@ $.nette.ext('twigrid', {
 					edit.trigger('click');
 				}
 			});
+	},
+
+	submittingBehavior: function (inputs, submit, cancel) {
+		var self = this;
+
+		if (inputs.length) {
+			inputs.off('focus.tw-keyboard')
+				.on('focus.tw-keyboard', function (event) {
+					inputs.off('keydown.tw-keyboard')
+						.on('keydown.tw-keyboard', function (e) {
+							if ((e.keyCode === 13 || e.keyCode === 10) && submit
+									&& (self.isInlineSubmitter(e.target) || self.onlyCtrlKeyPressed(e))) { // [enter]
+
+								e.preventDefault();
+								submit.trigger('click');
+
+							} else if (cancel && e.keyCode === 27) {
+								e.preventDefault();
+								e.stopImmediatePropagation();
+								cancel.trigger('click');
+							}
+						});
+
+				})
+				.off('blur.tw-keyboard')
+				.on('blur.tw-keyboard', function (event) {
+					inputs.off('keypress.tw-keyboard')
+						.off('keydown.tw-keyboard');
+				});
+		}
 	},
 
 	rowsChecking: function (grid, checkboxes, buttons, header) {
@@ -279,7 +313,7 @@ $.nette.ext('twigrid', {
 					} else {
 						row.removeClass('checked');
 						if (!checkboxes.filter(':checked:first').length) {
-							buttons.attr('disabled', true)
+							buttons.attr('disabled', true);
 						}
 					}
 				};
@@ -320,9 +354,34 @@ $.nette.ext('twigrid', {
 	},
 
 	paginationBehavior: function (selects, submit) {
+		if (!selects.length) {
+			return ;
+		}
+
+		var self = this;
+
 		selects.off('change.tw-pagination')
 			.on('change.tw-pagination', function (event) {
 				submit.trigger('click');
+			});
+
+		$(document).off('keydown.tw-pagination')
+			.on('keydown.tw-pagination', function (event) {
+				if (self.focusedGrid !== null
+						&& self.onlyCtrlKeyPressed(event) && (event.keyCode === 37 || event.keyCode === 39)) {
+					event.preventDefault();
+
+					selects.each(function () {
+						var select = $(this),
+							selected = select.children(':selected'),
+							next = event.keyCode === 37 ? selected.prev() : selected.next();
+
+						if (next.length) {
+							select.val(next.val());
+							select.trigger('change');
+						}
+					});
+				}
 			});
 	},
 
@@ -374,6 +433,8 @@ $.nette.ext('twigrid', {
 
 	// helpers
 
+	focusedGrid: null,
+	focusingInitialized: false,
 	lastChecked: null, // index of last checked row checkbox
 
 	escape: function (selector) {
