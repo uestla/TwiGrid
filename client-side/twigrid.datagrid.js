@@ -127,12 +127,6 @@ $.nette.ext('twigrid', {
 			);
 
 
-			// client validation
-			self.clientValidation(
-				gForm,
-				grid.find(self.buttonSelector('[data-tw-validate][formnovalidate]'))
-			);
-
 			self.confirmationDialog($('*[data-tw-confirm]'));
 
 
@@ -383,25 +377,6 @@ $.nette.ext('twigrid', {
 					});
 				}
 			});
-	},
-
-	clientValidation: function (form, buttons) {
-		var self = this;
-		if (window.Nette !== undefined) {
-			buttons.off('click.tw-validation')
-				.on('click.tw-validation', function (event) {
-					form.find(':input[name^="' + self.escape($(this).attr('data-tw-validate')) + '"]')
-						.each(function (key, input) {
-							if (window.Nette.validateControl(input) === false) {
-								event.preventDefault();
-								event.stopImmediatePropagation();
-								return false; // means break;
-							}
-
-							return true;
-						});
-				});
-		}
 	},
 
 	confirmationDialog: function (els) {

@@ -714,6 +714,7 @@ class DataGrid extends Nette\Application\UI\Control
 	function addFilterCriteria()
 	{
 		$this->filterFactory !== NULL
+			&& $this->addFilterButtons()
 			&& $this['form']->addFilterCriteria($this->filterFactory, $this->filters);
 
 		return $this;
@@ -736,6 +737,7 @@ class DataGrid extends Nette\Application\UI\Control
 	function addGroupActionCheckboxes()
 	{
 		$this->groupActions !== NULL
+			&& $this->addGroupActionButtons()
 			&& $this['form']->addGroupActionCheckboxes($this->getRecord()->primaryToString);
 
 		return $this;
@@ -826,7 +828,7 @@ class DataGrid extends Nette\Application\UI\Control
 			$this->handlePaginate($form->getPage());
 
 		} elseif ($path === 'actions-buttons') {
-			if (($checked = $form->getCheckedRecords($this->getRecord()->primaryToString, $this->getRecord()->stringToPrimary)) !== NULL) {
+			if (($checked = $form->getCheckedRecords($this->getRecord()->primaryToString)) !== NULL) {
 				$primaries = array();
 				foreach ($checked as $primaryString) {
 					$primaries[] = $this->getRecord()->stringToPrimary($primaryString);

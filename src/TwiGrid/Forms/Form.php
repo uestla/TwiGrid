@@ -30,6 +30,7 @@ class Form extends Nette\Application\UI\Form
 			$criteria->setDefaults($defaults);
 		}
 
+		$this['filters']['buttons']['filter']->setValidationScope(array($this['filters']['criteria']));
 		return $this;
 	}
 
@@ -42,10 +43,7 @@ class Form extends Nette\Application\UI\Form
 	function addFilterButtons($hasFilters)
 	{
 		if (!$this->lazyCreateContainer('filters', 'buttons', $buttons)) {
-			$buttons->addSubmit('filter', 'Filter')
-				->setValidationScope(FALSE)
-				->setAttribute('data-tw-validate', 'filters[criteria]');
-
+			$buttons->addSubmit('filter', 'Filter');
 			$hasFilters && $buttons->addSubmit('reset', 'Cancel')->setValidationScope(FALSE);
 		}
 
@@ -57,9 +55,8 @@ class Form extends Nette\Application\UI\Form
 	/** @return array|NULL */
 	function getFilterCriteria()
 	{
-		return $this['filters']['criteria']->isValid()
-			? Helpers::filterEmpty($this['filters']['criteria']->getValues(TRUE))
-			: NULL;
+		$this->validate();
+		return $this->isValid() ? Helpers::filterEmpty($this['filters']['criteria']->getValues(TRUE)) : NULL;
 	}
 
 
@@ -79,6 +76,10 @@ class Form extends Nette\Application\UI\Form
 			}
 		}
 
+		foreach ($this['actions']['buttons']->components as $button) {
+			$button->setValidationScope(array($this['actions']['records']));
+		}
+
 		return $this;
 	}
 
@@ -92,9 +93,7 @@ class Form extends Nette\Application\UI\Form
 	{
 		if (!$this->lazyCreateContainer('actions', 'buttons', $buttons)) {
 			foreach ($actions as $name => $action) {
-				$buttons->addSubmit($name, $action->label)
-					->setValidationScope(FALSE)
-					->setAttribute('data-tw-validate', 'actions[records]');
+				$buttons->addSubmit($name, $action->label);
 			}
 		}
 
@@ -105,12 +104,14 @@ class Form extends Nette\Application\UI\Form
 
 	/**
 	 * @param  \Closure $primaryToString
-	 * @return array
+	 * @return array|NULL
 	 */
 	function getCheckedRecords(\Closure $primaryToString)
 	{
 		$this->addGroupActionCheckboxes($primaryToString);
-		if ($this['actions']['records']->isValid()) {
+
+		$this->validate();
+		if ($this->isValid()) {
 			$checked = array();
 			foreach ($this['actions']['records']->components as $checkbox) {
 				if ($checkbox->value) {
@@ -142,8 +143,7 @@ class Form extends Nette\Application\UI\Form
 				if ($iePrimary === $primaryString) {
 					$this['inline']['values'] = $containerFactory($record);
 					$buttons->addSubmit('edit', 'Edit')
-						->setValidationScope(FALSE)
-						->setAttribute('data-tw-validate', 'inline[values]');
+						->setValidationScope(array($this['inline']['values']));
 
 					$buttons->addSubmit('cancel', 'Cancel')->setValidationScope(FALSE);
 
@@ -161,10 +161,11 @@ class Form extends Nette\Application\UI\Form
 
 
 
-	/** @return array */
+	/** @return array|NULL */
 	function getInlineValues()
 	{
-		return $this['inline']['values']->isValid() ? $this['inline']['values']->getValues(TRUE) : NULL;
+		$this->validate();
+		return $this->isValid() ? $this['inline']['values']->getValues(TRUE) : NULL;
 	}
 
 
@@ -186,8 +187,7 @@ class Form extends Nette\Application\UI\Form
 
 		if (!$this->lazyCreateContainer('pagination', 'buttons', $buttons)) {
 			$buttons->addSubmit('change', 'Change page')
-				->setValidationScope(FALSE)
-				->setAttribute('data-tw-validate', 'pagination[controls]');
+				->setValidationScope(array($this['pagination']['controls']));
 		}
 
 		return $this;
