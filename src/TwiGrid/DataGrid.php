@@ -476,9 +476,10 @@ class DataGrid extends Nette\Application\UI\Control
 	protected function setFilters(array $filters, $refresh = TRUE)
 	{
 		Helpers::recursiveKSort($filters);
-		($diff = $this->filters !== $filters) && (($this->filters = $filters) || TRUE) && $this->handlePaginate(1, FALSE);
+		($diff = ($this->filters !== $filters)) && (($this->filters = $filters) || TRUE);
 		$refresh && $this->refreshState($diff)
-			&& $diff && $this->redraw(TRUE, TRUE, 'header-sort', 'filter-controls', 'body', 'footer');
+			&& $diff && ($this->redraw(TRUE, TRUE, 'header-sort', 'filter-controls', 'body', 'footer') || TRUE)
+				&& $this->handlePaginate(1, FALSE);
 
 		return $this;
 	}
