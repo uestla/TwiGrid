@@ -109,7 +109,7 @@ $.nette.ext('twigrid', {
 
 
 			// rows checkboxes
-			var checkboxes = grid.find('input[type="checkbox"][name^="' + self.escape('actions[records][') + '"]');
+			var checkboxes = self.getGroupActionCheckboxes(grid);
 			if (checkboxes.length) {
 				self.rowsChecking(
 					grid,
@@ -122,6 +122,7 @@ $.nette.ext('twigrid', {
 
 			// pagination
 			self.paginationBehavior(
+				grid,
 				gFooter.find('select[name^="' + self.escape('pagination[controls][') + '"]'),
 				gFooter.find(self.buttonSelector('[name="' + self.escape('pagination[buttons][change]') + '"]'))
 			);
@@ -186,6 +187,10 @@ $.nette.ext('twigrid', {
 		}
 
 		return els.join(', ');
+	},
+
+	getGroupActionCheckboxes: function (grid) {
+		return grid.find('input[type="checkbox"][name^="' + this.escape('actions[records][') + '"]');
 	},
 
 	focusingBehavior: function (inputs) {
@@ -347,7 +352,7 @@ $.nette.ext('twigrid', {
 		});
 	},
 
-	paginationBehavior: function (selects, submit) {
+	paginationBehavior: function (grid, selects, submit) {
 		if (!selects.length) {
 			return ;
 		}
@@ -356,6 +361,7 @@ $.nette.ext('twigrid', {
 
 		selects.off('change.tw-pagination')
 			.on('change.tw-pagination', function (event) {
+				self.getGroupActionCheckboxes(grid).prop('checked', false);
 				submit.trigger('click');
 			});
 
