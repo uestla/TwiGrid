@@ -30,7 +30,7 @@
 	white-space: nowrap;
 }
 
-.tw-cnt th, .tw-cnt td {
+.tw-cnt table > thead > tr > th, .tw-cnt table > tbody > tr th, .tw-cnt table > tbody > tr > td {
 	vertical-align: middle;
 }
 
