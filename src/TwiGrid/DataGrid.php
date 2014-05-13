@@ -146,10 +146,17 @@ class DataGrid extends Nette\Application\UI\Control
 	 */
 	protected function attached($presenter)
 	{
+		$this->build();
 		parent::attached($presenter);
 		!isset($this->presenter->payload->twiGrid)
 			&& ($this->presenter->payload->twiGrid['forms'] = $this->presenter->payload->twiGrid = array());
 	}
+
+
+
+	/** @return void */
+	protected function build()
+	{}
 
 
 
