@@ -35,7 +35,6 @@ class Form extends Nette\Application\UI\Form
 	}
 
 
-
 	/**
 	 * @param  bool $hasFilters
 	 * @return Form
@@ -51,14 +50,12 @@ class Form extends Nette\Application\UI\Form
 	}
 
 
-
 	/** @return array|NULL */
 	function getFilterCriteria()
 	{
 		$this->validate();
 		return $this->isValid() ? Helpers::filterEmpty($this['filters']['criteria']->getValues(TRUE)) : NULL;
 	}
-
 
 
 	/**
@@ -84,7 +81,6 @@ class Form extends Nette\Application\UI\Form
 	}
 
 
-
 	/**
 	 * @param  \ArrayIterator $actions
 	 * @return Form
@@ -99,7 +95,6 @@ class Form extends Nette\Application\UI\Form
 
 		return $this;
 	}
-
 
 
 	/**
@@ -124,7 +119,6 @@ class Form extends Nette\Application\UI\Form
 
 		return NULL;
 	}
-
 
 
 	/**
@@ -160,14 +154,12 @@ class Form extends Nette\Application\UI\Form
 	}
 
 
-
 	/** @return array|NULL */
 	function getInlineValues()
 	{
 		$this->validate();
 		return $this->isValid() ? $this['inline']['values']->getValues(TRUE) : NULL;
 	}
-
 
 
 	/**
@@ -194,13 +186,11 @@ class Form extends Nette\Application\UI\Form
 	}
 
 
-
 	/** @return int */
 	function getPage()
 	{
 		return (int) $this['pagination']['controls']['page']->value;
 	}
-
 
 
 	/**
@@ -235,7 +225,6 @@ class Form extends Nette\Application\UI\Form
 		$container = $this[$parent][$name];
 		return !isset($created);
 	}
-
 
 
 	/**

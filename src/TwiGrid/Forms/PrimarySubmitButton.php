@@ -21,7 +21,6 @@ class PrimarySubmitButton extends Nette\Forms\Controls\SubmitButton
 	private $primary = NULL;
 
 
-
 	/**
 	 * @param  string $value
 	 * @return PrimarySubmitButton
@@ -31,7 +30,6 @@ class PrimarySubmitButton extends Nette\Forms\Controls\SubmitButton
 		$this->primary = (string) $value;
 		return $this;
 	}
-
 
 
 	/** @return string|NULL */

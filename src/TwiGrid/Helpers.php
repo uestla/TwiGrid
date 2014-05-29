@@ -34,7 +34,6 @@ abstract class Helpers extends Nette\Object
 	}
 
 
-
 	/**
 	 * @param  array $a
 	 * @return array
@@ -57,12 +56,10 @@ abstract class Helpers extends Nette\Object
 	}
 
 
-
 	// === SORTING ======================================================
 
 	const SORT_LINK_SINGLE = 0;
 	const SORT_LINK_MULTI = 1;
-
 
 
 	/**
@@ -101,7 +98,6 @@ abstract class Helpers extends Nette\Object
 	}
 
 
-
 	// === PAGINATION ======================================================
 
 	/**
@@ -113,7 +109,6 @@ abstract class Helpers extends Nette\Object
 	{
 		return max(1, min((int) $page, $pageCount));
 	}
-
 
 
 	// === CSRF PROTECTION ======================================================
@@ -132,7 +127,6 @@ abstract class Helpers extends Nette\Object
 	}
 
 
-
 	/**
 	 * @param  NSession $session
 	 * @param  string $namespace
@@ -149,7 +143,6 @@ abstract class Helpers extends Nette\Object
 
 		return FALSE;
 	}
-
 
 
 	/**

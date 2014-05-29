@@ -21,7 +21,6 @@ class PrimaryCheckbox extends Nette\Forms\Controls\Checkbox
 	private $primary = NULL;
 
 
-
 	/**
 	 * @param  string $value
 	 * @return PrimaryCheckbox
@@ -31,7 +30,6 @@ class PrimaryCheckbox extends Nette\Forms\Controls\Checkbox
 		$this->primary = (string) $value;
 		return $this;
 	}
-
 
 
 	/** @return string|NULL */

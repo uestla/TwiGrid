@@ -25,9 +25,7 @@ class Record extends Nette\Object
 	private $valueGetter = NULL;
 
 
-
 	const PRIMARY_SEPARATOR = '|';
-
 
 
 	/**
@@ -41,13 +39,11 @@ class Record extends Nette\Object
 	}
 
 
-
 	/** @return array */
 	function getPrimaryKey()
 	{
 		return $this->primaryKey;
 	}
-
 
 
 	/**
@@ -59,7 +55,6 @@ class Record extends Nette\Object
 		$this->valueGetter = NCallback::closure($callback);
 		return $this;
 	}
-
 
 
 	/** @return \Closure */
@@ -81,7 +76,6 @@ class Record extends Nette\Object
 	}
 
 
-
 	/**
 	 * @param  mixed $record
 	 * @param  string $column
@@ -94,7 +88,6 @@ class Record extends Nette\Object
 	}
 
 
-
 	/**
 	 * @param  mixed $record
 	 * @return string
@@ -103,7 +96,6 @@ class Record extends Nette\Object
 	{
 		return implode(static::PRIMARY_SEPARATOR, $this->getPrimary($record));
 	}
-
 
 
 	/**
@@ -115,7 +107,6 @@ class Record extends Nette\Object
 		$primaries = explode(static::PRIMARY_SEPARATOR, $s);
 		return count($primaries) === 1 ? (string) $primaries[0] : array_combine($this->primary, $primaries);
 	}
-
 
 
 	/**

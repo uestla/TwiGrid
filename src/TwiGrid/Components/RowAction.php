@@ -20,7 +20,6 @@ class RowAction extends Action
 	protected $protected = TRUE;
 
 
-
 	/**
 	 * @param  bool $bool
 	 * @return RowAction
@@ -30,7 +29,6 @@ class RowAction extends Action
 		$this->protected = (bool) $bool;
 		return $this;
 	}
-
 
 
 	/** @return bool */

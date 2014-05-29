@@ -27,7 +27,6 @@ class Action extends Component
 	protected $confirmation = NULL;
 
 
-
 	/**
 	 * @param  string $label
 	 * @param  \Closure $callback
@@ -41,7 +40,6 @@ class Action extends Component
 	}
 
 
-
 	/** @return string */
 	function getLabel()
 	{
@@ -49,13 +47,11 @@ class Action extends Component
 	}
 
 
-
 	/** @return \Closure */
 	function getCallback()
 	{
 		return $this->callback;
 	}
-
 
 
 	/**
@@ -67,7 +63,6 @@ class Action extends Component
 		$this->confirmation = $confirmation === NULL ? NULL : (string) $confirmation;
 		return $this;
 	}
-
 
 
 	/** @return string|NULL */

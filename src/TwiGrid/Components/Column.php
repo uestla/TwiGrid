@@ -40,10 +40,8 @@ class Column extends Component
 	private $sortIndex;
 
 
-
 	const ASC = FALSE;
 	const DESC = TRUE;
-
 
 
 	/** @param  string $label */
@@ -55,13 +53,11 @@ class Column extends Component
 	}
 
 
-
 	/** @return string */
 	function getLabel()
 	{
 		return $this->getDataGrid()->translate($this->label);
 	}
-
 
 
 	/**
@@ -75,13 +71,11 @@ class Column extends Component
 	}
 
 
-
 	/** @return bool */
 	function isSortable()
 	{
 		return $this->sortable;
 	}
-
 
 
 	/**
@@ -103,7 +97,6 @@ class Column extends Component
 	}
 
 
-
 	/** @return bool */
 	function isSortedBy()
 	{
@@ -111,13 +104,11 @@ class Column extends Component
 	}
 
 
-
 	/** @return bool */
 	function getSortDir()
 	{
 		return $this->sortDir;
 	}
-
 
 
 	/** @return int */
