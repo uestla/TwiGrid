@@ -24,6 +24,7 @@ use Nette\Utils\Callback as NCallback;
  * @property-read mixed $data
  * @property-read int|NULL $pageCount
  * @property-read int|NULL $itemCount
+ * @property-read int|NULL $itemsPerPage
  */
 class DataGrid extends Nette\Application\UI\Control
 {
@@ -651,6 +652,13 @@ class DataGrid extends Nette\Application\UI\Control
 	function getItemCount()
 	{
 		return $this->itemCount;
+	}
+
+
+	/** @return int|NULL */
+	function getItemsPerPage()
+	{
+		return $this->itemsPerPage;
 	}
 
 
