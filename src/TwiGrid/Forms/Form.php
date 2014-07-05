@@ -207,7 +207,7 @@ class Form extends Nette\Application\UI\Form
 		if (!isset($this[$parent][$name])) {
 			if ($factory !== NULL) {
 				$subc = NCallback::invoke($factory);
-				if (!($subc instanceof Nette\Forms\Container)) {
+				if (!$subc instanceof Nette\Forms\Container) {
 					$type = gettype($subc);
 					throw new Nette\InvalidArgumentException("Filter factory is expected to return Nette\Forms\Container, '"
 							. ($type === 'object' ? get_class($subc) : $type) . "' given.");
@@ -233,7 +233,7 @@ class Form extends Nette\Application\UI\Form
 	 */
 	static function validateCheckedCount(PrimaryCheckbox $checkbox)
 	{
-		return $checkbox->form->submitted->parent->lookupPath('Nette\\Forms\\Form') !== 'actions-buttons'
+		return $checkbox->form->submitted->parent->lookupPath('Nette\Forms\Form') !== 'actions-buttons'
 				|| in_array(TRUE, $checkbox->parent->getValues(TRUE), TRUE);
 	}
 

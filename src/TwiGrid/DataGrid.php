@@ -724,7 +724,10 @@ class DataGrid extends Nette\Application\UI\Control
 	{
 		$this->ieContainerFactory !== NULL
 			&& $this['form']->addInlineEditControls(
-				$this->getData, $this->getRecord()->primaryToString, $this->ieContainerFactory, $this->iePrimary
+				$this->getData,
+				$this->getRecord()->primaryToString,
+				$this->ieContainerFactory,
+				$this->iePrimary
 			);
 
 		return $this;
@@ -760,59 +763,61 @@ class DataGrid extends Nette\Application\UI\Control
 	{
 		// detect submit button by lazy buttons appending (beginning with the most lazy ones)
 		$this->addFilterButtons();
-		if ($form->submitted === TRUE) {
+		if (($button = $form->submitted) === TRUE) {
 			$this->addGroupActionButtons();
 
-			if ($form->submitted === TRUE) {
+			if (($button = $form->submitted) === TRUE) {
 				$this->addPaginationControls();
 
-				if ($form->submitted === TRUE) {
+				if (($button = $form->submitted) === TRUE) {
 					$this->addInlineEditControls();
+					$button = $form->submitted;
 				}
 			}
 		}
 
-		$button = $form->submitted;
-		$name = $button->name;
-		$path = $button->parent->lookupPath('TwiGrid\\Forms\\Form');
+		if ($button instanceof Nette\Forms\Controls\SubmitButton) {
+			$name = $button->name;
+			$path = $button->parent->lookupPath('TwiGrid\Forms\Form');
 
-		if ("$path-$name" === 'filters-buttons-filter') {
-			$this->addFilterCriteria();
-			($criteria = $form->getFilterCriteria()) !== NULL && $this->setFilters($criteria);
+			if ("$path-$name" === 'filters-buttons-filter') {
+				$this->addFilterCriteria();
+				($criteria = $form->getFilterCriteria()) !== NULL && $this->setFilters($criteria);
 
-		} elseif ("$path-$name" === 'filters-buttons-reset') {
-			$this->setFilters(array());
-			$this->defaultFilters !== NULL && ($this->polluted = TRUE);
+			} elseif ("$path-$name" === 'filters-buttons-reset') {
+				$this->setFilters(array());
+				$this->defaultFilters !== NULL && ($this->polluted = TRUE);
 
-		} elseif ("$path-$name" === 'pagination-buttons-change') {
-			$this->handlePaginate($form->getPage());
+			} elseif ("$path-$name" === 'pagination-buttons-change') {
+				$this->handlePaginate($form->getPage());
 
-		} elseif ($path === 'actions-buttons') {
-			if (($checked = $form->getCheckedRecords($this->getRecord()->primaryToString)) !== NULL) {
-				$primaries = array();
-				foreach ($checked as $primaryString) {
-					$primaries[] = $this->getRecord()->stringToPrimary($primaryString);
+			} elseif ($path === 'actions-buttons') {
+				if (($checked = $form->getCheckedRecords($this->getRecord()->primaryToString)) !== NULL) {
+					$primaries = array();
+					foreach ($checked as $primaryString) {
+						$primaries[] = $this->getRecord()->stringToPrimary($primaryString);
+					}
+
+					NCallback::invoke($this['groupActions']->getComponent($name)->getCallback(), $primaries);
+					$this->refreshState();
+					$this->redraw(TRUE, TRUE, 'body', 'footer');
 				}
 
-				NCallback::invoke($this['groupActions']->getComponent($name)->getCallback(), $primaries);
-				$this->refreshState();
-				$this->redraw(TRUE, TRUE, 'body', 'footer');
-			}
+			} elseif ($path === 'inline-buttons') {
+				if ($name === 'edit') {
+					if (($values = $form->getInlineValues()) !== NULL) {
+						NCallback::invoke($this->ieProcessCallback,
+								$this->getRecord()->stringToPrimary($this->iePrimary), $values);
 
-		} elseif ($path === 'inline-buttons') {
-			if ($name === 'edit') {
-				if (($values = $form->getInlineValues()) !== NULL) {
-					NCallback::invoke($this->ieProcessCallback,
-							$this->getRecord()->stringToPrimary($this->iePrimary), $values);
+						$this->deactivateInlineEditing();
+					}
 
-					$this->deactivateInlineEditing();
+				} elseif ($name === 'cancel') {
+					$this->deactivateInlineEditing(FALSE);
+
+				} else {
+					$this->activateInlineEditing($button->primary);
 				}
-
-			} elseif ($name === 'cancel') {
-				$this->deactivateInlineEditing(FALSE);
-
-			} else {
-				$this->activateInlineEditing($button->primary);
 			}
 		}
 	}
@@ -849,15 +854,15 @@ class DataGrid extends Nette\Application\UI\Control
 
 		$template->grid = $this;
 		$template->defaultTemplate = __DIR__ . '/DataGrid.latte';
-		$this->templateFile === NULL && ($this->templateFile = $template->defaultTemplate);
-		$template->setFile($this->templateFile);
+		$template->setFile($this->templateFile === NULL ? ($this->templateFile = $template->defaultTemplate) : $this->templateFile);
 
-		$me = $this;
-		$template->registerHelper('translate', $this->translate);
-		$template->registerHelper('primaryToString', $this->getRecord()->primaryToString);
-		$template->registerHelper('getValue', $this->getRecord()->getValue);
-		$template->registerHelper('sortLink', function (Components\Column $c, $m = Helpers::SORT_LINK_SINGLE) use ($me) {
-			return Helpers::createSortLink($me, $c, $m);
+		$grid = $this;
+		$latte = $template->getLatte();
+		$latte->addFilter('translate', $this->translate);
+		$latte->addFilter('primaryToString', $this->getRecord()->primaryToString);
+		$latte->addFilter('getValue', $this->getRecord()->getValue);
+		$latte->addFilter('sortLink', function (Components\Column $c, $m = Helpers::SORT_LINK_SINGLE) use ($grid) {
+			return Helpers::createSortLink($grid, $c, $m);
 		});
 
 		$this->isControlInvalid() && $this->redraw(FALSE, 'flashes');

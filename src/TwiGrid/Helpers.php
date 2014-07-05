@@ -13,8 +13,8 @@ namespace TwiGrid;
 
 use Nette;
 use TwiGrid\Components\Column;
+use Nette\Utils\Random as NRandom;
 use Nette\Http\Session as NSession;
-use Nette\Utils\Strings as NStrings;
 
 
 abstract class Helpers extends Nette\Object
@@ -116,14 +116,13 @@ abstract class Helpers extends Nette\Object
 	/**
 	 * @param  NSession $session
 	 * @param  string $namespace
-	 * @param  bool $generate
-	 * @return string|NULL
+	 * @return string
 	 */
-	static function getCsrfToken(NSession $session, $namespace, $generate = TRUE)
+	static function getCsrfToken(NSession $session, $namespace)
 	{
-		$session = static::getCsrfTokenSession($session, $namespace);
-		return isset($session->token) ? $session->token
-			: ($generate ? ($session->token = NStrings::random()) : NULL);
+		return ($token = static::loadCsrfToken($session, $namespace)) === NULL
+				? static::getCsrfTokenSession($session, $namespace)->token = NRandom::generate(10)
+				: $token;
 	}
 
 
@@ -135,9 +134,8 @@ abstract class Helpers extends Nette\Object
 	 */
 	static function checkCsrfToken(NSession $session, $namespace, $token)
 	{
-		$sToken = static::getCsrfToken($session, $namespace, FALSE);
-		if ($sToken !== NULL && $sToken === $token) {
-			unset(self::getCsrfTokenSession($session, $namespace)->token);
+		if (($stoken = static::loadCsrfToken($session, $namespace)) !== NULL && $stoken === $token) {
+			unset(static::getCsrfTokenSession($session, $namespace)->token);
 			return TRUE;
 		}
 
@@ -153,6 +151,18 @@ abstract class Helpers extends Nette\Object
 	private static function getCsrfTokenSession(NSession $session, $namespace)
 	{
 		return $session->getSection($namespace);
+	}
+
+
+	/**
+	 * @param  NSession $session
+	 * @param  string $namespace
+	 * @return string|NULL
+	 */
+	private static function loadCsrfToken(NSession $session, $namespace)
+	{
+		$session = static::getCsrfTokenSession($session, $namespace);
+		return isset($session->token) ? $session->token : NULL;
 	}
 
 }
