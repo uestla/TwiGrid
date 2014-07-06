@@ -14,6 +14,7 @@ namespace TwiGrid\Forms;
 use Nette;
 
 
+/** @property string $primary */
 class PrimarySubmitButton extends Nette\Forms\Controls\SubmitButton
 {
 

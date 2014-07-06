@@ -331,7 +331,7 @@ class DataGrid extends Nette\Application\UI\Control
 	{
 		$a = $this['rowActions']->getComponent($action);
 		if (!$a->protected || Helpers::checkCsrfToken($this->session, $this->sessNamespace, $token)) {
-			NCallback::invoke($a->getCallback(), $this->getRecord()->stringToPrimary($primary));
+			NCallback::invoke($a->callback, $this->getRecord()->stringToPrimary($primary));
 			$this->refreshState();
 			$this->redraw(TRUE, TRUE, 'body', 'footer');
 
@@ -798,7 +798,7 @@ class DataGrid extends Nette\Application\UI\Control
 						$primaries[] = $this->getRecord()->stringToPrimary($primaryString);
 					}
 
-					NCallback::invoke($this['groupActions']->getComponent($name)->getCallback(), $primaries);
+					NCallback::invoke($this['groupActions']->getComponent($name)->callback, $primaries);
 					$this->refreshState();
 					$this->redraw(TRUE, TRUE, 'body', 'footer');
 				}

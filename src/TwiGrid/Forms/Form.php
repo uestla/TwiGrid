@@ -16,6 +16,11 @@ use TwiGrid\Helpers;
 use Nette\Utils\Callback as NCallback;
 
 
+/**
+ * @property-read array|NULL $filterCriteria
+ * @property-read array|NULL $inlineValues
+ * @property-read int $page
+ */
 class Form extends Nette\Application\UI\Form
 {
 

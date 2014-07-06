@@ -16,8 +16,8 @@ use Nette;
 
 /**
  * @property-read string $label
- * @property-read bool $sortable
- * @property-read bool $sortedBy
+ * @property bool $sortable
+ * @property bool $sortedBy
  * @property-read bool $sortDir
  * @property-read int $sortIndex
  */
