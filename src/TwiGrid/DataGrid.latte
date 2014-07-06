@@ -25,7 +25,7 @@
 
 {include #datagrid}
 
-</div>
+</div>{block |trim}
 
 
 
@@ -440,3 +440,6 @@
 		{($grid->page - 1) * $grid->itemsPerPage + 1}-{min($grid->itemCount, ($grid->page - 1) * $grid->itemsPerPage + $grid->itemsPerPage)} / {_'%d items', $grid->itemCount}
 	</div>
 {/define}
+
+
+{/block}
