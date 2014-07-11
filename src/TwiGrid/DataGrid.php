@@ -331,7 +331,7 @@ class DataGrid extends Nette\Application\UI\Control
 	{
 		$a = $this['rowActions']->getComponent($action);
 		if (!$a->protected || Helpers::checkCsrfToken($this->session, $this->sessNamespace, $token)) {
-			NCallback::invoke($a->callback, $this->getRecord()->stringToPrimary($primary));
+			NCallback::invoke($a->callback, Helpers::findRecord($this->getData(), $primary, $this->getRecord()));
 			$this->refreshState();
 			$this->redraw(TRUE, TRUE, 'body', 'footer');
 
@@ -724,8 +724,8 @@ class DataGrid extends Nette\Application\UI\Control
 	{
 		$this->ieContainerFactory !== NULL
 			&& $this['form']->addInlineEditControls(
-				$this->getData,
-				$this->getRecord()->primaryToString,
+				$this->getData(),
+				$this->getRecord(),
 				$this->ieContainerFactory,
 				$this->iePrimary
 			);
@@ -793,12 +793,12 @@ class DataGrid extends Nette\Application\UI\Control
 
 			} elseif ($path === 'actions-buttons') {
 				if (($checked = $form->getCheckedRecords($this->getRecord()->primaryToString)) !== NULL) {
-					$primaries = array();
+					$records = array();
 					foreach ($checked as $primaryString) {
-						$primaries[] = $this->getRecord()->stringToPrimary($primaryString);
+						($record = Helpers::findRecord($this->getData(), $primaryString, $this->getRecord())) !== NULL && ($records[] = $record);
 					}
 
-					NCallback::invoke($this['groupActions']->getComponent($name)->callback, $primaries);
+					NCallback::invoke($this['groupActions']->getComponent($name)->callback, $records);
 					$this->refreshState();
 					$this->redraw(TRUE, TRUE, 'body', 'footer');
 				}
@@ -806,9 +806,7 @@ class DataGrid extends Nette\Application\UI\Control
 			} elseif ($path === 'inline-buttons') {
 				if ($name === 'edit') {
 					if (($values = $form->getInlineValues()) !== NULL) {
-						NCallback::invoke($this->ieProcessCallback,
-								$this->getRecord()->stringToPrimary($this->iePrimary), $values);
-
+						NCallback::invoke($this->ieProcessCallback, Helpers::findRecord($this->getData(), $this->iePrimary, $this->getRecord()), $values);
 						$this->deactivateInlineEditing();
 					}
 

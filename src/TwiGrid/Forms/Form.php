@@ -127,28 +127,28 @@ class Form extends Nette\Application\UI\Form
 
 
 	/**
-	 * @param  \Closure $dataLoader
+	 * @param  array|\Traversable $data
+	 * @param  \TwiGrid\Record $record
 	 * @param  \Closure $primaryToString
 	 * @param  \Closure $containerFactory
 	 * @param  string|NULL $iePrimary
 	 * @return Form
 	 */
-	function addInlineEditControls(\Closure $dataLoader, \Closure $primaryToString, \Closure $containerFactory, $iePrimary)
+	function addInlineEditControls($data, \TwiGrid\Record $record, \Closure $containerFactory, $iePrimary)
 	{
 		if (!$this->lazyCreateContainer('inline', 'buttons', $buttons)) {
 			$i = 0;
-			foreach ($dataLoader() as $record) {
-				$primaryString = $primaryToString($record);
-				if ($iePrimary === $primaryString) {
-					$this['inline']['values'] = $containerFactory($record);
+			foreach ($data as $r) {
+				if ($record->is($r, $iePrimary)) {
+					$this['inline']['values'] = $containerFactory($r);
 					$buttons->addSubmit('edit', 'Edit')
-						->setValidationScope(array($this['inline']['values']));
+							->setValidationScope(array($this['inline']['values']));
 
 					$buttons->addSubmit('cancel', 'Cancel')->setValidationScope(FALSE);
 
 				} else {
 					$buttons->addComponent($ab = new PrimarySubmitButton('Edit inline'), $i);
-					$ab->setPrimary($primaryString)->setValidationScope(FALSE);
+					$ab->setPrimary($record->primaryToString($r))->setValidationScope(FALSE);
 				}
 
 				$i++;

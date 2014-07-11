@@ -103,6 +103,17 @@ class Record extends Nette\Object
 
 
 	/**
+	 * @param  mixed $record
+	 * @param  array|string $primary
+	 * @return bool
+	 */
+	function is($record, $primary)
+	{
+		return $this->primaryToString($record) === $primary;
+	}
+
+
+	/**
 	 * @param  string $s
 	 * @return array|string
 	 */

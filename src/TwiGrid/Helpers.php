@@ -56,6 +56,26 @@ abstract class Helpers extends Nette\Object
 	}
 
 
+	/**
+	 * @param  array|\Traversable $data
+	 * @param  mixed $primaryString
+	 * @param  Record $record
+	 * @return mixed|NULL
+	 */
+	static function findRecord($data, $primaryString, Record $record)
+	{
+		$primary = $record->stringToPrimary($primaryString);
+
+		foreach ($data as $r) {
+			if ($record->is($r, $primary)) {
+				return $r;
+			}
+		}
+
+		return NULL;
+	}
+
+
 	// === SORTING ======================================================
 
 	const SORT_LINK_SINGLE = 0;
