@@ -632,7 +632,7 @@ class DataGrid extends Nette\Application\UI\Control
 	protected function initPagination()
 	{
 		if ($this->itemCount === NULL) {
-			$this->itemCount = max(0, (int) NCallback::invoke($this->itemCounter, $this->getColumnNames(), $this->filters));
+			$this->itemCount = max(0, (int) NCallback::invoke($this->itemCounter, $this, $this->getColumnNames(), $this->filters));
 			$this->pageCount = (int) ceil($this->itemCount / $this->itemsPerPage);
 			$this->page = Helpers::fixPage($this->page, $this->pageCount);
 		}
