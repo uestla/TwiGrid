@@ -78,10 +78,25 @@
 
 	<thead class="header">
 
-		<tr n:snippet="header-sort">
-			<th rowspan="2" class="header-cell center" n:if="$hasGroupActions">&nbsp;</th>
+{include #header-sort-row |indent:1}
 
-			{foreach $columns as $name => $column}
+{if $hasFilters}
+{include #header-filter-row |indent:1}
+{/if}
+
+	</thead>
+
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define header-sort-row}
+
+	<tr n:snippet="header-sort">
+		<th rowspan="2" class="header-cell center" n:if="$hasGroupActions"></th>
+
+		{foreach $columns as $name => $column}
 {var $params = [
 	name => $name,
 	column => $column,
@@ -93,30 +108,33 @@
 {else}
 {include #header-cell, (expand) $params |indent:2}
 {/ifset}
-			{/foreach}
-
-			<th class="header-cell" n:if="$hasFilters || $hasRowActions || $hasInlineEdit">&nbsp;</th>
-		</tr>
-
-	{if $hasFilters}
-		<tr n:snippet="filter-controls">
-{? $grid->addFilterCriteria(); $grid->addFilterButtons() }
-		{foreach $columns as $name => $column}
-{var $params = [column => $name]}
-{ifset #filter-cell-$name}
-{include #"filter-cell-$name", (expand) $params |indent:2}
-{else}
-{include #filter-cell, (expand) $params |indent:2}
-{/ifset}
 		{/foreach}
 
-			<th class="filter-cell center">
-{include #filter-buttons |indent:3}
-			</th>
-		</tr>
-	{/if}
+		<th class="header-cell" n:if="$hasFilters || $hasRowActions || $hasInlineEdit">&nbsp;</th>
+	</tr>
 
-	</thead>
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define header-filter-row}
+
+	<tr n:snippet="filter-controls">
+{? $grid->addFilterCriteria(); $grid->addFilterButtons() }
+{foreach $columns as $name => $column}
+{var $params = [column => $name]}
+{ifset #filter-cell-$name}
+{include #"filter-cell-$name", (expand) $params |indent:1}
+{else}
+{include #filter-cell, (expand) $params |indent:1}
+{/ifset}
+{/foreach}
+
+		<th class="filter-cell center">
+{include #filter-buttons |indent:2}
+		</th>
+	</tr>
 
 {/define}
 
