@@ -1,5 +1,5 @@
 
-/* === COMMON ================ */
+/* === common ================ */
 
 .tw-cnt.js .js-hid {
 	display: none;
@@ -23,7 +23,7 @@
 
 
 
-/* === TABLE CELLS ================ */
+/* === table cells ================ */
 
 .tw-cnt thead th {
 	background: #eee;
@@ -48,7 +48,7 @@
 
 
 
-/* === SORTING ================ */
+/* === sorting ================ */
 
 .tw-cnt .header-cell .multi-sort {
 	padding: 2px 4px 4px;
@@ -56,7 +56,7 @@
 
 
 
-/* === BUTTONS ================ */
+/* === buttons ================ */
 
 .tw-cnt .btn-group {
 	white-space: nowrap;
@@ -64,7 +64,7 @@
 
 
 
-/* === FORM CONTROLS ================ */
+/* === form controls ================ */
 
 .tw-cnt select, .tw-cnt input[type="text"], .tw-cnt input[type="date"], .tw-cnt textarea {
 	display: block;
@@ -78,7 +78,7 @@
 
 
 
-/* === FOOTER ================ */
+/* === footer ================ */
 
 .tw-cnt .footer-cell > div {
 	line-height: 32px;
@@ -86,7 +86,7 @@
 
 
 
-/* === GROUP ACTIONS ================ */
+/* === group actions ================ */
 
 .tw-cnt .action-buttons-label {
 	display: inline-block;
@@ -94,7 +94,7 @@
 
 
 
-/* === PAGINATION ================ */
+/* === pagination ================ */
 
 .tw-cnt .tw-pagination {
 	margin: 0;
