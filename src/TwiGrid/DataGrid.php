@@ -168,10 +168,14 @@ class DataGrid extends Nette\Application\UI\Control
 
 		$i = 0;
 		foreach ($this->orderBy as $column => $dir) {
-			$this['columns']->getComponent($column)->setSortedBy(TRUE, $dir, $i++);
+			try {
+				$this['columns']->getComponent($column)->setSortedBy(TRUE, $dir, $i++);
+			} catch (Nette\InvalidStateException $e) {
+				unset($this->orderBy[$column]);
+			}
 
-			if (!$this->multiSort) {
-				break;
+			if (!$this->multiSort && $i > 1) {
+				unset($this->orderBy[$column]);
 			}
 		}
 
