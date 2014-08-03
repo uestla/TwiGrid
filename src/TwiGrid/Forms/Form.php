@@ -48,7 +48,7 @@ class Form extends Nette\Application\UI\Form
 	{
 		if (!$this->lazyCreateContainer('filters', 'buttons', $buttons)) {
 			$buttons->addSubmit('filter', 'Filter');
-			$hasFilters && $buttons->addSubmit('reset', 'Cancel')->setValidationScope(FALSE);
+			$hasFilters && $buttons->addSubmit('reset', 'Cancel')->setValidationScope(array());
 		}
 
 		return $this;
@@ -144,11 +144,11 @@ class Form extends Nette\Application\UI\Form
 					$buttons->addSubmit('edit', 'Edit')
 							->setValidationScope(array($this['inline']['values']));
 
-					$buttons->addSubmit('cancel', 'Cancel')->setValidationScope(FALSE);
+					$buttons->addSubmit('cancel', 'Cancel')->setValidationScope(array());
 
 				} else {
 					$buttons->addComponent($ab = new PrimarySubmitButton('Edit inline'), $i);
-					$ab->setPrimary($record->primaryToString($r))->setValidationScope(FALSE);
+					$ab->setPrimary($record->primaryToString($r))->setValidationScope(array());
 				}
 
 				$i++;
