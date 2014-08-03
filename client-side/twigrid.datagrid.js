@@ -179,7 +179,7 @@ $.nette.ext('twigrid', {
 	scrollSpeed: 128,
 
 	buttonSelector: function (selector) {
-		var els = ['input[type="submit"]', 'input[type="image"]'];
+		var els = ['input[type="submit"]', 'button[type="submit"]', 'input[type="image"]'];
 		if (selector) {
 			$.each(els, function (i) {
 				els[i] = els[i] + selector;
