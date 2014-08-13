@@ -170,7 +170,7 @@ class DataGrid extends Nette\Application\UI\Control
 		foreach ($this->orderBy as $column => $dir) {
 			try {
 				$this['columns']->getComponent($column)->setSortedBy(TRUE, $dir, $i++);
-			} catch (Nette\InvalidStateException $e) {
+			} catch (\Exception $e) {
 				unset($this->orderBy[$column]);
 			}
 
