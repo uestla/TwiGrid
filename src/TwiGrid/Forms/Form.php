@@ -159,11 +159,11 @@ class Form extends Nette\Application\UI\Form
 	}
 
 
-	/** @return array|NULL */
+	/** @return Nette\Utils\ArrayHash|NULL */
 	function getInlineValues()
 	{
 		$this->validate();
-		return $this->isValid() ? $this['inline']['values']->getValues(TRUE) : NULL;
+		return $this->isValid() ? $this['inline']['values']->getValues() : NULL;
 	}
 
 
