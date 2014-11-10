@@ -850,7 +850,7 @@ class DataGrid extends Nette\Application\UI\Control
 					$this->activateInlineEditing($button->primary);
 				}
 			} elseif ("$path-$name" === "inlineAdd-buttons-add" && ($values = $form->getInlineAddValues()) !== NULL) {
-				Callback::invoke($this->ieProcessCallback, NULL, $values);
+				NCallback::invoke($this->ieProcessCallback, NULL, $values);
 				$this->redraw(TRUE, TRUE, 'body', 'footer');
 			}
 		}
