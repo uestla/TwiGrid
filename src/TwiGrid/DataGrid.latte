@@ -363,12 +363,12 @@
 <tfoot class="footer" n:snippet="footer">
 {capture $footerInfo}{include #footer-info |indent:3}{/capture}
 
-		<tr n:if="$template->hasData && (strlen(trim($footerInfo)) || $hasGroupActions || $grid->pageCount > 1)">
 			<td colspan="{$columnCount}" class="container footer-cell">
 				<div class="row">
 			{if $hasGroupActions}
 {include #group-action-buttons |indent:4}
 			{/if}
+<tr n:if="(!isset($template->hasData) || $template->hasData) && (strlen(trim($footerInfo)) || $hasGroupActions || $grid->pageCount > 1)">
 
             {if $grid->pageCount > 1}
                 {include #pagination |indent:4}
