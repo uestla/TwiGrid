@@ -119,6 +119,8 @@ class DataGrid extends Nette\Application\UI\Control
 	/** @var string */
 	private $templateFile = NULL;
 
+	/** @var array */
+	public $onPrepareTemplate = [];
 
 	// === LIFE CYCLE ======================================================
 
@@ -853,6 +855,7 @@ class DataGrid extends Nette\Application\UI\Control
 	function render()
 	{
 		$template = $this->createTemplate();
+		$this->prepareTemplate($template);
 
 		$template->grid = $this;
 		$template->defaultTemplate = __DIR__ . '/DataGrid.latte';
@@ -886,6 +889,11 @@ class DataGrid extends Nette\Application\UI\Control
 				+ ($template->hasFilters || $template->hasRowActions ? 1 : 0);
 
 		$template->render();
+	}
+
+	protected function prepareTemplate(ITemplate $template)
+	{
+		$this->onPrepareTemplate($template);
 	}
 
 }
