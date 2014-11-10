@@ -42,7 +42,7 @@ class DataGrid extends Nette\Application\UI\Control
 	private $defaultOrderBy = NULL;
 
 	/** @var bool */
-	private $multiSort = TRUE;
+	protected $multiSort = TRUE;
 
 
 	// === filtering ===========
