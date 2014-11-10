@@ -178,13 +178,16 @@
 
 {define filter-cell}
 
-	<th n:class='filter-cell, ($hasControl = isset($form["filters-criteria-$column"])) && !($isControl = ($form["filters-criteria-$column"] instanceof Nette\Forms\IControl)) ? alert-warning'>
+<th n:class='filter-cell, ($hasControl = isset($form["filters-criteria-$column"])) && !($isControl = ($form["filters-criteria-$column"] instanceof Nette\Forms\IControl)) ? alert-warning'>
 	{if $hasControl && $isControl}
+	<div class="inner-addon right-addon" n:tag-if="$isTextBase = $form['filters-criteria-'.$column] instanceof Nette\Forms\Controls\TextBase">
+		<i class="glyphicon glyphicon-search" n:if="$isTextBase"></i>
 		{? }{input filters-criteria-$column, class => 'form-control'}
-	{else}
-		&nbsp;
-	{/if}
-	</th>
+	</div>
+{else}
+	&nbsp;
+{/if}
+</th>
 
 {/define}
 
