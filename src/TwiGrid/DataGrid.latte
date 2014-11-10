@@ -306,18 +306,18 @@
 {* === ... ============================================ *}
 
 {define row-actions}
-	<div class="btn-group">
-	{if $isInlineEdited}
-{include #inline-buttons |indent:1}
+<div class="btn-group">
+    {if $isInlineEdited}
+        {include #inline-buttons |indent:1}
 
-	{else}
-	{ifset $form[$buttonName = "inline-buttons-$i"]}
-		{? }{input $buttonName, class => 'btn btn-primary btn-sm'}
-	{/ifset}
+    {else}
+        {ifset $form[$buttonName = "inline-buttons-$i"]}
+            {? }{input $buttonName, class => 'btn btn-primary btn-sm'}
+        {/ifset}
 
-{if $hasRowActions}
-	{foreach $rowActions as $name => $action}
-{var $params = [
+        {if $hasRowActions}
+            {foreach $rowActions as $name => $action}
+                {var $params = [
 	name => $name,
 	action => $action,
 	record => $record,
