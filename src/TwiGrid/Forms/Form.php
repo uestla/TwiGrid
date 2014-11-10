@@ -243,4 +243,30 @@ class Form extends Nette\Application\UI\Form
 				|| in_array(TRUE, $checkbox->parent->getValues(TRUE), TRUE);
 	}
 
+	/**
+	 * @param  array|\Traversable $data
+	 * @param  \TwiGrid\Record $record
+	 * @param  \Closure $primaryToString
+	 * @param  \Closure $containerFactory
+	 * @param  string|NULL $iePrimary
+	 * @return Form
+	 */
+	function addInlineAddControls(\Closure $containerFactory)
+	{
+		if (!$this->lazyCreateContainer('inlineAdd', 'buttons', $buttons)) {
+
+			$this['inlineAdd']['values'] = $containerFactory(NULL);
+			$buttons->addSubmit('add', 'Add')
+					->setValidationScope(array($this['inlineAdd']['values']));
+		}
+		return $this;
+	}
+
+	/** @return Nette\Utils\ArrayHash|NULL */
+	function getInlineAddValues()
+	{
+		$this->validate();
+		return $this->isValid() ? $this['inlineAdd']['values']->getValues() : NULL;
+	}
+
 }
