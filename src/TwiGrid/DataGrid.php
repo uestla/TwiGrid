@@ -15,6 +15,7 @@ use Nette;
 use Nette\Localization\ITranslator;
 use Nette\Utils\Callback as NCallback;
 
+use Nette\Application\UI\ITemplate;
 
 /**
  * @property-read \ArrayIterator|NULL $columns
