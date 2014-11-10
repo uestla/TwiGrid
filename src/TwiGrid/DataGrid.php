@@ -538,6 +538,13 @@ class DataGrid extends Nette\Application\UI\Control
 		return $this;
 	}
 
+	/**
+	 * @return callable
+	 */
+	function getValueGetter()
+	{
+		return $this->getRecord()->getValueGetter();
+	}
 
 	/**
 	 * API:
