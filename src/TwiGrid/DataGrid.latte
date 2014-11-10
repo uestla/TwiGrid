@@ -350,9 +350,9 @@
 {* === ... ============================================ *}
 
 {define row-action}
-	<a href="{$link}" n:class="btn, btn-primary, btn-sm, tw-ajax" n:attr="data-tw-confirm => $action->confirmation">
-		{$action->label}
-	</a>
+<a href="{$link}" n:class="btn, btn-sm, tw-ajax, $action->btnClass ?: btn-primary" n:attr="data-tw-confirm => $action->confirmation">
+    {$action->label}
+</a>
 {/define}
 
 
