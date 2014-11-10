@@ -654,6 +654,14 @@ class DataGrid extends Nette\Application\UI\Control
 		return $this;
 	}
 
+	/**
+	 * use this method after modifying set of displayed data in the model
+	 * (add or delete element)
+	 */
+	function resetPagination()
+	{
+		$this->itemCount = $this->pageCount = $this->page = NULL;
+	}
 
 	/** @return int|NULL */
 	function getPageCount()
