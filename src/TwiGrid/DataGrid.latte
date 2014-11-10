@@ -279,7 +279,15 @@
 
 {define body-cell-inline}
 {ifset $form["inline-values-$column"]}
-	<td n:class='body-inline-cell, "body-inline-cell-{$column}"'>{input inline-values-$column, class => 'form-control'}</td>
+    <td n:class='body-inline-cell, "body-inline-cell-{$column}"'>
+        {if $form['inline-values-'.$column]->getControl() instanceof Nette\Utils\Html}
+            {input inline-values-$column, class => 'form-control'}
+        {else}
+            {*compatibility issue of Nette\Forms\Controls\CheckboxList
+              ::getControl() and others returning string instead of Html *}
+            {input inline-values-$column}
+        {/if}
+    </td>
 {else}{ifset #body-cell-$column}
         {include #"body-cell-$column", (expand) get_defined_vars()}
     {else}
