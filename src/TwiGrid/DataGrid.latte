@@ -32,7 +32,7 @@
 
 {define flashes}
 	<div n:snippet="flashes">
-		<div n:foreach="$flashes as $flash" class="alert alert-{$flash->type === 'error' ? 'danger' : $flash->type} hidable">{_$flash->message}</div>
+		<p n:foreach="$flashes as $flash" class="alert alert-{$flash->type === 'error' ? 'danger' : $flash->type} hidable">{_$flash->message}</p>
 	</div>
 {/define}
 
