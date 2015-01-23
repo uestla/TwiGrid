@@ -1,7 +1,7 @@
 /**
  * This file is part of the TwiGrid component
  *
- * Copyright (c) 2013, 2014 Petr Kessler (http://kesspess.1991.cz)
+ * Copyright (c) 2013-2015 Petr Kessler (http://kesspess.1991.cz)
  *
  * @license  MIT
  * @link     https://github.com/uestla/twigrid
@@ -68,28 +68,22 @@ $.fn.extend({
 
 // === nette.ajax extension ==========================================
 
-$.nette.ext('twigrid', {
+$.nette.ext({
 
 	load: function (handler) {
-
 		var self = this;
 
 		$(self.gridSelector).each(function () {
-
 			// grid parts
-			var grid = $(this),
-				gForm = grid.find(self.formSelector),
-				gHeader = grid.find(self.headerSelector),
-					filterSubmit = gHeader.find(self.buttonSelector('[name="' + self.escape('filters[buttons][filter]') + '"]')),
-				gBody = grid.find(self.bodySelector),
-				gFooter = grid.find(self.footerSelector);
-
+			var grid = $(this);
+			var gForm = grid.find(self.formSelector);
+			var gHeader = grid.find(self.headerSelector);
+			var filterSubmit = gHeader.find(self.buttonSelector('[name="' + self.escape('filters[buttons][filter]') + '"]'));
+			var gBody = grid.find(self.bodySelector);
+			var gFooter = grid.find(self.footerSelector);
 
 			grid.addClass('js');
-
-
 			self.focusingBehavior(grid.find(':input'));
-
 
 			// filtering
 			self.filterBehavior(
@@ -98,7 +92,6 @@ $.nette.ext('twigrid', {
 				filterSubmit
 			);
 
-
 			// inline editing
 			self.inlineEditBehavior(
 				gBody.find(':input[name^="' + self.escape('inline[values][') + '"]'),
@@ -106,7 +99,6 @@ $.nette.ext('twigrid', {
 				gBody.find(self.buttonSelector('[name="' + self.escape('inline[buttons][cancel]') + '"]')),
 				gBody.children()
 			);
-
 
 			// rows checkboxes
 			var checkboxes = self.getGroupActionCheckboxes(grid);
@@ -119,17 +111,12 @@ $.nette.ext('twigrid', {
 				);
 			}
 
-
 			// pagination
 			self.paginationBehavior(
 				grid,
 				gFooter.find('select[name^="' + self.escape('pagination[controls][') + '"]'),
 				gFooter.find(self.buttonSelector('[name="' + self.escape('pagination[buttons][change]') + '"]'))
 			);
-
-
-			self.confirmationDialog($('*[data-tw-confirm]'));
-
 
 			// ajaxification
 			self.ajaxify(
@@ -138,11 +125,21 @@ $.nette.ext('twigrid', {
 				grid.find(self.buttonSelector('.tw-ajax')),
 				handler
 			);
-
 		});
-
 	},
 
+	before: function (xhr, settings) {
+		if (!settings.nette) {
+			return ;
+		}
+
+		// confirmation dialog
+		var question = settings.nette.el.attr('data-tw-confirm');
+
+		if (question) {
+			return window.confirm(question);
+		}
+	},
 
 	success: function (payload) {
 		// update form action
@@ -156,7 +153,7 @@ $.nette.ext('twigrid', {
 		var flash = $(this.flashSelector);
 		if (flash.length) {
 			var offset = flash.offset().top,
-				docOffset = $('html').scrollTop() || $('body').scrollTop();
+				docOffset = $(window).scrollTop();
 
 			if (docOffset > offset) {
 				$('html, body').animate({
@@ -168,7 +165,6 @@ $.nette.ext('twigrid', {
 
 
 }, {
-
 	gridSelector: '.tw-cnt',
 	formSelector: '.form:first',
 	headerSelector: '.header:first',
@@ -198,7 +194,7 @@ $.nette.ext('twigrid', {
 			focusedTmp = null;
 
 		if (!self.focusingInitialized) {
-			var doc = $(document);
+			var doc = $(window.document);
 
 			doc.off('click.tw-focus')
 				.on('click.tw-focus', function (event) {
@@ -366,7 +362,7 @@ $.nette.ext('twigrid', {
 				submit.trigger('click');
 			});
 
-		$(document).off('keydown.tw-pagination')
+		$(window.document).off('keydown.tw-pagination')
 			.on('keydown.tw-pagination', function (event) {
 				if (self.focusedGrid !== null
 						&& self.onlyCtrlKeyPressed(event) && (event.keyCode === 37 || event.keyCode === 39)) {
@@ -382,16 +378,6 @@ $.nette.ext('twigrid', {
 							select.trigger('change');
 						}
 					});
-				}
-			});
-	},
-
-	confirmationDialog: function (els) {
-		els.off('click.tw-confirm')
-			.on('click.tw-confirm', function (event) {
-				if (!window.confirm($(this).attr('data-tw-confirm'))) {
-					event.preventDefault();
-					event.stopImmediatePropagation();
 				}
 			});
 	},
