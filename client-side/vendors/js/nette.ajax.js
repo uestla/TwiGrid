@@ -3,10 +3,10 @@
  *
  * @copyright Copyright (c) 2009, 2010 Jan Marek
  * @copyright Copyright (c) 2009, 2010 David Grudl
- * @copyright Copyright (c) 2012 Vojtěch Dobeš
+ * @copyright Copyright (c) 2012-2014 Vojtěch Dobeš
  * @license MIT
  *
- * @version 1.2.2
+ * @version 2.0.0
  */
 
 (function(window, $, undefined) {
@@ -45,7 +45,10 @@ var nette = function () {
 			return result;
 		},
 		requestHandler: function (e) {
-			inner.self.ajax({}, this, e);
+			var xhr = inner.self.ajax({}, this, e);
+			if (xhr && xhr._returnFalse) { // for IE 8
+				return false;
+			}
 		},
 		ext: function (callbacks, context, name) {
 			while (!name) {
@@ -152,7 +155,7 @@ var nette = function () {
 	 */
 	this.ajax = function (settings, ui, e) {
 		if (!settings.nette && ui && e) {
-			var $el = $(ui), xhr, originalBeforeSend;
+			var $el = $(ui), originalBeforeSend;
 			var analyze = settings.nette = {
 				e: e,
 				ui: ui,
@@ -310,7 +313,8 @@ $.nette.ext('validation', {
 		}
 
 		if (validate.form && analyze.form && !((analyze.isSubmit || analyze.isImage) && analyze.el.attr('formnovalidate') !== undefined)) {
-			if (analyze.form.get(0).onsubmit && analyze.form.get(0).onsubmit(e) === false) {
+			var ie = this.ie();
+			if (analyze.form.get(0).onsubmit && analyze.form.get(0).onsubmit((typeof ie !== 'undefined' && ie < 9) ? undefined : e) === false) {
 				e.stopImmediatePropagation();
 				e.preventDefault();
 				return false;
@@ -325,11 +329,22 @@ $.nette.ext('validation', {
 		if (!passEvent) {
 			e.stopPropagation();
 			e.preventDefault();
+			xhr._returnFalse = true; // for IE 8
 		}
 		return true;
 	}
 }, {
-	explicitNoAjax: false
+	explicitNoAjax: false,
+	ie: function (undefined) { // http://james.padolsey.com/javascript/detect-ie-in-js-using-conditional-comments/
+		var v = 3;
+		var div = document.createElement('div');
+		var all = div.getElementsByTagName('i');
+		while (
+        		div.innerHTML = '<!--[if gt IE ' + (++v) + ']><i></i><![endif]-->',
+			all[0]
+		);
+		return v > 4 ? v : undefined;
+	}
 });
 
 $.nette.ext('forms', {
@@ -348,84 +363,91 @@ $.nette.ext('forms', {
 		if (!analyze || !analyze.form) return;
 		var e = analyze.e;
 		var originalData = settings.data || {};
-		var formData = {};
+		var data = {};
 
 		if (analyze.isSubmit) {
-			formData[analyze.el.attr('name')] = analyze.el.val() || '';
+			data[analyze.el.attr('name')] = analyze.el.val() || '';
 		} else if (analyze.isImage) {
 			var offset = analyze.el.offset();
 			var name = analyze.el.attr('name');
 			var dataOffset = [ Math.max(0, e.pageX - offset.left), Math.max(0, e.pageY - offset.top) ];
 
 			if (name.indexOf('[', 0) !== -1) { // inside a container
-				formData[name] = dataOffset;
+				data[name] = dataOffset;
 			} else {
-				formData[name + '.x'] = dataOffset[0];
-				formData[name + '.y'] = dataOffset[1];
+				data[name + '.x'] = dataOffset[0];
+				data[name + '.y'] = dataOffset[1];
 			}
 		}
 
-		if (typeof originalData !== 'string') {
-			originalData = $.param(originalData);
+		// https://developer.mozilla.org/en-US/docs/Web/Guide/Using_FormData_Objects#Sending_files_using_a_FormData_object
+		if (analyze.form.attr('method').toLowerCase() === 'post' && 'FormData' in window) {
+			var formData = new FormData(analyze.form[0]);
+			for (var i in data) {
+				formData.append(i, data[i]);
+			}
+
+			if (typeof originalData !== 'string') {
+				for (var i in originalData) {
+					formData.append(i, originalData[i]);
+				}
+			}
+
+			settings.data = formData;
+			settings.processData = false;
+			settings.contentType = false;
+		} else {
+			if (typeof originalData !== 'string') {
+				originalData = $.param(originalData);
+			}
+			data = $.param(data);
+			settings.data = analyze.form.serialize() + (data ? '&' + data : '') + '&' + originalData;
 		}
-		formData = $.param(formData);
-		settings.data = analyze.form.serialize() + (formData ? '&' + formData : '') + '&' + originalData;
 	}
 });
 
 // default snippet handler
 $.nette.ext('snippets', {
 	success: function (payload) {
-		var snippets = [];
-		var elements = [];
 		if (payload.snippets) {
-			for (var i in payload.snippets) {
-				var $el = this.getElement(i);
-				if ($el.get(0)) {
-					elements.push($el.get(0));
-				}
-				$.each(this.beforeQueue, function (index, callback) {
-					if (typeof callback === 'function') {
-						callback($el);
-					}
-				});
-				this.updateSnippet($el, payload.snippets[i]);
-				$.each(this.afterQueue, function (index, callback) {
-					if (typeof callback === 'function') {
-						callback($el);
-					}
-				});
-			}
-			var defer = $(elements).promise();
-			$.each(this.completeQueue, function (index, callback) {
-				if (typeof callback === 'function') {
-					defer.done(callback);
-				}
-			});
+			this.updateSnippets(payload.snippets);
 		}
 	}
 }, {
-	beforeQueue: [],
-	afterQueue: [],
-	completeQueue: [],
+	beforeQueue: $.Callbacks(),
+	afterQueue: $.Callbacks(),
+	completeQueue: $.Callbacks(),
 	before: function (callback) {
-		this.beforeQueue.push(callback);
+		this.beforeQueue.add(callback);
 	},
 	after: function (callback) {
-		this.afterQueue.push(callback);
+		this.afterQueue.add(callback);
 	},
 	complete: function (callback) {
-		this.completeQueue.push(callback);
+		this.completeQueue.add(callback);
+	},
+	updateSnippets: function (snippets, back) {
+		var that = this;
+		var elements = [];
+		for (var i in snippets) {
+			var $el = this.getElement(i);
+			if ($el.get(0)) {
+				elements.push($el.get(0));
+			}
+			this.updateSnippet($el, snippets[i], back);
+		}
+		$(elements).promise().done(function () {
+			that.completeQueue.fire();
+		});
 	},
 	updateSnippet: function ($el, html, back) {
-		if (typeof $el === 'string') {
-			$el = this.getElement($el);
-		}
 		// Fix for setting document title in IE
 		if ($el.is('title')) {
 			document.title = html;
 		} else {
+			this.beforeQueue.fire($el);
 			this.applySnippet($el, html, back);
+			this.afterQueue.fire($el);
 		}
 	},
 	getElement: function (id) {
@@ -434,6 +456,8 @@ $.nette.ext('snippets', {
 	applySnippet: function ($el, html, back) {
 		if (!back && $el.is('[data-ajax-append]')) {
 			$el.append(html);
+		} else if (!back && $el.is('[data-ajax-prepend]')) {
+			$el.prepend(html);
 		} else {
 			$el.html(html);
 		}
