@@ -41,7 +41,7 @@
 
 {define datagrid}
 
-	{? }{form $form, class => 'form tw-ajax'}
+	<form n:name="$form" class="form tw-ajax">
 		<div n:snippet="form-errors">
 		{if $errors = $form->errors}
 			<div class="alert alert-danger hidable" n:foreach="$errors as $error">{$error}</div>
@@ -50,7 +50,7 @@
 
 {include #container|indent:1}
 
-		{? }{/form}
+	</form>
 
 {/define}
 
