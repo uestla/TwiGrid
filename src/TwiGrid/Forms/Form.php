@@ -13,6 +13,7 @@ namespace TwiGrid\Forms;
 
 use Nette;
 use TwiGrid\Helpers;
+use TwiGrid\Record;
 use Nette\Utils\Callback as NCallback;
 
 
@@ -134,7 +135,7 @@ class Form extends Nette\Application\UI\Form
 	 * @param  string|NULL $iePrimary
 	 * @return Form
 	 */
-	function addInlineEditControls($data, \TwiGrid\Record $record, \Closure $containerFactory, $iePrimary)
+	function addInlineEditControls($data, Record $record, \Closure $containerFactory, $iePrimary)
 	{
 		if (!$this->lazyCreateContainer('inline', 'buttons', $buttons)) {
 			$i = 0;
@@ -240,6 +241,32 @@ class Form extends Nette\Application\UI\Form
 	{
 		return $checkbox->form->submitted->parent->lookupPath('Nette\Forms\Form') !== 'actions-buttons'
 				|| in_array(TRUE, $checkbox->parent->getValues(TRUE), TRUE);
+	}
+
+	/**
+	 * @param  array|\Traversable $data
+	 * @param  \TwiGrid\Record $record
+	 * @param  \Closure $primaryToString
+	 * @param  \Closure $containerFactory
+	 * @param  string|NULL $iePrimary
+	 * @return Form
+	 */
+	function addInlineAddControls(\Closure $containerFactory)
+	{
+		if (!$this->lazyCreateContainer('inlineAdd', 'buttons', $buttons)) {
+
+			$this['inlineAdd']['values'] = $containerFactory(NULL);
+			$buttons->addSubmit('add', 'Add')
+					->setValidationScope(array($this['inlineAdd']['values']));
+		}
+		return $this;
+	}
+
+	/** @return Nette\Utils\ArrayHash|NULL */
+	function getInlineAddValues()
+	{
+		$this->validate();
+		return $this->isValid() ? $this['inlineAdd']['values']->getValues() : NULL;
 	}
 
 }

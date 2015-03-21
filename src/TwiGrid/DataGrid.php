@@ -15,6 +15,7 @@ use Nette;
 use Nette\Localization\ITranslator;
 use Nette\Utils\Callback as NCallback;
 
+use Nette\Application\UI\ITemplate;
 
 /**
  * @property-read \ArrayIterator|NULL $columns
@@ -42,7 +43,7 @@ class DataGrid extends Nette\Application\UI\Control
 	private $defaultOrderBy = NULL;
 
 	/** @var bool */
-	private $multiSort = TRUE;
+	protected $multiSort = TRUE;
 
 
 	// === filtering ===========
@@ -119,6 +120,11 @@ class DataGrid extends Nette\Application\UI\Control
 	/** @var string */
 	private $templateFile = NULL;
 
+	/** @var boolean true if the grid should have UI for adding a record just like the "inline edit" function */
+	protected $isInlineAdd = FALSE;
+
+	/** @var array */
+	public $onPrepareTemplate = [];
 
 	// === LIFE CYCLE ======================================================
 
@@ -538,6 +544,13 @@ class DataGrid extends Nette\Application\UI\Control
 		return $this;
 	}
 
+	/**
+	 * @return callable
+	 */
+	function getValueGetter()
+	{
+		return $this->getRecord()->getValueGetter();
+	}
 
 	/**
 	 * API:
@@ -644,6 +657,14 @@ class DataGrid extends Nette\Application\UI\Control
 		return $this;
 	}
 
+	/**
+	 * use this method after modifying set of displayed data in the model
+	 * (add or delete element)
+	 */
+	function resetPagination()
+	{
+		$this->itemCount = $this->pageCount = $this->page = NULL;
+	}
 
 	/** @return int|NULL */
 	function getPageCount()
@@ -737,6 +758,11 @@ class DataGrid extends Nette\Application\UI\Control
 		return $this;
 	}
 
+	public function addInlineAddControls()
+	{
+		$this->ieContainerFactory !== NULL &&
+				$this['form']->addInlineAddControls($this->ieContainerFactory);
+	}
 
 	/** @return DataGrid */
 	function addPaginationControls()
@@ -775,7 +801,10 @@ class DataGrid extends Nette\Application\UI\Control
 
 				if (($button = $form->submitted) === TRUE) {
 					$this->addInlineEditControls();
-					$button = $form->submitted;
+					if (($button = $form->submitted) === TRUE) {
+						$this->addInlineAddControls();
+						$button = $form->submitted;
+					}
 				}
 			}
 		}
@@ -820,6 +849,9 @@ class DataGrid extends Nette\Application\UI\Control
 				} else {
 					$this->activateInlineEditing($button->primary);
 				}
+			} elseif ("$path-$name" === "inlineAdd-buttons-add" && ($values = $form->getInlineAddValues()) !== NULL) {
+				NCallback::invoke($this->ieProcessCallback, NULL, $values);
+				$this->redraw(TRUE, TRUE, 'body', 'footer');
 			}
 		}
 	}
@@ -853,6 +885,7 @@ class DataGrid extends Nette\Application\UI\Control
 	function render()
 	{
 		$template = $this->createTemplate();
+		$this->prepareTemplate($template);
 
 		$template->grid = $this;
 		$template->defaultTemplate = __DIR__ . '/DataGrid.latte';
@@ -886,6 +919,23 @@ class DataGrid extends Nette\Application\UI\Control
 				+ ($template->hasFilters || $template->hasRowActions ? 1 : 0);
 
 		$template->render();
+	}
+
+	public function isInlineAdd()
+	{
+		return $this->isInlineAdd;
+	}
+
+	public function setInlineAdd($isInlineAdd)
+	{
+		$this->isInlineAdd = (bool) $isInlineAdd;
+		return $this;
+	}
+
+	protected function prepareTemplate(ITemplate $template)
+	{
+		$template->isInlineAdd = $this->isInlineAdd;
+		$this->onPrepareTemplate($template);
 	}
 
 }
