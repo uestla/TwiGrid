@@ -300,7 +300,7 @@
 {include #inline-buttons |indent:1}
 
 	{else}
-	{ifset $form[$buttonName = "inline-buttons-$i"]}
+	{ifset $form[$buttonName = "inline-buttons-$primaryString"]}
 		{? }{input $buttonName, class => 'btn btn-primary btn-sm'}
 	{/ifset}
 

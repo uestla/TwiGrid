@@ -137,7 +137,6 @@ class Form extends Nette\Application\UI\Form
 	function addInlineEditControls($data, \TwiGrid\Record $record, \Closure $containerFactory, $iePrimary)
 	{
 		if (!$this->lazyCreateContainer('inline', 'buttons', $buttons)) {
-			$i = 0;
 			foreach ($data as $r) {
 				if ($record->is($r, $iePrimary)) {
 					$this['inline']['values'] = $containerFactory($r);
@@ -147,11 +146,10 @@ class Form extends Nette\Application\UI\Form
 					$buttons->addSubmit('cancel', 'Cancel')->setValidationScope(array());
 
 				} else {
-					$buttons->addComponent($ab = new PrimarySubmitButton('Edit inline'), $i);
+					$buttons->addComponent($ab = new PrimarySubmitButton('Edit inline'), $record->primaryToString($r));
 					$ab->setPrimary($record->primaryToString($r))->setValidationScope(array());
 				}
 
-				$i++;
 			}
 		}
 
