@@ -110,3 +110,26 @@
 	margin: 0 8px;
 	display: inline-block;
 }
+
+/* === bootstrap 3 extension to add glyphicon inside input ====== */
+
+/* enable absolute positioning */
+.tw-cnt .inner-addon {
+    position: relative;
+}
+
+/* style icon */
+.tw-cnt .inner-addon .glyphicon {
+  position: absolute;
+  padding: 10px;
+  pointer-events: none;
+  width:auto;/*fix for older BS3 versions assigning width 1em to glyphicon:empty*/
+}
+
+/* align icon */
+.tw-cnt .left-addon .glyphicon  { left:  0px;}
+.tw-cnt .right-addon .glyphicon { right: 0px;}
+
+/* add padding  */
+.tw-cnt .left-addon input  { padding-left:  30px; }
+.tw-cnt .right-addon input { padding-right: 30px; }
