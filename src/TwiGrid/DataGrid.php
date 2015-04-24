@@ -118,6 +118,9 @@ class DataGrid extends Nette\Application\UI\Control
 
 	/** @var string */
 	private $templateFile = NULL;
+	
+	/** @var array */
+	private $renderCallbacks = array();
 
 
 	// === LIFE CYCLE ======================================================
@@ -836,6 +839,23 @@ class DataGrid extends Nette\Application\UI\Control
 		$this->templateFile = (string) $templateFile;
 		return $this;
 	}
+	
+	/**
+	 * Added callback is called during datagrid render phase and instance of \Nette\Application\UI\ITemplate is given to it.
+	 * Callback can be used e.g. for custom filter or helper registration.
+	 * Example of usage:
+	 * $this->addRenderCallback(function(\Nette\Application\UI\ITemplate $template){
+	 *		$template->getLatte()->addFilter('yesno', function($item){
+	 *			return !empty($item) ? 'Ano' : 'Ne';
+	 *		});
+	 *	});
+	 * 
+	 * @param mixed $callback Callback to be called during DataGrid::render
+	 * @return void
+	 */
+	function addRenderCallback($callback){
+		$this->renderCallbacks[] = NCallback::closure($callback);
+	}
 
 
 	/** @return bool */
@@ -884,7 +904,12 @@ class DataGrid extends Nette\Application\UI\Control
 		$template->columnCount = count($template->columns)
 				+ ($template->hasGroupActions ? 1 : 0)
 				+ ($template->hasFilters || $template->hasRowActions ? 1 : 0);
-
+		
+		
+		foreach ($this->renderCallbacks as $callback){
+			NCallback::invokeArgs($callback, array($template));
+		}
+		
 		$template->render();
 	}
 
