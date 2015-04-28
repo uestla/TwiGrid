@@ -149,6 +149,15 @@ $.nette.ext({
 			});
 		}
 
+		//update active row
+		if (payload.twiGrid !== undefined && payload.twiGrid.iePrimary !== undefined) {
+			$.each(payload.twiGrid.iePrimary, function (form, iePrimary) {
+				var formEl = $('#' + form);
+				formEl.find(".inline-edit-row").removeClass("inline-edit-row").removeClass("success");
+				formEl.find("tr[data-primarystring='"+iePrimary+"']").addClass("inline-edit-row").addClass("success");
+			});
+		}
+
 		// scroll to first flash message
 		var flash = $(this.flashSelector);
 		if (flash.length) {

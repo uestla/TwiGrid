@@ -110,7 +110,7 @@
 {/ifset}
 		{/foreach}
 
-		<th class="header-cell" n:if="$hasFilters || $hasRowActions || $hasInlineEdit">&nbsp;</th>
+		<th class="header-cell header-actions-cell" n:if="$hasFilters || $hasRowActions || $hasInlineEdit">&nbsp;</th>
 	</tr>
 
 {/define}
@@ -216,9 +216,38 @@
 	{if}{? $grid->addGroupActionCheckboxes(); $grid->addInlineEditControls() }
 
 	{foreach $dataLoader() as $record}
+			{var $primaryString = $template->primaryToString($record),
+				$isInlineEdited = $hasInlineEdit && $iePrimary === $primaryString}
+			{var $params = [
+				record => $record,
+				iterator => $iterator
+			]}
+			{if $redrawWholeBody}
+				<tr n:class="$isInlineEdited ? success" data-primarystring="{$primaryString}" id="{$_control->getSnippetId("row-$primaryString")}">
+					{include #row-content, (expand) $params}
+				</tr>
+			{else}
+				<tr n:class="$isInlineEdited ? success" data-primarystring="{$primaryString}" n:snippet="row-$primaryString">
+					{include #row-content, (expand) $params}
+				</tr>
+			{/if}
+	{/foreach}
+
+	{var $template->hasData = (bool) $iterations}
+
+	{else}
+		<tr class="warning">
+			<td class="body-cell" colspan="{$columnCount}">{_'No data.'}</td>
+		</tr>
+	{/if $iterations}
+
+	</tbody>
+
+{/define}
+
+{define row-content}
 		{var $primaryString = $template->primaryToString($record),
 			$isInlineEdited = $hasInlineEdit && $iePrimary === $primaryString}
-		<tr n:class="$isInlineEdited ? success">
 
 			<td class="body-cell center" n:if="$hasGroupActions">
 				{var $inputKey = $iterator->counter - 1}
@@ -247,7 +276,7 @@
 {/if}
 		{/foreach}
 
-			<td n:if="$hasFilters || $hasRowActions || $hasInlineEdit" class="body-cell center">
+			<td n:if="$hasFilters || $hasRowActions || $hasInlineEdit" class="body-cell body-actions-cell center">
 			{if $hasRowActions || $hasInlineEdit}
 {include #row-actions, i => $iterator->counter - 1, record => $record, isInlineEdited => $isInlineEdited, primaryString => $primaryString |indent:3}
 
@@ -255,20 +284,6 @@
 				&nbsp;
 			{/if}
 			</td>
-
-		</tr>
-	{/foreach}
-
-	{var $template->hasData = (bool) $iterations}
-
-	{else}
-		<tr class="warning">
-			<td class="body-cell" colspan="{$columnCount}">{_'No data.'}</td>
-		</tr>
-	{/if $iterations}
-
-	</tbody>
-
 {/define}
 
 
@@ -300,7 +315,7 @@
 {include #inline-buttons |indent:1}
 
 	{else}
-	{ifset $form[$buttonName = "inline-buttons-$i"]}
+	{ifset $form[$buttonName = "inline-buttons-$primaryString"]}
 		{? }{input $buttonName, class => 'btn btn-primary btn-sm'}
 	{/ifset}
 

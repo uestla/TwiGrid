@@ -68,6 +68,8 @@ class DataGrid extends Nette\Application\UI\Control
 	/** @var \Closure */
 	private $ieProcessCallback = NULL;
 
+	/** @var array */
+	private $redrawRows = array();
 
 	// === pagination ===========
 
@@ -583,9 +585,11 @@ class DataGrid extends Nette\Application\UI\Control
 	 */
 	protected function activateInlineEditing($primary)
 	{
+		$this->redrawRow($this->iePrimary);
+		$this->redrawRow($primary);
 		$this->iePrimary = $primary;
 		$this->refreshState(FALSE);
-		$this->redraw(FALSE, TRUE, 'body');
+		$this->redraw(FALSE, TRUE, "body");    
 	}
 
 
@@ -593,10 +597,15 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  bool $dataAsWell
 	 * @return void
 	 */
-	protected function deactivateInlineEditing($dataAsWell = TRUE)
+	protected function deactivateInlineEditing($primary, $dataAsWell = TRUE)
 	{
+		$this->redrawRow($primary);
 		$this->refreshState();
 		$this->redraw($dataAsWell, TRUE, 'body');
+	}
+
+	protected function redrawRow($primary) {
+		$this->redrawRows[] = $primary;
 	}
 
 
@@ -811,11 +820,11 @@ class DataGrid extends Nette\Application\UI\Control
 				if ($name === 'edit') {
 					if (($values = $form->getInlineValues()) !== NULL) {
 						NCallback::invoke($this->ieProcessCallback, Helpers::findRecord($this->getData(), $this->iePrimary, $this->getRecord()), $values);
-						$this->deactivateInlineEditing();
+						$this->deactivateInlineEditing($this->iePrimary);
 					}
 
 				} elseif ($name === 'cancel') {
-					$this->deactivateInlineEditing(FALSE);
+					$this->deactivateInlineEditing($this->iePrimary, FALSE);
 
 				} else {
 					$this->activateInlineEditing($button->primary);
@@ -848,6 +857,20 @@ class DataGrid extends Nette\Application\UI\Control
 			|| $this->isControlInvalid('footer');
 	}
 
+	public function getTemplateData() {
+		$data = $this->getData();
+		if($this->getPresenter()->isAjax() && !empty($this->redrawRows)) {
+			$redrawData = array();
+			foreach($data as $record) {
+				if(in_array($this->getRecord()->primaryToString($record), $this->redrawRows)) {
+					$redrawData[] = $record;
+				}
+			}
+			$data = $redrawData;
+		}
+		return $data;
+	}
+
 
 	/** @return void */
 	function render()
@@ -870,8 +893,10 @@ class DataGrid extends Nette\Application\UI\Control
 		$this->isControlInvalid() && $this->redraw(FALSE, 'flashes');
 		$this->passForm() && ($template->form = $template->_form = $form = $this['form'])
 				&& $this->presenter->payload->twiGrid['forms'][$form->elementPrototype->id] = (string) $form->getAction();
+		$this->presenter->payload->twiGrid['iePrimary'][$form->elementPrototype->id] = $this->iePrimary;
+		$template->redrawWholeBody = empty($this->redrawRows);
 		$template->columns = $this->getColumns();
-		$template->dataLoader = $this->getData;
+		$template->dataLoader = $this->getTemplateData;
 		$template->csrfToken = Helpers::getCsrfToken($this->session, $this->sessNamespace);
 		$template->rowActions = $this->getRowActions();
 		$template->hasRowActions = $template->rowActions !== NULL;
