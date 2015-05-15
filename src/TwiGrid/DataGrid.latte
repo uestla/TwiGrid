@@ -436,7 +436,7 @@
 
 {define footer-info}
 	<div n:class="!$hasGroupActions && $grid->pageCount <= 1 ? col-xs-12 : col-xs-4, right" n:if="$isPaginated">
-		{($grid->page - 1) * $grid->itemsPerPage + 1}-{min($grid->itemCount, ($grid->page - 1) * $grid->itemsPerPage + $grid->itemsPerPage)} / {_'%d items', $grid->itemCount}
+		{($grid->page - 1) * $grid->itemsPerPage + 1}-{min($grid->itemCount, ($grid->page - 1) * $grid->itemsPerPage + $grid->itemsPerPage)} / {_'%count% items', $grid->itemCount}
 	</div>
 {/define}
 
