@@ -838,17 +838,6 @@ class DataGrid extends Nette\Application\UI\Control
 	}
 
 
-	/** @return bool */
-	protected function passForm()
-	{
-		return !$this->presenter->isAjax()
-			|| $this->isControlInvalid('form-errors')
-			|| $this->isControlInvalid('filter-controls')
-			|| $this->isControlInvalid('body')
-			|| $this->isControlInvalid('footer');
-	}
-
-
 	/** @return void */
 	function render()
 	{
@@ -868,8 +857,8 @@ class DataGrid extends Nette\Application\UI\Control
 		});
 
 		$this->isControlInvalid() && $this->redraw(FALSE, 'flashes');
-		$this->passForm() && ($template->form = $template->_form = $form = $this['form'])
-				&& $this->presenter->payload->twiGrid['forms'][$form->elementPrototype->id] = (string) $form->getAction();
+		$template->form = $template->_form = $form = $this['form'];
+		$this->presenter->payload->twiGrid['forms'][$form->elementPrototype->id] = (string) $form->getAction();
 		$template->columns = $this->getColumns();
 		$template->dataLoader = $this->getData;
 		$template->csrfToken = Helpers::getCsrfToken($this->session, $this->sessNamespace);
