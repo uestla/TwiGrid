@@ -47,6 +47,9 @@ abstract class Helpers extends Nette\Object
 					$ret[$k] = $tmp;
 				}
 
+			} elseif (is_object($v)) {
+				$ret[$k] = $v;
+
 			} elseif (strlen($v)) {
 				$ret[$k] = $v;
 			}
