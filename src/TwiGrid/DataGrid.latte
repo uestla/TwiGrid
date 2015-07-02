@@ -215,7 +215,7 @@
 
 	{if}{? $grid->addGroupActionCheckboxes(); $grid->addInlineEditControls() }
 
-	{foreach $dataLoader() as $record}
+	{foreach $data as $record}
 			{var $primaryString = $template->primaryToString($record),
 				$isInlineEdited = $hasInlineEdit && $iePrimary === $primaryString}
 			{var $params = [
