@@ -893,7 +893,7 @@ class DataGrid extends Nette\Application\UI\Control
 		
     $data = $this->getData();
     $template->data = $data;
-		$this->redrawWholeBody = true;
+		$template->redrawWholeBody = true;
 		if($this->getPresenter()->isAjax() && !empty($this->redrawRows)) {
 			$redrawData = $this->getRedrawRows($data);
 			if (count($redrawData) > 0) {
