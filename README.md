@@ -28,14 +28,12 @@ Let's see how many steps do we have to make to create our first datagrid.
 	```
 	- vendor/uestla/twigrid/client-side/twigrid.datagrid.js
 	- vendor/uestla/twigrid/client-side/twigrid.datagrid.css
-	- vendor/uestla/twigrid/client-side/vendors/js/nette.ajax.js
 	```
 
 	And paste them in
 
 	```
 	- www/js/twigrid.datagrid.js
-	- www/js/nette.ajax.js
 	- www/css/twigrid.datagrid.css
 	```
 
@@ -51,8 +49,8 @@ Let's see how many steps do we have to make to create our first datagrid.
 	```html
 	<script src="{$basePath}/js/jquery.js"></script>
 	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-	<script src="{$basePath}/js/netteForms.js"></script>
-	<script src="{$basePath}/js/nette.ajax.js"></script>
+	<script src="//cdn.rawgit.com/nette/forms/master/src/assets/netteForms.js"></script>
+	<script src="//cdn.rawgit.com/vojtech-dobes/nette.ajax.js/master/nette.ajax.js"></script>
 	<script src="{$basePath}/js/twigrid.datagrid.js"></script>
 	```
 

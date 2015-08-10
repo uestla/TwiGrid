@@ -240,8 +240,8 @@ $.nette.ext({
 
 		rows.off('click.tw-inline')
 			.on('click.tw-inline', function (event) {
-				var row = $(this),
-					edit = row.find(self.buttonSelector('[name^="' + self.escape('inline[buttons][') + '"]:first'));
+				var row = $(this);
+				var edit = row.find(self.buttonSelector('[name^="' + self.escape('inline[buttons][') + '"]:first'));
 
 				if (edit.length && !(edit.attr('name') in {'inline[buttons][edit]': 1, 'inline[buttons][cancel]': 1})
 						&& !self.isClickable(event.target) && self.onlyCtrlKeyPressed(event)) {
@@ -369,9 +369,9 @@ $.nette.ext({
 					event.preventDefault();
 
 					selects.each(function () {
-						var select = $(this),
-							selected = select.children(':selected'),
-							next = event.keyCode === 37 ? selected.prev() : selected.next();
+						var select = $(this);
+						var selected = select.children(':selected');
+						var next = event.keyCode === 37 ? selected.prev() : selected.next();
 
 						if (next.length) {
 							select.val(next.val());
