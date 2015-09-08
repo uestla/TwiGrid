@@ -36,7 +36,7 @@ class Record extends Nette\Object
 	 * @param  string|array $key
 	 * @return DataGrid
 	 */
-	function setPrimaryKey($key)
+	public function setPrimaryKey($key)
 	{
 		$this->primaryKey = is_array($key) ? $key : func_get_args();
 		return $this;
@@ -44,7 +44,7 @@ class Record extends Nette\Object
 
 
 	/** @return array */
-	function getPrimaryKey()
+	public function getPrimaryKey()
 	{
 		return $this->primaryKey;
 	}
@@ -54,7 +54,7 @@ class Record extends Nette\Object
 	 * @param  mixed $callback
 	 * @return DataGrid
 	 */
-	function setValueGetter($callback)
+	public function setValueGetter($callback)
 	{
 		$this->valueGetter = NCallback::closure($callback);
 		return $this;
@@ -62,7 +62,7 @@ class Record extends Nette\Object
 
 
 	/** @return \Closure */
-	function getValueGetter()
+	public function getValueGetter()
 	{
 		$this->valueGetter === NULL && $this->setValueGetter(function ($record, $column, $need) {
 			if (!isset($record->$column)) {
@@ -86,7 +86,7 @@ class Record extends Nette\Object
 	 * @param  bool $need
 	 * @return mixed
 	 */
-	function getValue($record, $column, $need = TRUE)
+	public function getValue($record, $column, $need = TRUE)
 	{
 		return NCallback::invoke($this->getValueGetter(), $record, $column, $need);
 	}
@@ -96,7 +96,7 @@ class Record extends Nette\Object
 	 * @param  mixed $record
 	 * @return string
 	 */
-	function primaryToString($record)
+	public function primaryToString($record)
 	{
 		return implode(static::PRIMARY_SEPARATOR, $this->getPrimary($record));
 	}
@@ -107,7 +107,7 @@ class Record extends Nette\Object
 	 * @param  array|string $primary
 	 * @return bool
 	 */
-	function is($record, $primary)
+	public function is($record, $primary)
 	{
 		return $this->primaryToString($record) === $primary;
 	}
@@ -117,7 +117,7 @@ class Record extends Nette\Object
 	 * @param  string $s
 	 * @return array|string
 	 */
-	function stringToPrimary($s)
+	public function stringToPrimary($s)
 	{
 		$primaries = explode(static::PRIMARY_SEPARATOR, $s);
 		return count($primaries) === 1 ? (string) $primaries[0] : array_combine($this->primary, $primaries);

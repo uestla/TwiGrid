@@ -45,7 +45,7 @@ class Column extends Component
 
 
 	/** @param  string $label */
-	function __construct($label)
+	public function __construct($label)
 	{
 		parent::__construct();
 
@@ -54,7 +54,7 @@ class Column extends Component
 
 
 	/** @return string */
-	function getLabel()
+	public function getLabel()
 	{
 		return $this->getDataGrid()->translate($this->label);
 	}
@@ -64,7 +64,7 @@ class Column extends Component
 	 * @param  bool $bool
 	 * @return Column
 	 */
-	function setSortable($bool = TRUE)
+	public function setSortable($bool = TRUE)
 	{
 		$this->sortable = (bool) $bool;
 		return $this;
@@ -72,7 +72,7 @@ class Column extends Component
 
 
 	/** @return bool */
-	function isSortable()
+	public function isSortable()
 	{
 		return $this->sortable;
 	}
@@ -84,7 +84,7 @@ class Column extends Component
 	 * @param  int $sortIndex
 	 * @return Column
 	 */
-	function setSortedBy($bool = TRUE, $sortDir = self::ASC, $sortIndex = 0)
+	public function setSortedBy($bool = TRUE, $sortDir = self::ASC, $sortIndex = 0)
 	{
 		if (!$this->sortable) {
 			throw new Nette\InvalidStateException("Column '{$this->name}' is not sortable.");
@@ -98,21 +98,21 @@ class Column extends Component
 
 
 	/** @return bool */
-	function isSortedBy()
+	public function isSortedBy()
 	{
 		return $this->sortedBy;
 	}
 
 
 	/** @return bool */
-	function getSortDir()
+	public function getSortDir()
 	{
 		return $this->sortDir;
 	}
 
 
 	/** @return int */
-	function getSortIndex()
+	public function getSortIndex()
 	{
 		return $this->sortIndex;
 	}

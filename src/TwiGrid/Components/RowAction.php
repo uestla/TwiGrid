@@ -24,7 +24,7 @@ class RowAction extends Action
 	 * @param  bool $bool
 	 * @return RowAction
 	 */
-	function setProtected($bool = TRUE)
+	public function setProtected($bool = TRUE)
 	{
 		$this->protected = (bool) $bool;
 		return $this;
@@ -32,7 +32,7 @@ class RowAction extends Action
 
 
 	/** @return bool */
-	function isProtected()
+	public function isProtected()
 	{
 		return $this->protected;
 	}

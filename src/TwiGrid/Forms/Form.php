@@ -29,7 +29,7 @@ class Form extends Nette\Application\UI\Form
 	 * @param  array $defaults
 	 * @return Form
 	 */
-	function addFilterCriteria(\Closure $factory, array $defaults)
+	public function addFilterCriteria(\Closure $factory, array $defaults)
 	{
 		if (!$this->lazyCreateContainer('filters', 'criteria', $criteria, $factory)) {
 			$criteria->setDefaults($defaults);
@@ -44,7 +44,7 @@ class Form extends Nette\Application\UI\Form
 	 * @param  bool $hasFilters
 	 * @return Form
 	 */
-	function addFilterButtons($hasFilters)
+	public function addFilterButtons($hasFilters)
 	{
 		if (!$this->lazyCreateContainer('filters', 'buttons', $buttons)) {
 			$buttons->addSubmit('filter', 'Filter');
@@ -56,7 +56,7 @@ class Form extends Nette\Application\UI\Form
 
 
 	/** @return array|NULL */
-	function getFilterCriteria()
+	public function getFilterCriteria()
 	{
 		$this->validate();
 		return $this->isValid() ? Helpers::filterEmpty($this['filters']['criteria']->getValues(TRUE)) : NULL;
@@ -67,7 +67,7 @@ class Form extends Nette\Application\UI\Form
 	 * @param  \Closure $primaryToString
 	 * @return Form
 	 */
-	function addGroupActionCheckboxes(\Closure $primaryToString)
+	public function addGroupActionCheckboxes(\Closure $primaryToString)
 	{
 		if (!$this->lazyCreateContainer('actions', 'records', $records)) {
 			$i = 0;
@@ -90,7 +90,7 @@ class Form extends Nette\Application\UI\Form
 	 * @param  \ArrayIterator $actions
 	 * @return Form
 	 */
-	function addGroupActionButtons(\ArrayIterator $actions)
+	public function addGroupActionButtons(\ArrayIterator $actions)
 	{
 		if (!$this->lazyCreateContainer('actions', 'buttons', $buttons)) {
 			foreach ($actions as $name => $action) {
@@ -106,7 +106,7 @@ class Form extends Nette\Application\UI\Form
 	 * @param  \Closure $primaryToString
 	 * @return array|NULL
 	 */
-	function getCheckedRecords(\Closure $primaryToString)
+	public function getCheckedRecords(\Closure $primaryToString)
 	{
 		$this->addGroupActionCheckboxes($primaryToString);
 
@@ -134,7 +134,7 @@ class Form extends Nette\Application\UI\Form
 	 * @param  string|NULL $iePrimary
 	 * @return Form
 	 */
-	function addInlineEditControls($data, \TwiGrid\Record $record, \Closure $containerFactory, $iePrimary)
+	public function addInlineEditControls($data, \TwiGrid\Record $record, \Closure $containerFactory, $iePrimary)
 	{
 		if (!$this->lazyCreateContainer('inline', 'buttons', $buttons)) {
 			foreach ($data as $r) {
@@ -158,7 +158,7 @@ class Form extends Nette\Application\UI\Form
 
 
 	/** @return Nette\Utils\ArrayHash|NULL */
-	function getInlineValues()
+	public function getInlineValues()
 	{
 		$this->validate();
 		return $this->isValid() ? $this['inline']['values']->getValues() : NULL;
@@ -170,7 +170,7 @@ class Form extends Nette\Application\UI\Form
 	 * @param  int $pageCount
 	 * @return Form
 	 */
-	function addPaginationControls($current, $pageCount)
+	public function addPaginationControls($current, $pageCount)
 	{
 		if (!$this->lazyCreateContainer('pagination', 'controls', $controls)) {
 			$pages = range(1, $pageCount);
@@ -190,7 +190,7 @@ class Form extends Nette\Application\UI\Form
 
 
 	/** @return int */
-	function getPage()
+	public function getPage()
 	{
 		return (int) $this['pagination']['controls']['page']->value;
 	}
@@ -234,7 +234,7 @@ class Form extends Nette\Application\UI\Form
 	 * @param  PrimaryCheckbox $checkbox
 	 * @return bool
 	 */
-	static function validateCheckedCount(PrimaryCheckbox $checkbox)
+	public static function validateCheckedCount(PrimaryCheckbox $checkbox)
 	{
 		return $checkbox->form->submitted->parent->lookupPath('Nette\Forms\Form') !== 'actions-buttons'
 				|| in_array(TRUE, $checkbox->parent->getValues(TRUE), TRUE);

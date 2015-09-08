@@ -36,7 +36,7 @@ class Action extends Component
 	 * @param  string $label
 	 * @param  \Closure $callback
 	 */
-	function __construct($label, \Closure $callback)
+	public function __construct($label, \Closure $callback)
 	{
 		parent::__construct();
 
@@ -46,14 +46,14 @@ class Action extends Component
 
 
 	/** @return string */
-	function getLabel()
+	public function getLabel()
 	{
 		return $this->getDataGrid()->translate($this->label);
 	}
 
 
 	/** @return \Closure */
-	function getCallback()
+	public function getCallback()
 	{
 		return $this->callback;
 	}
@@ -63,7 +63,7 @@ class Action extends Component
 	 * @param  string $confirmation
 	 * @return RowAction
 	 */
-	function setConfirmation($confirmation = NULL)
+	public function setConfirmation($confirmation = NULL)
 	{
 		$this->confirmation = $confirmation === NULL ? NULL : (string) $confirmation;
 		return $this;
@@ -71,7 +71,7 @@ class Action extends Component
 
 
 	/** @return string|NULL */
-	function getConfirmation()
+	public function getConfirmation()
 	{
 		return $this->confirmation === NULL ? NULL : $this->getDataGrid()->translate($this->confirmation);
 	}

@@ -123,7 +123,7 @@ class DataGrid extends Nette\Application\UI\Control
 	// === LIFE CYCLE ======================================================
 
 	/** @param  Nette\Http\Session $s */
-	function __construct(Nette\Http\Session $s)
+	public function __construct(Nette\Http\Session $s)
 	{
 		parent::__construct();
 		$this->session = $s;
@@ -153,7 +153,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  array $params
 	 * @return void
 	 */
-	function loadState(array $params)
+	public function loadState(array $params)
 	{
 		parent::loadState(static::processParams($params));
 		!$this->polluted && !$this->isInDefaultState() && ($this->polluted = TRUE);
@@ -251,7 +251,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  ITranslator $translator
 	 * @return DataGrid
 	 */
-	function setTranslator(ITranslator $translator)
+	public function setTranslator(ITranslator $translator)
 	{
 		$this->translator = $translator;
 		return $this;
@@ -263,7 +263,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  int|NULL $count
 	 * @return string
 	 */
-	function translate($s, $count = NULL)
+	public function translate($s, $count = NULL)
 	{
 		return $this->translator === NULL ? sprintf((string) $s, $count)
 			: $this->translator->translate((string) $s, $count);
@@ -277,7 +277,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  string $label
 	 * @return Components\Column
 	 */
-	function addColumn($name, $label = NULL)
+	public function addColumn($name, $label = NULL)
 	{
 		!isset($this['columns']) && ($this['columns'] = new Nette\ComponentModel\Container);
 		$c = new Components\Column($label === NULL ? $name : $label);
@@ -287,14 +287,14 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/** @return \ArrayIterator|NULL */
-	function getColumns()
+	public function getColumns()
 	{
 		return isset($this['columns']) ? $this['columns']->components : NULL;
 	}
 
 
 	/** @return array */
-	function getColumnNames()
+	public function getColumnNames()
 	{
 		$names = array_keys(iterator_to_array($this->getColumns()));
 		return array_merge(array_combine($this->getRecord()->primaryKey, $this->getRecord()->primaryKey), $names);
@@ -309,7 +309,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  mixed $callback
 	 * @return Components\RowAction
 	 */
-	function addRowAction($name, $label, $callback)
+	public function addRowAction($name, $label, $callback)
 	{
 		!isset($this['rowActions']) && ($this['rowActions'] = new Nette\ComponentModel\Container);
 		$a = new Components\RowAction($label, NCallback::closure($callback));
@@ -319,7 +319,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/** @return \ArrayIterator|NULL */
-	function getRowActions()
+	public function getRowActions()
 	{
 		return isset($this['rowActions']) ? $this['rowActions']->components : NULL;
 	}
@@ -331,7 +331,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  string|NULL $token
 	 * @return void
 	 */
-	function handleRowAction($action, $primary, $token = NULL)
+	public function handleRowAction($action, $primary, $token = NULL)
 	{
 		$a = $this['rowActions']->getComponent($action);
 		if (!$a->protected || Helpers::checkCsrfToken($this->session, $this->sessNamespace, $token)) {
@@ -352,7 +352,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  mixed $callback
 	 * @return Components\Action
 	 */
-	function addGroupAction($name, $label, $callback)
+	public function addGroupAction($name, $label, $callback)
 	{
 		!isset($this['groupActions']) && ($this['groupActions'] = new Nette\ComponentModel\Container);
 		$a = new Components\Action($label, NCallback::closure($callback));
@@ -362,7 +362,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/** @return \ArrayIterator|NULL */
-	function getGroupActions()
+	public function getGroupActions()
 	{
 		return isset($this['groupActions']) ? $this['groupActions']->components : NULL;
 	}
@@ -374,7 +374,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  array $orderBy
 	 * @return void
 	 */
-	function handleSort(array $orderBy)
+	public function handleSort(array $orderBy)
 	{
 		$this->refreshState();
 		$this->redraw(TRUE, TRUE, 'header-sort', 'body', 'footer');
@@ -386,7 +386,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  bool $dir
 	 * @return DataGrid
 	 */
-	function setDefaultOrderBy($column, $dir = Components\Column::ASC)
+	public function setDefaultOrderBy($column, $dir = Components\Column::ASC)
 	{
 		if (is_array($column)) {
 			$this->defaultOrderBy = $column;
@@ -405,7 +405,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  bool $bool
 	 * @return DataGrid
 	 */
-	function setMultiSort($bool = TRUE)
+	public function setMultiSort($bool = TRUE)
 	{
 		$this->multiSort = (bool) $bool;
 		return $this;
@@ -413,7 +413,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/** @return bool */
-	function hasMultiSort()
+	public function hasMultiSort()
 	{
 		return $this->multiSort;
 	}
@@ -425,7 +425,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  mixed $factory
 	 * @return DataGrid
 	 */
-	function setFilterFactory($factory)
+	public function setFilterFactory($factory)
 	{
 		$this->filterFactory = NCallback::closure($factory);
 		return $this;
@@ -436,7 +436,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  array $filters
 	 * @return DataGrid
 	 */
-	function setDefaultFilters(array $filters)
+	public function setDefaultFilters(array $filters)
 	{
 		if ($this->filterFactory === NULL) {
 			throw new Nette\InvalidStateException("Filter factory not set.");
@@ -478,7 +478,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  string|array $primaryKey
 	 * @return DataGrid
 	 */
-	function setPrimaryKey($primaryKey)
+	public function setPrimaryKey($primaryKey)
 	{
 		$this->getRecord()->setPrimaryKey($primaryKey);
 		return $this;
@@ -489,7 +489,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  mixed $loader
 	 * @return DataGrid
 	 */
-	function setDataLoader($loader)
+	public function setDataLoader($loader)
 	{
 		$this->dataLoader = NCallback::closure($loader);
 		return $this;
@@ -497,7 +497,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/** @return array|\Traversable */
-	function getData()
+	public function getData()
 	{
 		if ($this->data === NULL) {
 			$order = $this->orderBy;
@@ -532,7 +532,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  mixed|NULL $callback
 	 * @return DataGrid
 	 */
-	function setValueGetter($callback = NULL)
+	public function setValueGetter($callback = NULL)
 	{
 		$this->getRecord()->setValueGetter($callback);
 		return $this;
@@ -570,7 +570,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  mixed $processCb
 	 * @return DataGrid
 	 */
-	function setInlineEditing($containerCb, $processCb)
+	public function setInlineEditing($containerCb, $processCb)
 	{
 		$this->ieContainerFactory = NCallback::closure($containerCb);
 		$this->ieProcessCallback = NCallback::closure($processCb);
@@ -607,7 +607,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  mixed $itemCounter
 	 * @return DataGrid
 	 */
-	function setPagination($itemsPerPage, $itemCounter)
+	public function setPagination($itemsPerPage, $itemCounter)
 	{
 		$this->itemsPerPage = max(0, (int) $itemsPerPage);
 		$this->itemCounter = NCallback::closure($itemCounter);
@@ -620,7 +620,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  bool $refresh
 	 * @return void
 	 */
-	function handlePaginate($p, $refresh = TRUE)
+	public function handlePaginate($p, $refresh = TRUE)
 	{
 		if ($this->itemsPerPage !== NULL) {
 			$this->initPagination();
@@ -646,21 +646,21 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/** @return int|NULL */
-	function getPageCount()
+	public function getPageCount()
 	{
 		return $this->pageCount;
 	}
 
 
 	/** @return int|NULL */
-	function getItemCount()
+	public function getItemCount()
 	{
 		return $this->itemCount;
 	}
 
 
 	/** @return int|NULL */
-	function getItemsPerPage()
+	public function getItemsPerPage()
 	{
 		return $this->itemsPerPage;
 	}
@@ -682,7 +682,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/** @return DataGrid */
-	function addFilterCriteria()
+	public function addFilterCriteria()
 	{
 		$this->filterFactory !== NULL
 			&& $this->addFilterButtons()
@@ -693,7 +693,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/** @return DataGrid */
-	function addFilterButtons()
+	public function addFilterButtons()
 	{
 		$this->filterFactory !== NULL
 			&& $this['form']->addFilterButtons(count($this->filters));
@@ -703,7 +703,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/** @return DataGrid */
-	function addGroupActionCheckboxes()
+	public function addGroupActionCheckboxes()
 	{
 		$this->groupActions !== NULL
 			&& $this->addGroupActionButtons()
@@ -714,7 +714,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/** @return DataGrid */
-	function addGroupActionButtons()
+	public function addGroupActionButtons()
 	{
 		$this->groupActions !== NULL
 			&& $this['form']->addGroupActionButtons($this->getGroupActions());
@@ -724,7 +724,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/** @return DataGrid */
-	function addInlineEditControls()
+	public function addInlineEditControls()
 	{
 		$this->ieContainerFactory !== NULL
 			&& $this['form']->addInlineEditControls(
@@ -739,7 +739,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/** @return DataGrid */
-	function addPaginationControls()
+	public function addPaginationControls()
 	{
 		$this->itemsPerPage !== NULL
 			&& $this->initPagination()
@@ -753,7 +753,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  Forms\Form $form
 	 * @return void
 	 */
-	function formSubmitted(Forms\Form $form)
+	public function formSubmitted(Forms\Form $form)
 	{
 		$this->redraw(FALSE, 'form-errors');
 	}
@@ -763,7 +763,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  Forms\Form $form
 	 * @return void
 	 */
-	function processForm(Forms\Form $form)
+	public function processForm(Forms\Form $form)
 	{
 		// detect submit button by lazy buttons appending (beginning with the most lazy ones)
 		$this->addFilterButtons();
@@ -831,7 +831,7 @@ class DataGrid extends Nette\Application\UI\Control
 	 * @param  string $templateFile
 	 * @return DataGrid
 	 */
-	function setTemplateFile($templateFile)
+	public function setTemplateFile($templateFile)
 	{
 		$this->templateFile = (string) $templateFile;
 		return $this;
@@ -839,7 +839,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/** @return void */
-	function render()
+	public function render()
 	{
 		$template = $this->createTemplate();
 

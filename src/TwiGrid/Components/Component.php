@@ -23,7 +23,7 @@ abstract class Component extends Nette\ComponentModel\Component
 	 * @param  bool $need
 	 * @return DataGrid
 	 */
-	final function getDataGrid($need = TRUE)
+	final public function getDataGrid($need = TRUE)
 	{
 		return $this->lookup('TwiGrid\DataGrid', $need);
 	}

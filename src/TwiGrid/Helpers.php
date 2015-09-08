@@ -25,7 +25,7 @@ abstract class Helpers extends Nette\Object
 	 * @param  int $flags
 	 * @return void
 	 */
-	static function recursiveKSort(array & $array, $flags = SORT_REGULAR)
+	public static function recursiveKSort(array & $array, $flags = SORT_REGULAR)
 	{
 		count($array) && ksort($array, $flags);
 		foreach ($array as & $val) {
@@ -38,7 +38,7 @@ abstract class Helpers extends Nette\Object
 	 * @param  array $a
 	 * @return array
 	 */
-	static function filterEmpty(array $a)
+	public static function filterEmpty(array $a)
 	{
 		$ret = array();
 		foreach ($a as $k => $v) {
@@ -65,7 +65,7 @@ abstract class Helpers extends Nette\Object
 	 * @param  Record $record
 	 * @return mixed|NULL
 	 */
-	static function findRecord($data, $primaryString, Record $record)
+	public static function findRecord($data, $primaryString, Record $record)
 	{
 		$primary = $record->stringToPrimary($primaryString);
 
@@ -91,7 +91,7 @@ abstract class Helpers extends Nette\Object
 	 * @param  int $mode
 	 * @return string
 	 */
-	static function createSortLink(DataGrid $grid, Column $column, $mode = self::SORT_LINK_SINGLE)
+	public static function createSortLink(DataGrid $grid, Column $column, $mode = self::SORT_LINK_SINGLE)
 	{
 		if ($mode === self::SORT_LINK_SINGLE) {
 			$by = array();
@@ -128,7 +128,7 @@ abstract class Helpers extends Nette\Object
 	 * @param  int $pageCount
 	 * @return int
 	 */
-	static function fixPage($page, $pageCount)
+	public static function fixPage($page, $pageCount)
 	{
 		return max(1, min((int) $page, $pageCount));
 	}
@@ -141,7 +141,7 @@ abstract class Helpers extends Nette\Object
 	 * @param  string $namespace
 	 * @return string
 	 */
-	static function getCsrfToken(NSession $session, $namespace)
+	public static function getCsrfToken(NSession $session, $namespace)
 	{
 		return ($token = static::loadCsrfToken($session, $namespace)) === NULL
 				? static::getCsrfTokenSession($session, $namespace)->token = NRandom::generate(10)
@@ -155,7 +155,7 @@ abstract class Helpers extends Nette\Object
 	 * @param  string $token
 	 * @return bool
 	 */
-	static function checkCsrfToken(NSession $session, $namespace, $token)
+	public static function checkCsrfToken(NSession $session, $namespace, $token)
 	{
 		if (($stoken = static::loadCsrfToken($session, $namespace)) !== NULL && $stoken === $token) {
 			unset(static::getCsrfTokenSession($session, $namespace)->token);
