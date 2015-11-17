@@ -127,7 +127,6 @@ class DataGrid extends Nette\Application\UI\Control
 	{
 		parent::__construct();
 		$this->session = $s;
-		$this->sessNamespace = __CLASS__ . '-' . $this->name;
 	}
 
 
@@ -139,8 +138,8 @@ class DataGrid extends Nette\Application\UI\Control
 	{
 		$this->build();
 		parent::attached($presenter);
-		!isset($this->presenter->payload->twiGrid)
-			&& ($this->presenter->payload->twiGrid['forms'] = $this->presenter->payload->twiGrid = array());
+		$this->sessNamespace = __CLASS__ . '-' . $this->name;
+		!isset($this->presenter->payload->twiGrid) && ($this->presenter->payload->twiGrid['forms'] = $this->presenter->payload->twiGrid = array());
 	}
 
 
