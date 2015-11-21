@@ -31,6 +31,8 @@ class Action extends Component
 	/** @var string */
 	private $confirmation = NULL;
 
+	/** @var string */
+	private $btnClass = '';
 
 	/**
 	 * @param  string $label
@@ -74,6 +76,17 @@ class Action extends Component
 	public function getConfirmation()
 	{
 		return $this->confirmation === NULL ? NULL : $this->getDataGrid()->translate($this->confirmation);
+	}
+
+	function getBtnClass()
+	{
+		return $this->btnClass;
+	}
+
+	function setBtnClass($btnClass)
+	{
+		$this->btnClass = $btnClass;
+		return $this;
 	}
 
 }
