@@ -262,7 +262,7 @@
 	{var $template->hasData = (bool) $iterations}
 
 	{else}
-		<tr class="warning">
+		<tr n:block="row-no-data" class="warning">
 			<td class="body-cell" colspan="{$columnCount}">{_'No data.'}</td>
 		</tr>
 	{/if $iterations}
