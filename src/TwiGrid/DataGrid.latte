@@ -203,7 +203,7 @@
 {* === ... ============================================ *}
 
 {define filter-button}
-	{php }{input $button, class => 'btn btn-default'}
+	<input n:name="$button" class="btn btn-default">
 {/define}
 
 
@@ -221,8 +221,7 @@
 		<tr n:class="$isInlineEdited ? success">
 
 			<td class="body-cell center" n:if="$hasGroupActions">
-				{var $inputKey = $iterator->counter - 1}
-				{php }{input actions-records-$inputKey:}
+				<input n:name="'actions-records-' . ($iterator->counter - 1)">
 			</td>
 
 		{foreach $columns as $name => $column}
@@ -301,7 +300,7 @@
 
 	{else}
 	{ifset $form[$buttonName = "inline-buttons-$primaryString"]}
-		{php }{input $buttonName, class => 'btn btn-primary btn-sm'}
+		<input n:name="$buttonName" class="btn btn-sm btn-primary">
 	{/ifset}
 
 {if $hasRowActions}
@@ -331,15 +330,15 @@
 {* === ... ============================================ *}
 
 {define inline-buttons}
-	{php }{input inline-buttons-edit, class => 'btn btn-success btn-sm'}
-	{php }{input inline-buttons-cancel, class => 'btn btn-danger btn-sm'}
+	<input n:name="inline-buttons-edit" class="btn btn-sm btn-success">
+	<input n:name="inline-buttons-cancel" class="btn btn-sm btn-danger">
 {/define}
 
 
 {* === ... ============================================ *}
 
 {define row-action}
-	<a href="{$link}" n:class="btn, btn-primary, btn-sm, tw-ajax" n:attr="data-tw-confirm => $action->confirmation">
+	<a href="{$link}" class="btn btn-primary btn-sm tw-ajax" n:attr="data-tw-confirm => $action->confirmation">
 		{$action->label}
 	</a>
 {/define}
@@ -404,7 +403,7 @@
 {* === ... ============================================ *}
 
 {define group-action-button}
-	{php }{input actions-buttons-$name, class => 'btn btn-default', data-tw-confirm => $action->confirmation}
+	<input n:name="'actions-buttons-' . $name" class="btn btn-default" n:attr="data-tw-confirm => $action->confirmation">
 {/define}
 
 
@@ -420,9 +419,8 @@
 		</a>
 
 		<div class="actual">
-			{php }{input pagination-controls-page, class => 'form-control'}
-			/ {$grid->pageCount}
-			{php }{input pagination-buttons-change, class => 'js-hid btn btn-default'}
+			<select n:name="pagination-controls-page" class="form-control"></select> / {$grid->pageCount}
+			<input n:name="pagination-buttons-change" class="js-hid btn btn-default">
 		</div>
 
 		<a n:href="paginate!, p => min($grid->pageCount, $grid->page + 1)" n:class="btn, btn-default, $grid->page === $grid->pageCount ? disabled, tw-ajax">
