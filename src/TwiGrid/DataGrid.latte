@@ -349,12 +349,12 @@
 {define footer}
 
 	<tfoot class="footer" n:snippet="footer">
+	{if $isInlineAdd}{include #inlineAdd}{/if}
 
 {capture $footerInfo}{include #footer-info |indent:3}{/capture}
-
-		<tr n:if="$template->hasData && (strlen(trim($footerInfo)) || $hasGroupActions || $grid->pageCount > 1)">
-			<td colspan="{$columnCount}" class="container footer-cell">
-				<div class="row">
+<tr n:if="(!isset($template->hasData) || $template->hasData) && (strlen(trim($footerInfo)) || $hasGroupActions || $grid->pageCount > 1)">
+	<td colspan="{$columnCount}" class="container footer-cell">
+		<div class="row">
 			{if $hasGroupActions}
 {include #group-action-buttons |indent:4}
 			{/if}
@@ -440,3 +440,48 @@
 
 
 {/block}
+
+{define inlineAdd}
+{? $grid->addInlineAddControls(); }
+<tr>
+    <td class="body-cell center" n:if="$hasGroupActions">
+        <i class="glyphicon glyphicon-plus-sign" style="color:green"></i>
+    </td>
+    {foreach $columns as $name => $column}
+        {var $params = [
+            record => NULL,
+            isInlineEdited => TRUE,
+            column => $name,
+            value => NULL
+        ]}
+        {ifset #body-cell-$name-inlineAdd}
+            {include #"body-cell-$name-inlineAdd", (expand) $params |indent:2}
+        {else}
+            {include #body-cell-inlineAdd, (expand) $params |indent:2}
+        {/ifset}
+    {/foreach}
+
+    <td class="body-cell center">
+        {include #inlineAdd-actions}
+    </td>
+
+</tr>
+{/define}
+
+{define inlineAdd-actions}
+{input inlineAdd-buttons-add, class=>'btn btn-primary btn-sm'}
+{/define}
+
+{define body-cell-inlineAdd}
+{ifset $form["inlineAdd-values-$column"]}
+    <td n:class='body-inline-cell, "body-inline-cell-{$column}"'>
+        {if $form['inlineAdd-values-'.$column]->getControl() instanceof Nette\Utils\Html}
+            {input inlineAdd-values-$column, class => 'form-control'}
+        {else}
+            {*compatibility issue of Nette\Forms\Controls\CheckboxList
+              ::getControl() and others returning string instead of Html *}
+            {input inlineAdd-values-$column}
+        {/if}
+    </td>
+{else}&nbsp;{/ifset}
+{/define}
