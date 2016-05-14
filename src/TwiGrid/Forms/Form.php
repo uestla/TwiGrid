@@ -29,7 +29,7 @@ class Form extends Nette\Application\UI\Form
 	 * @param  array $defaults
 	 * @return Form
 	 */
-	public function addFilterCriteria(\Closure $factory, array $defaults)
+	public function addFilterCriteria(callable $factory, array $defaults)
 	{
 		if (!$this->lazyCreateContainer('filters', 'criteria', $criteria, $factory)) {
 			$criteria->setDefaults($defaults);
@@ -67,7 +67,7 @@ class Form extends Nette\Application\UI\Form
 	 * @param  \Closure $primaryToString
 	 * @return Form
 	 */
-	public function addGroupActionCheckboxes(\Closure $primaryToString)
+	public function addGroupActionCheckboxes(callable $primaryToString)
 	{
 		if (!$this->lazyCreateContainer('actions', 'records', $records)) {
 			$i = 0;
@@ -106,7 +106,7 @@ class Form extends Nette\Application\UI\Form
 	 * @param  \Closure $primaryToString
 	 * @return array|NULL
 	 */
-	public function getCheckedRecords(\Closure $primaryToString)
+	public function getCheckedRecords(callable $primaryToString)
 	{
 		$this->addGroupActionCheckboxes($primaryToString);
 
@@ -134,7 +134,7 @@ class Form extends Nette\Application\UI\Form
 	 * @param  string|NULL $iePrimary
 	 * @return Form
 	 */
-	public function addInlineEditControls($data, \TwiGrid\Record $record, \Closure $containerFactory, $iePrimary)
+	public function addInlineEditControls($data, \TwiGrid\Record $record, callable $containerFactory, $iePrimary)
 	{
 		if (!$this->lazyCreateContainer('inline', 'buttons', $buttons)) {
 			foreach ($data as $r) {
@@ -203,7 +203,7 @@ class Form extends Nette\Application\UI\Form
 	 * @param  \Closure|NULL $factory
 	 * @return bool does container already exist?
 	 */
-	protected function lazyCreateContainer($parent, $name, & $container = NULL, \Closure $factory = NULL)
+	protected function lazyCreateContainer($parent, $name, & $container = NULL, callable $factory = NULL)
 	{
 		!isset($this[$parent]) && $this->addContainer($parent);
 
@@ -236,8 +236,8 @@ class Form extends Nette\Application\UI\Form
 	 */
 	public static function validateCheckedCount(PrimaryCheckbox $checkbox)
 	{
-		return $checkbox->form->submitted->parent->lookupPath('Nette\Forms\Form') !== 'actions-buttons'
-				|| in_array(TRUE, $checkbox->parent->getValues(TRUE), TRUE);
+		return $checkbox->getForm()->isSubmitted()->getParent()->lookupPath('Nette\Forms\Form') !== 'actions-buttons'
+				|| in_array(TRUE, $checkbox->getParent()->getValues(TRUE), TRUE);
 	}
 
 }

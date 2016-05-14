@@ -296,7 +296,7 @@ class DataGrid extends Nette\Application\UI\Control
 	public function getColumnNames()
 	{
 		$names = array_keys(iterator_to_array($this->getColumns()));
-		return array_merge(array_combine($this->getRecord()->primaryKey, $this->getRecord()->primaryKey), $names);
+		return array_merge(array_combine($this->getRecord()->getPrimaryKey(), $this->getRecord()->getPrimaryKey()), $names);
 	}
 
 
@@ -320,7 +320,7 @@ class DataGrid extends Nette\Application\UI\Control
 	/** @return \ArrayIterator|NULL */
 	public function getRowActions()
 	{
-		return isset($this['rowActions']) ? $this['rowActions']->components : NULL;
+		return isset($this['rowActions']) ? $this['rowActions']->getComponents() : NULL;
 	}
 
 
@@ -363,7 +363,7 @@ class DataGrid extends Nette\Application\UI\Control
 	/** @return \ArrayIterator|NULL */
 	public function getGroupActions()
 	{
-		return isset($this['groupActions']) ? $this['groupActions']->components : NULL;
+		return isset($this['groupActions']) ? $this['groupActions']->getComponents() : NULL;
 	}
 
 
@@ -502,7 +502,7 @@ class DataGrid extends Nette\Application\UI\Control
 			$order = $this->orderBy;
 			if (count($order)) {
 				$primaryDir = end($order);
-				foreach ($this->getRecord()->primaryKey as $column) {
+				foreach ($this->getRecord()->getPrimaryKey() as $column) {
 					!isset($order[$column]) && ($order[$column] = $primaryDir);
 				}
 			}
@@ -674,8 +674,8 @@ class DataGrid extends Nette\Application\UI\Control
 		$this->translator !== NULL && $form->setTranslator($this->translator);
 		$form->addProtection();
 
-		$form->onSuccess[] = $this->processForm;
-		$form->onSubmit[] = $this->formSubmitted;
+		$form->onSuccess[] = [$this, 'processForm'];
+		$form->onSubmit[] = [$this, 'formSubmitted'];
 		return $form;
 	}
 
@@ -706,7 +706,7 @@ class DataGrid extends Nette\Application\UI\Control
 	{
 		$this->groupActions !== NULL
 			&& $this->addGroupActionButtons()
-			&& $this['form']->addGroupActionCheckboxes($this->getRecord()->primaryToString);
+			&& $this['form']->addGroupActionCheckboxes([$this->getRecord(), 'primaryToString']);
 
 		return $this;
 	}
@@ -766,22 +766,22 @@ class DataGrid extends Nette\Application\UI\Control
 	{
 		// detect submit button by lazy buttons appending (beginning with the most lazy ones)
 		$this->addFilterButtons();
-		if (($button = $form->submitted) === TRUE) {
+		if (($button = $form->isSubmitted()) === TRUE) {
 			$this->addGroupActionButtons();
 
-			if (($button = $form->submitted) === TRUE) {
+			if (($button = $form->isSubmitted()) === TRUE) {
 				$this->addPaginationControls();
 
-				if (($button = $form->submitted) === TRUE) {
+				if (($button = $form->isSubmitted()) === TRUE) {
 					$this->addInlineEditControls();
-					$button = $form->submitted;
+					$button = $form->isSubmitted();
 				}
 			}
 		}
 
 		if ($button instanceof Nette\Forms\Controls\SubmitButton) {
-			$name = $button->name;
-			$path = $button->parent->lookupPath('TwiGrid\Forms\Form');
+			$name = $button->getName();
+			$path = $button->getParent()->lookupPath('TwiGrid\Forms\Form');
 
 			if ("$path-$name" === 'filters-buttons-filter') {
 				$this->addFilterCriteria();
@@ -795,13 +795,13 @@ class DataGrid extends Nette\Application\UI\Control
 				$this->handlePaginate($form->getPage());
 
 			} elseif ($path === 'actions-buttons') {
-				if (($checked = $form->getCheckedRecords($this->getRecord()->primaryToString)) !== NULL) {
+				if (($checked = $form->getCheckedRecords([$this->getRecord(), 'primaryToString'])) !== NULL) {
 					$records = array();
 					foreach ($checked as $primaryString) {
 						($record = Helpers::findRecord($this->getData(), $primaryString, $this->getRecord())) !== NULL && ($records[] = $record);
 					}
 
-					NCallback::invoke($this['groupActions']->getComponent($name)->callback, $records);
+					NCallback::invoke($this['groupActions']->getComponent($name)->getCallback(), $records);
 					$this->refreshState();
 					$this->redraw(TRUE, TRUE, 'body', 'footer');
 				}
@@ -817,7 +817,7 @@ class DataGrid extends Nette\Application\UI\Control
 					$this->deactivateInlineEditing(FALSE);
 
 				} else {
-					$this->activateInlineEditing($button->primary);
+					$this->activateInlineEditing($button->getPrimary());
 				}
 			}
 		}
@@ -848,9 +848,9 @@ class DataGrid extends Nette\Application\UI\Control
 
 		$grid = $this;
 		$latte = $template->getLatte();
-		$latte->addFilter('translate', $this->translate);
-		$latte->addFilter('primaryToString', $this->getRecord()->primaryToString);
-		$latte->addFilter('getValue', $this->getRecord()->getValue);
+		$latte->addFilter('translate', [$this, 'translate']);
+		$latte->addFilter('primaryToString', [$this->getRecord(), 'primaryToString']);
+		$latte->addFilter('getValue', [$this->getRecord(), 'getValue']);
 		$latte->addFilter('sortLink', function (Components\Column $c, $m = Helpers::SORT_LINK_SINGLE) use ($grid) {
 			return Helpers::createSortLink($grid, $c, $m);
 		});
