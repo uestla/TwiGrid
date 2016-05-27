@@ -98,6 +98,9 @@ class DataGrid extends Nette\Application\UI\Control
 	/** @var array|\Traversable */
 	private $data = NULL;
 
+	/** @var bool */
+	private $hasData;
+
 
 	// === sessions ===========
 
@@ -527,6 +530,13 @@ class DataGrid extends Nette\Application\UI\Control
 	}
 
 
+	/** @return bool */
+	public function hasData()
+	{
+		return count($this->getData());
+	}
+
+
 	/**
 	 * @param  mixed|NULL $callback
 	 * @return DataGrid
@@ -856,7 +866,7 @@ class DataGrid extends Nette\Application\UI\Control
 		});
 
 		$this->isControlInvalid() && $this->redraw(FALSE, 'flashes');
-		$template->form = $template->_form = $form = $this['form'];
+		$template->form = $form = $this['form'];
 		$this->presenter->payload->twiGrid['forms'][$form->elementPrototype->id] = (string) $form->getAction();
 		$template->columns = $this->getColumns();
 		$template->dataLoader = NCallback::closure($this, 'getData');

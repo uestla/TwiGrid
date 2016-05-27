@@ -1,23 +1,25 @@
 {**
  * Default DataGrid template
  *
- * @param  TwiGrid\DataGrid  $grid
- * @param  string  $defaultTemplate
- * @param  array  $flashes
- * @param  TwiGrid\Forms\Form  $form
- * @param  ArrayIterator  $columns
- * @param  Nette\Callback  $dataLoader
- * @param  string  $csrfToken
- * @param  \ArrayIterator|NULL  $rowActions
- * @param  bool  $hasRowActions
- * @param  \ArrayIterator|NULL  $groupActions
- * @param  bool  $hasGroupActions
- * @param  bool  $hasFilters
- * @param  bool  $hasInlineEdit
- * @param  string|NULL  $iePrimary
- * @param  bool  $isPaginated
- * @param  int  $columnCount total number of columns in grid table
+ * @param  TwiGrid\DataGrid $grid
+ * @param  string $defaultTemplate
+ * @param  array $flashes
+ * @param  TwiGrid\Forms\Form $form
+ * @param  ArrayIterator $columns
+ * @param  Nette\Callback $dataLoader
+ * @param  string $csrfToken
+ * @param  \ArrayIterator|NULL $rowActions
+ * @param  bool $hasRowActions
+ * @param  \ArrayIterator|NULL $groupActions
+ * @param  bool $hasGroupActions
+ * @param  bool $hasFilters
+ * @param  bool $hasInlineEdit
+ * @param  string|NULL $iePrimary
+ * @param  bool $isPaginated
+ * @param  int $columnCount total number of columns in grid table
  *}
+
+{spaceless}
 
 <div class="tw-cnt" n:snippet="">
 
@@ -25,7 +27,7 @@
 
 {include #datagrid}
 
-</div>{block |trim}
+</div>
 
 
 {* === ... ============================================ *}
@@ -100,8 +102,8 @@
 {var $params = [
 	name => $name,
 	column => $column,
-	sortLink => $template->sortLink($column),
-	multiSortLink => $template->sortLink($column, TwiGrid\Helpers::SORT_LINK_MULTI)
+	sortLink => ($column |sortLink),
+	multiSortLink => ($column |sortLink:TwiGrid\Helpers::SORT_LINK_MULTI)
 ]}
 {ifset #header-cell-$name}
 {include #"header-cell-$name", (expand) $params |indent:2}
@@ -216,7 +218,7 @@
 	{if}{php $grid->addGroupActionCheckboxes(); $grid->addInlineEditControls() }
 
 	{foreach $dataLoader() as $record}
-		{var $primaryString = $template->primaryToString($record),
+		{var $primaryString = ($record |primaryToString),
 			$isInlineEdited = $hasInlineEdit && $iePrimary === $primaryString}
 		<tr n:class="$isInlineEdited ? success">
 
@@ -229,7 +231,7 @@
 	record => $record,
 	isInlineEdited => $isInlineEdited,
 	column => $name,
-	value => $template->getValue($record, $name, FALSE)
+	value => ($record |getValue:$name:FALSE)
 ]}
 {if $isInlineEdited}
 {ifset #body-cell-$name-inline}
@@ -257,8 +259,6 @@
 
 		</tr>
 	{/foreach}
-
-	{var $template->hasData = (bool) $iterations}
 
 	{else}
 		<tr class="warning">
@@ -312,7 +312,7 @@
 	link => $grid->link('rowAction!', [
 		action => $name,
 		primary => $primaryString,
-		token => $action->protected ? $csrfToken
+		token => $action->isProtected() ? $csrfToken
 	]),
 ]}
 {ifset #row-action-$name}
@@ -352,7 +352,7 @@
 
 {capture $footerInfo}{include #footer-info |indent:3}{/capture}
 
-		<tr n:if="$template->hasData && (strlen(trim($footerInfo)) || $hasGroupActions || $grid->pageCount > 1)">
+		<tr n:if="$grid->hasData() && (strlen(trim($footerInfo)) || $hasGroupActions || $grid->pageCount > 1)">
 			<td colspan="{$columnCount}" class="container footer-cell">
 				<div class="row">
 			{if $hasGroupActions}
@@ -363,7 +363,7 @@
 {include #pagination |indent:4}
 			{/if}
 
-{!$footerInfo}
+{$footerInfo |noescape}
 				</div>
 			</td>
 		</tr>
@@ -438,5 +438,4 @@
 	</div>
 {/define}
 
-
-{/block}
+{/spaceless}
