@@ -12,7 +12,6 @@
 namespace TwiGrid\Components;
 
 
-/** @property bool $protected */
 class RowAction extends Action
 {
 

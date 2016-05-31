@@ -15,12 +15,11 @@ use Nette;
 use Nette\Utils\Callback as NCallback;
 
 
-/**
- * @property array $primaryKey
- * @property \Closure $valueGetter
- */
-class Record extends Nette\Object
+class Record
 {
+
+	use Nette\SmartObject;
+
 
 	/** @var array */
 	private $primaryKey = NULL;

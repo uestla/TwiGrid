@@ -17,8 +17,11 @@ use Nette\Utils\Random as NRandom;
 use Nette\Http\Session as NSession;
 
 
-abstract class Helpers extends Nette\Object
+abstract class Helpers
 {
+
+	use Nette\StaticClass;
+
 
 	/**
 	 * @param  array $array
@@ -95,23 +98,23 @@ abstract class Helpers extends Nette\Object
 	{
 		if ($mode === self::SORT_LINK_SINGLE) {
 			$by = array();
-			if (!$column->sortedBy || count($grid->orderBy) > 1) {
-				$by[$column->name] = Column::ASC;
+			if (!$column->isSortedBy() || count($grid->orderBy) > 1) {
+				$by[$column->getName()] = Column::ASC;
 
-			} elseif ($column->sortedBy && $column->sortDir === Column::ASC) {
-				$by[$column->name] = Column::DESC;
+			} elseif ($column->isSortedBy() && $column->getSortDir() === Column::ASC) {
+				$by[$column->getName()] = Column::DESC;
 			}
 
 		} elseif ($mode === self::SORT_LINK_MULTI) {
 			$by = $grid->orderBy;
-			if (!$column->sortedBy) {
-				$by[$column->name] = Column::ASC;
+			if (!$column->isSortedBy()) {
+				$by[$column->getName()] = Column::ASC;
 
-			} elseif ($column->sortDir === Column::ASC) {
-				$by[$column->name] = Column::DESC;
+			} elseif ($column->getSortDir() === Column::ASC) {
+				$by[$column->getName()] = Column::DESC;
 
 			} else {
-				unset($by[$column->name]);
+				unset($by[$column->getName()]);
 			}
 		}
 
@@ -184,8 +187,8 @@ abstract class Helpers extends Nette\Object
 	 */
 	private static function loadCsrfToken(NSession $session, $namespace)
 	{
-		$session = static::getCsrfTokenSession($session, $namespace);
-		return isset($session->token) ? $session->token : NULL;
+		$section = static::getCsrfTokenSession($session, $namespace);
+		return isset($section->token) ? $section->token : NULL;
 	}
 
 }

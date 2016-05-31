@@ -16,16 +16,6 @@ use Nette\Localization\ITranslator;
 use Nette\Utils\Callback as NCallback;
 
 
-/**
- * @property-read \ArrayIterator|NULL $columns
- * @property-read array $columnNames
- * @property-read \ArrayIterator|NULL $rowActions
- * @property-read \ArrayIterator|NULL $groupActions
- * @property-read mixed $data
- * @property-read int|NULL $pageCount
- * @property-read int|NULL $itemCount
- * @property-read int|NULL $itemsPerPage
- */
 class DataGrid extends Nette\Application\UI\Control
 {
 
@@ -141,7 +131,7 @@ class DataGrid extends Nette\Application\UI\Control
 	{
 		$this->build();
 		parent::attached($presenter);
-		$this->sessNamespace = __CLASS__ . '-' . $this->name;
+		$this->sessNamespace = __CLASS__ . '-' . $this->getName();
 		!isset($this->presenter->payload->twiGrid) && ($this->presenter->payload->twiGrid['forms'] = $this->presenter->payload->twiGrid = array());
 	}
 
@@ -212,7 +202,7 @@ class DataGrid extends Nette\Application\UI\Control
 			throw new Nette\InvalidStateException("Data loader not set.");
 		}
 
-		if ($this->getRecord()->primaryKey === NULL) {
+		if ($this->getRecord()->getPrimaryKey() === NULL) {
 			throw new Nette\InvalidStateException("Primary key not set.");
 		}
 
@@ -336,8 +326,8 @@ class DataGrid extends Nette\Application\UI\Control
 	public function handleRowAction($action, $primary, $token = NULL)
 	{
 		$a = $this['rowActions']->getComponent($action);
-		if (!$a->protected || Helpers::checkCsrfToken($this->session, $this->sessNamespace, $token)) {
-			NCallback::invoke($a->callback, Helpers::findRecord($this->getData(), $primary, $this->getRecord()));
+		if (!$a->isProtected() || Helpers::checkCsrfToken($this->session, $this->sessNamespace, $token)) {
+			NCallback::invoke($a->getCallback(), Helpers::findRecord($this->getData(), $primary, $this->getRecord()));
 			$this->refreshState();
 			$this->redraw(TRUE, TRUE, 'body', 'footer');
 
@@ -714,7 +704,7 @@ class DataGrid extends Nette\Application\UI\Control
 	/** @return DataGrid */
 	public function addGroupActionCheckboxes()
 	{
-		$this->groupActions !== NULL
+		$this->getGroupActions() !== NULL
 			&& $this->addGroupActionButtons()
 			&& $this['form']->addGroupActionCheckboxes([$this->getRecord(), 'primaryToString']);
 
@@ -725,7 +715,7 @@ class DataGrid extends Nette\Application\UI\Control
 	/** @return DataGrid */
 	public function addGroupActionButtons()
 	{
-		$this->groupActions !== NULL
+		$this->getGroupActions() !== NULL
 			&& $this['form']->addGroupActionButtons($this->getGroupActions());
 
 		return $this;

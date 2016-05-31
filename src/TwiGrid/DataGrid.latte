@@ -145,12 +145,12 @@
 
 {define header-cell}
 
-	<th n:class='header-cell, "header-cell-{$column->name}"'>
-{var $params = [column => $column], $indent = $column->sortable ? 2 : 1}
+	<th n:class='header-cell, "header-cell-{$column->getName()}"'>
+{var $params = [column => $column], $indent = $column->isSortable() ? 2 : 1}
 
 {block |indent:$indent}
-<a href="{$sortLink}" n:class='sort, "sort-{$column->name}", tw-ajax' n:tag-if="$column->sortable">
-	{$column->label}
+<a href="{$sortLink}" n:class='sort, "sort-{$column->getName()}", tw-ajax' n:tag-if="$column->isSortable()">
+	{$column->getLabel()}
 </a>
 {/block}
 {include #sort-labels, (expand) get_defined_vars() |indent:1}
@@ -162,14 +162,14 @@
 {* === ... ============================================ *}
 
 {define sort-labels}
-	<span n:class="glyphicon, $column->sortDir === TwiGrid\Components\Column::DESC ? glyphicon-chevron-down : glyphicon-chevron-up"
-	   n:if="$column->sortedBy"></span>
+	<span n:class="glyphicon, $column->getSortDir() === TwiGrid\Components\Column::DESC ? glyphicon-chevron-down : glyphicon-chevron-up"
+	   n:if="$column->isSortedBy()"></span>
 
 	<div class="pull-right" n:if="$grid->hasMultiSort()">
-	{if $column->sortedBy}
-		<span class="badge" n:if="count($grid->orderBy) > 1">{$column->sortIndex + 1}</span>
+	{if $column->isSortedBy()}
+		<span class="badge" n:if="count($grid->orderBy) > 1">{$column->getSortIndex() + 1}</span>
 	{/if}
-		<a href="{$multiSortLink}" class="multi-sort btn btn-xs btn-primary tw-ajax" n:if="$column->sortable">
+		<a href="{$multiSortLink}" class="multi-sort btn btn-xs btn-primary tw-ajax" n:if="$column->isSortable()">
 			<sup class="glyphicon glyphicon-plus-sign"></sup>
 		</a>
 	</div>
@@ -338,8 +338,8 @@
 {* === ... ============================================ *}
 
 {define row-action}
-	<a href="{$link}" class="btn btn-primary btn-sm tw-ajax" n:attr="data-tw-confirm => $action->confirmation">
-		{$action->label}
+	<a href="{$link}" class="btn btn-primary btn-sm tw-ajax" n:attr="data-tw-confirm => $action->getConfirmation()">
+		{$action->getLabel()}
 	</a>
 {/define}
 
@@ -352,14 +352,14 @@
 
 {capture $footerInfo}{include #footer-info |indent:3}{/capture}
 
-		<tr n:if="$grid->hasData() && (strlen(trim($footerInfo)) || $hasGroupActions || $grid->pageCount > 1)">
+		<tr n:if="$grid->hasData() && (strlen(trim($footerInfo)) || $hasGroupActions || $grid->getPageCount() > 1)">
 			<td colspan="{$columnCount}" class="container footer-cell">
 				<div class="row">
 			{if $hasGroupActions}
 {include #group-action-buttons |indent:4}
 			{/if}
 
-			{if $grid->pageCount > 1}
+			{if $grid->getPageCount() > 1}
 {include #pagination |indent:4}
 			{/if}
 
@@ -378,7 +378,7 @@
 {define group-action-buttons}
 {php $grid->addGroupActionButtons() }
 
-	<div n:class="$isPaginated ? ($grid->pageCount <= 1 ? col-xs-8 : col-xs-4) : col-xs-12">
+	<div n:class="$isPaginated ? ($grid->getPageCount() <= 1 ? col-xs-8 : col-xs-4) : col-xs-12">
 
 {include #group-action-buttons-label |indent:1}
 
@@ -403,7 +403,7 @@
 {* === ... ============================================ *}
 
 {define group-action-button}
-	<input n:name="'actions-buttons-' . $name" class="btn btn-default" n:attr="data-tw-confirm => $action->confirmation">
+	<input n:name="'actions-buttons-' . $name" class="btn btn-default" n:attr="data-tw-confirm => $action->getConfirmation()">
 {/define}
 
 
@@ -419,11 +419,11 @@
 		</a>
 
 		<div class="actual">
-			<select n:name="pagination-controls-page" class="form-control"></select> / {$grid->pageCount}
+			<select n:name="pagination-controls-page" class="form-control"></select> / {$grid->getPageCount()}
 			<input n:name="pagination-buttons-change" class="js-hid btn btn-default">
 		</div>
 
-		<a n:href="paginate!, p => min($grid->pageCount, $grid->page + 1)" n:class="btn, btn-default, $grid->page === $grid->pageCount ? disabled, tw-ajax">
+		<a n:href="paginate!, p => min($grid->getPageCount(), $grid->page + 1)" n:class="btn, btn-default, $grid->page === $grid->getPageCount() ? disabled, tw-ajax">
 			{_'Next'}
 		</a>
 	</div>
@@ -433,8 +433,8 @@
 {* === ... ============================================ *}
 
 {define footer-info}
-	<div n:class="!$hasGroupActions && $grid->pageCount <= 1 ? col-xs-12 : col-xs-4, right" n:if="$isPaginated">
-		{($grid->page - 1) * $grid->itemsPerPage + 1}-{min($grid->itemCount, ($grid->page - 1) * $grid->itemsPerPage + $grid->itemsPerPage)} / {_'%d items', $grid->itemCount}
+	<div n:class="!$hasGroupActions && $grid->getPageCount() <= 1 ? col-xs-12 : col-xs-4, right" n:if="$isPaginated">
+		{($grid->page - 1) * $grid->getItemsPerPage() + 1}-{min($grid->getItemCount(), ($grid->page - 1) * $grid->getItemsPerPage() + $grid->getItemsPerPage())} / {_'%d items', $grid->getItemCount()}
 	</div>
 {/define}
 

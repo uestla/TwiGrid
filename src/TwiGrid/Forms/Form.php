@@ -12,15 +12,11 @@
 namespace TwiGrid\Forms;
 
 use Nette;
+use TwiGrid\Record;
 use TwiGrid\Helpers;
 use Nette\Utils\Callback as NCallback;
 
 
-/**
- * @property-read array|NULL $filterCriteria
- * @property-read array|NULL $inlineValues
- * @property-read int $page
- */
 class Form extends Nette\Application\UI\Form
 {
 
@@ -71,7 +67,7 @@ class Form extends Nette\Application\UI\Form
 	{
 		if (!$this->lazyCreateContainer('actions', 'records', $records)) {
 			$i = 0;
-			foreach ($this->parent->data as $record) {
+			foreach ($this->getParent()->getData() as $record) {
 				$records->addComponent($c = new PrimaryCheckbox, $i);
 				$c->setPrimary($primaryToString($record));
 				$i++ === 0 && $c->addRule(__CLASS__ . '::validateCheckedCount', 'Choose at least one record.');
@@ -94,7 +90,7 @@ class Form extends Nette\Application\UI\Form
 	{
 		if (!$this->lazyCreateContainer('actions', 'buttons', $buttons)) {
 			foreach ($actions as $name => $action) {
-				$buttons->addSubmit($name, $action->label);
+				$buttons->addSubmit($name, $action->getLabel());
 			}
 		}
 
@@ -115,7 +111,7 @@ class Form extends Nette\Application\UI\Form
 			$checked = array();
 			foreach ($this['actions']['records']->components as $checkbox) {
 				if ($checkbox->value) {
-					$checked[] = $checkbox->primary;
+					$checked[] = $checkbox->getPrimary();
 				}
 			}
 
@@ -128,13 +124,13 @@ class Form extends Nette\Application\UI\Form
 
 	/**
 	 * @param  array|\Traversable $data
-	 * @param  \TwiGrid\Record $record
+	 * @param  Record $record
 	 * @param  \Closure $primaryToString
 	 * @param  \Closure $containerFactory
 	 * @param  string|NULL $iePrimary
 	 * @return Form
 	 */
-	public function addInlineEditControls($data, \TwiGrid\Record $record, callable $containerFactory, $iePrimary)
+	public function addInlineEditControls($data, Record $record, callable $containerFactory, $iePrimary)
 	{
 		if (!$this->lazyCreateContainer('inline', 'buttons', $buttons)) {
 			foreach ($data as $r) {

@@ -14,13 +14,6 @@ namespace TwiGrid\Components;
 use Nette;
 
 
-/**
- * @property-read string $label
- * @property bool $sortable
- * @property bool $sortedBy
- * @property-read bool $sortDir
- * @property-read int $sortIndex
- */
 class Column extends Component
 {
 
@@ -87,7 +80,7 @@ class Column extends Component
 	public function setSortedBy($bool = TRUE, $sortDir = self::ASC, $sortIndex = 0)
 	{
 		if (!$this->sortable) {
-			throw new Nette\InvalidStateException("Column '{$this->name}' is not sortable.");
+			throw new Nette\InvalidStateException("Column '{$this->getName()}' is not sortable.");
 		}
 
 		$this->sortedBy = (bool) $bool;

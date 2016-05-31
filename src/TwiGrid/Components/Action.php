@@ -14,11 +14,6 @@ namespace TwiGrid\Components;
 use Nette;
 
 
-/**
- * @property-read string $label
- * @property-read \Closure $callback
- * @property string|NULL $confirmation
- */
 class Action extends Component
 {
 

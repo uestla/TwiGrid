@@ -15,7 +15,6 @@ use Nette;
 use TwiGrid\DataGrid;
 
 
-/** @property-read DataGrid $dataGrid */
 abstract class Component extends Nette\ComponentModel\Component
 {
 

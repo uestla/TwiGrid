@@ -14,7 +14,6 @@ namespace TwiGrid\Forms;
 use Nette;
 
 
-/** @property string $primary */
 class PrimaryCheckbox extends Nette\Forms\Controls\Checkbox
 {
 
