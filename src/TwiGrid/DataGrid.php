@@ -43,7 +43,7 @@ class DataGrid extends Nette\Application\UI\Control
 	/** @var array */
 	private $defaultFilters = NULL;
 
-	/** @var \Closure */
+	/** @var callable */
 	private $filterFactory = NULL;
 
 
@@ -52,10 +52,10 @@ class DataGrid extends Nette\Application\UI\Control
 	/** @persistent string|NULL */
 	public $iePrimary = NULL;
 
-	/** @var \Closure */
+	/** @var callable */
 	private $ieContainerFactory = NULL;
 
-	/** @var \Closure */
+	/** @var callable */
 	private $ieProcessCallback = NULL;
 
 
@@ -67,7 +67,7 @@ class DataGrid extends Nette\Application\UI\Control
 	/** @var int */
 	private $itemsPerPage = NULL;
 
-	/** @var \Closure */
+	/** @var callable */
 	private $itemCounter = NULL;
 
 	/** @var int */
@@ -82,14 +82,11 @@ class DataGrid extends Nette\Application\UI\Control
 	/** @var Record */
 	private $record = NULL;
 
-	/** @var \Closure */
+	/** @var callable */
 	private $dataLoader = NULL;
 
 	/** @var array|\Traversable */
 	private $data = NULL;
-
-	/** @var bool */
-	private $hasData;
 
 
 	// === sessions ===========
@@ -298,13 +295,13 @@ class DataGrid extends Nette\Application\UI\Control
 	/**
 	 * @param  string $name
 	 * @param  string $label
-	 * @param  mixed $callback
+	 * @param  callable $callback
 	 * @return Components\RowAction
 	 */
-	public function addRowAction($name, $label, $callback)
+	public function addRowAction($name, $label, callable $callback)
 	{
 		!isset($this['rowActions']) && ($this['rowActions'] = new Nette\ComponentModel\Container);
-		$a = new Components\RowAction($label, NCallback::closure($callback));
+		$a = new Components\RowAction($label, $callback);
 		$this['rowActions']->addComponent($a, $name);
 		return $a;
 	}
@@ -341,13 +338,13 @@ class DataGrid extends Nette\Application\UI\Control
 	/**
 	 * @param  string $name
 	 * @param  string $label
-	 * @param  mixed $callback
+	 * @param  callable $callback
 	 * @return Components\Action
 	 */
-	public function addGroupAction($name, $label, $callback)
+	public function addGroupAction($name, $label, callable $callback)
 	{
 		!isset($this['groupActions']) && ($this['groupActions'] = new Nette\ComponentModel\Container);
-		$a = new Components\Action($label, NCallback::closure($callback));
+		$a = new Components\Action($label, $callback);
 		$this['groupActions']->addComponent($a, $name);
 		return $a;
 	}
@@ -414,12 +411,12 @@ class DataGrid extends Nette\Application\UI\Control
 	// === FILTERING ======================================================
 
 	/**
-	 * @param  mixed $factory
+	 * @param  callable $factory
 	 * @return DataGrid
 	 */
-	public function setFilterFactory($factory)
+	public function setFilterFactory(callable $factory)
 	{
-		$this->filterFactory = NCallback::closure($factory);
+		$this->filterFactory = $factory;
 		return $this;
 	}
 
@@ -478,12 +475,12 @@ class DataGrid extends Nette\Application\UI\Control
 
 
 	/**
-	 * @param  mixed $loader
+	 * @param  callable $loader
 	 * @return DataGrid
 	 */
-	public function setDataLoader($loader)
+	public function setDataLoader(callable $loader)
 	{
-		$this->dataLoader = NCallback::closure($loader);
+		$this->dataLoader = $loader;
 		return $this;
 	}
 
@@ -565,14 +562,14 @@ class DataGrid extends Nette\Application\UI\Control
 	// === INLINE EDITING ======================================================
 
 	/**
-	 * @param  mixed $containerCb
-	 * @param  mixed $processCb
+	 * @param  callable $containerCb
+	 * @param  callable $processCb
 	 * @return DataGrid
 	 */
-	public function setInlineEditing($containerCb, $processCb)
+	public function setInlineEditing(callable $containerCb, callable $processCb)
 	{
-		$this->ieContainerFactory = NCallback::closure($containerCb);
-		$this->ieProcessCallback = NCallback::closure($processCb);
+		$this->ieProcessCallback = $processCb;
+		$this->ieContainerFactory = $containerCb;
 	}
 
 
@@ -603,13 +600,13 @@ class DataGrid extends Nette\Application\UI\Control
 
 	/**
 	 * @param  int $itemsPerPage
-	 * @param  mixed $itemCounter
+	 * @param  callable $itemCounter
 	 * @return DataGrid
 	 */
-	public function setPagination($itemsPerPage, $itemCounter)
+	public function setPagination($itemsPerPage, callable $itemCounter)
 	{
 		$this->itemsPerPage = max(0, (int) $itemsPerPage);
-		$this->itemCounter = NCallback::closure($itemCounter);
+		$this->itemCounter = $itemCounter;
 		return $this;
 	}
 
@@ -859,7 +856,7 @@ class DataGrid extends Nette\Application\UI\Control
 		$latte->addProvider('formsStack', [$template->form = $form = $this['form']]);
 		$this->presenter->payload->twiGrid['forms'][$form->elementPrototype->id] = (string) $form->getAction();
 		$template->columns = $this->getColumns();
-		$template->dataLoader = NCallback::closure($this, 'getData');
+		$template->dataLoader = [$this, 'getData'];
 		$template->csrfToken = Helpers::getCsrfToken($this->session, $this->sessNamespace);
 		$template->rowActions = $this->getRowActions();
 		$template->hasRowActions = $template->rowActions !== NULL;

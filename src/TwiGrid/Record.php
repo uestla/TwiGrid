@@ -24,7 +24,7 @@ class Record
 	/** @var array */
 	private $primaryKey = NULL;
 
-	/** @var \Closure */
+	/** @var callable */
 	private $valueGetter = NULL;
 
 
@@ -50,17 +50,17 @@ class Record
 
 
 	/**
-	 * @param  mixed $callback
+	 * @param  callable $callback
 	 * @return DataGrid
 	 */
-	public function setValueGetter($callback)
+	public function setValueGetter(callable $callback)
 	{
-		$this->valueGetter = NCallback::closure($callback);
+		$this->valueGetter = $callback;
 		return $this;
 	}
 
 
-	/** @return \Closure */
+	/** @return callable */
 	public function getValueGetter()
 	{
 		$this->valueGetter === NULL && $this->setValueGetter(function ($record, $column, $need) {

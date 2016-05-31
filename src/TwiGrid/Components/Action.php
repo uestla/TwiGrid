@@ -20,7 +20,7 @@ class Action extends Component
 	/** @var string */
 	private $label;
 
-	/** @var \Closure */
+	/** @var callable */
 	private $callback;
 
 	/** @var string */
@@ -29,9 +29,9 @@ class Action extends Component
 
 	/**
 	 * @param  string $label
-	 * @param  \Closure $callback
+	 * @param  callable $callback
 	 */
-	public function __construct($label, \Closure $callback)
+	public function __construct($label, callable $callback)
 	{
 		parent::__construct();
 
@@ -47,7 +47,7 @@ class Action extends Component
 	}
 
 
-	/** @return \Closure */
+	/** @return callable */
 	public function getCallback()
 	{
 		return $this->callback;

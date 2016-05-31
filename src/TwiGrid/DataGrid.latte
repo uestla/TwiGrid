@@ -6,7 +6,7 @@
  * @param  array $flashes
  * @param  TwiGrid\Forms\Form $form
  * @param  ArrayIterator $columns
- * @param  Nette\Callback $dataLoader
+ * @param  callable $dataLoader
  * @param  string $csrfToken
  * @param  \ArrayIterator|NULL $rowActions
  * @param  bool $hasRowActions
@@ -217,7 +217,7 @@
 
 	{if}{php $grid->addGroupActionCheckboxes(); $grid->addInlineEditControls() }
 
-	{foreach $dataLoader() as $record}
+	{foreach Nette\Utils\Callback::invoke($dataLoader) as $record}
 		{var $primaryString = ($record |primaryToString),
 			$isInlineEdited = $hasInlineEdit && $iePrimary === $primaryString}
 		<tr n:class="$isInlineEdited ? success">

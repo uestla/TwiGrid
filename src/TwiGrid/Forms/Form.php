@@ -21,7 +21,7 @@ class Form extends Nette\Application\UI\Form
 {
 
 	/**
-	 * @param  \Closure $factory
+	 * @param  callable $factory
 	 * @param  array $defaults
 	 * @return Form
 	 */
@@ -60,7 +60,7 @@ class Form extends Nette\Application\UI\Form
 
 
 	/**
-	 * @param  \Closure $primaryToString
+	 * @param  callable $primaryToString
 	 * @return Form
 	 */
 	public function addGroupActionCheckboxes(callable $primaryToString)
@@ -69,7 +69,7 @@ class Form extends Nette\Application\UI\Form
 			$i = 0;
 			foreach ($this->getParent()->getData() as $record) {
 				$records->addComponent($c = new PrimaryCheckbox, $i);
-				$c->setPrimary($primaryToString($record));
+				$c->setPrimary(NCallback::invoke($primaryToString, $record));
 				$i++ === 0 && $c->addRule(__CLASS__ . '::validateCheckedCount', 'Choose at least one record.');
 			}
 		}
@@ -99,7 +99,7 @@ class Form extends Nette\Application\UI\Form
 
 
 	/**
-	 * @param  \Closure $primaryToString
+	 * @param  callable $primaryToString
 	 * @return array|NULL
 	 */
 	public function getCheckedRecords(callable $primaryToString)
@@ -125,8 +125,7 @@ class Form extends Nette\Application\UI\Form
 	/**
 	 * @param  array|\Traversable $data
 	 * @param  Record $record
-	 * @param  \Closure $primaryToString
-	 * @param  \Closure $containerFactory
+	 * @param  callable $containerFactory
 	 * @param  string|NULL $iePrimary
 	 * @return Form
 	 */
@@ -196,7 +195,7 @@ class Form extends Nette\Application\UI\Form
 	 * @param  string $parent
 	 * @param  string $name
 	 * @param  mixed $container
-	 * @param  \Closure|NULL $factory
+	 * @param  callable $factory
 	 * @return bool does container already exist?
 	 */
 	protected function lazyCreateContainer($parent, $name, & $container = NULL, callable $factory = NULL)
