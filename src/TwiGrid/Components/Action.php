@@ -14,6 +14,12 @@ namespace TwiGrid\Components;
 use Nette;
 
 
+/**
+ * Class Action
+ * @package TwiGrid\Components
+ * @property string $label
+ * @property string $confirmation
+ */
 class Action extends Component
 {
 
