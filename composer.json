@@ -17,12 +17,13 @@
 		"php": ">= 5.6.0",
 		"nette/http": "^2.3",
 		"nette/forms": "^2.3",
-		"nette/utils": "^2.3",
+		"nette/utils": "^2.4",
 		"nette/application": "^2.3"
 	},
 	"autoload": {
 		"psr-0": {
 			"TwiGrid": "src/"
 		}
-	}
+	},
+	"minimum-stability": "dev"
 }
