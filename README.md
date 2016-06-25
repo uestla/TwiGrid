@@ -133,7 +133,7 @@ Let's see how many steps do we have to make to create our first datagrid.
 
 	```
 	services:
-		- { implement: IUsersGridFactory }
+		- implement: IUsersGridFactory
 	```
 
 7. Having all of this done, we can now simply inject our grid factory into `HomepagePresenter`.
