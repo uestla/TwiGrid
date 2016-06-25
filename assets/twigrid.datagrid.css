@@ -56,14 +56,6 @@
 
 
 
-/* === buttons ================ */
-
-.tw-cnt .btn-group {
-	white-space: nowrap;
-}
-
-
-
 /* === form controls ================ */
 
 .tw-cnt select, .tw-cnt input[type="text"], .tw-cnt input[type="date"], .tw-cnt textarea {
