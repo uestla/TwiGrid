@@ -28,8 +28,8 @@ Let's see how many steps do we have to make to create our first datagrid.
 	We need client-side javascripts and stylesheets, so we'll copy these files:
 
 	```
-	- vendor/uestla/twigrid/client-side/twigrid.datagrid.js
-	- vendor/uestla/twigrid/client-side/twigrid.datagrid.css
+	- vendor/uestla/twigrid/assets/twigrid.datagrid.js
+	- vendor/uestla/twigrid/assets/twigrid.datagrid.css
 	```
 
 	And paste them in
