@@ -66,7 +66,8 @@ class Record
 		$this->valueGetter === NULL && $this->setValueGetter(function ($record, $column, $need) {
 			if (!isset($record->$column)) {
 				if ($need) {
-					throw new Nette\InvalidArgumentException("The value of column '$column' not found in the record.");
+					throw new Nette\InvalidArgumentException("Field '$column' not found in record of type "
+						. (is_object($record) ? get_class($record) : gettype($record)) . ".");
 				}
 
 				return NULL;
