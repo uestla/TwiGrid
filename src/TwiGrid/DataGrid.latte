@@ -217,7 +217,7 @@
 
 	{if}{php $grid->addGroupActionCheckboxes(); $grid->addInlineEditControls() }
 
-	{foreach Nette\Utils\Callback::invoke($dataLoader) as $record}
+	{foreach $dataLoader() as $record}
 		{var $primaryString = ($record |primaryToString),
 			$isInlineEdited = $hasInlineEdit && $iePrimary === $primaryString}
 		<tr n:class="$isInlineEdited ? success">
