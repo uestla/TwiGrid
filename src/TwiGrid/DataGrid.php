@@ -26,7 +26,7 @@ class DataGrid extends Nette\Application\UI\Control
 	// === sorting ===========
 
 	/** @persistent array */
-	public $orderBy = array();
+	public $orderBy = [];
 
 	/** @var array */
 	private $defaultOrderBy = NULL;
@@ -38,7 +38,7 @@ class DataGrid extends Nette\Application\UI\Control
 	// === filtering ===========
 
 	/** @persistent array */
-	public $filters = array();
+	public $filters = [];
 
 	/** @var array */
 	private $defaultFilters = NULL;
@@ -129,7 +129,7 @@ class DataGrid extends Nette\Application\UI\Control
 		$this->build();
 		parent::attached($presenter);
 		$this->sessNamespace = __CLASS__ . '-' . $this->getName();
-		!isset($this->presenter->payload->twiGrid) && ($this->presenter->payload->twiGrid['forms'] = $this->presenter->payload->twiGrid = array());
+		!isset($this->presenter->payload->twiGrid) && ($this->presenter->payload->twiGrid['forms'] = $this->presenter->payload->twiGrid = []);
 	}
 
 
@@ -381,9 +381,9 @@ class DataGrid extends Nette\Application\UI\Control
 			$this->defaultOrderBy = $column;
 
 		} else {
-			$this->defaultOrderBy = array(
+			$this->defaultOrderBy = [
 				(string) $column => (bool) $dir,
-			);
+			];
 		}
 
 		return $this;
@@ -497,12 +497,12 @@ class DataGrid extends Nette\Application\UI\Control
 				}
 			}
 
-			$args = array(
+			$args = [
 				$this,
 				$this->getColumnNames(),
 				$this->filters,
 				$order,
-			);
+			];
 
 			if ($this->itemsPerPage !== NULL) { // validate page & append limit & offset
 				$this->initPagination();
@@ -785,7 +785,7 @@ class DataGrid extends Nette\Application\UI\Control
 				($criteria = $form->getFilterCriteria()) !== NULL && $this->setFilters($criteria);
 
 			} elseif ("$path-$name" === 'filters-buttons-reset') {
-				$this->setFilters(array());
+				$this->setFilters([]);
 				$this->defaultFilters !== NULL && ($this->polluted = TRUE);
 
 			} elseif ("$path-$name" === 'pagination-buttons-change') {
@@ -793,7 +793,7 @@ class DataGrid extends Nette\Application\UI\Control
 
 			} elseif ($path === 'actions-buttons') {
 				if (($checked = $form->getCheckedRecords([$this->getRecord(), 'primaryToString'])) !== NULL) {
-					$records = array();
+					$records = [];
 					foreach ($checked as $primaryString) {
 						($record = Helpers::findRecord($this->getData(), $primaryString, $this->getRecord())) !== NULL && ($records[] = $record);
 					}

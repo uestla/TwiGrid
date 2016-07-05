@@ -130,7 +130,7 @@ class Record
 	 */
 	protected function getPrimary($record)
 	{
-		$primaries = array();
+		$primaries = [];
 		foreach ($this->primaryKey as $column) {
 			$primaries[$column] = (string) $this->getValue($record, $column); // intentional string conversion due to later comparison
 		}

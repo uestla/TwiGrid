@@ -31,7 +31,7 @@ class Form extends Nette\Application\UI\Form
 			$criteria->setDefaults($defaults);
 		}
 
-		$this['filters']['buttons']['filter']->setValidationScope(array($this['filters']['criteria']));
+		$this['filters']['buttons']['filter']->setValidationScope([$this['filters']['criteria']]);
 		return $this;
 	}
 
@@ -44,7 +44,7 @@ class Form extends Nette\Application\UI\Form
 	{
 		if (!$this->lazyCreateContainer('filters', 'buttons', $buttons)) {
 			$buttons->addSubmit('filter', 'Filter');
-			$hasFilters && $buttons->addSubmit('reset', 'Cancel')->setValidationScope(array());
+			$hasFilters && $buttons->addSubmit('reset', 'Cancel')->setValidationScope([]);
 		}
 
 		return $this;
@@ -75,7 +75,7 @@ class Form extends Nette\Application\UI\Form
 		}
 
 		foreach ($this['actions']['buttons']->components as $button) {
-			$button->setValidationScope(array($this['actions']['records']));
+			$button->setValidationScope([$this['actions']['records']]);
 		}
 
 		return $this;
@@ -108,7 +108,7 @@ class Form extends Nette\Application\UI\Form
 
 		$this->validate();
 		if ($this->isValid()) {
-			$checked = array();
+			$checked = [];
 			foreach ($this['actions']['records']->components as $checkbox) {
 				if ($checkbox->value) {
 					$checked[] = $checkbox->getPrimary();
@@ -136,13 +136,13 @@ class Form extends Nette\Application\UI\Form
 				if ($record->is($r, $iePrimary)) {
 					$this['inline']['values'] = $containerFactory($r);
 					$buttons->addSubmit('edit', 'Edit')
-							->setValidationScope(array($this['inline']['values']));
+							->setValidationScope([$this['inline']['values']]);
 
-					$buttons->addSubmit('cancel', 'Cancel')->setValidationScope(array());
+					$buttons->addSubmit('cancel', 'Cancel')->setValidationScope([]);
 
 				} else {
 					$buttons->addComponent($ab = new PrimarySubmitButton('Edit inline'), $record->primaryToString($r));
-					$ab->setPrimary($record->primaryToString($r))->setValidationScope(array());
+					$ab->setPrimary($record->primaryToString($r))->setValidationScope([]);
 				}
 
 			}
@@ -177,7 +177,7 @@ class Form extends Nette\Application\UI\Form
 
 		if (!$this->lazyCreateContainer('pagination', 'buttons', $buttons)) {
 			$buttons->addSubmit('change', 'Change page')
-				->setValidationScope(array($this['pagination']['controls']));
+				->setValidationScope([$this['pagination']['controls']]);
 		}
 
 		return $this;

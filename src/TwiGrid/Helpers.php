@@ -43,7 +43,7 @@ abstract class Helpers
 	 */
 	public static function filterEmpty(array $a)
 	{
-		$ret = array();
+		$ret = [];
 		foreach ($a as $k => $v) {
 			if (is_array($v)) { // recursive
 				if (count($tmp = static::filterEmpty($v))) {
@@ -97,7 +97,7 @@ abstract class Helpers
 	public static function createSortLink(DataGrid $grid, Column $column, $mode = self::SORT_LINK_SINGLE)
 	{
 		if ($mode === self::SORT_LINK_SINGLE) {
-			$by = array();
+			$by = [];
 			if (!$column->isSortedBy() || count($grid->orderBy) > 1) {
 				$by[$column->getName()] = Column::ASC;
 
@@ -118,9 +118,9 @@ abstract class Helpers
 			}
 		}
 
-		return $grid->link('sort!', array(
+		return $grid->link('sort!', [
 			'orderBy' => $by,
-		));
+		]);
 	}
 
 
