@@ -282,14 +282,6 @@ class DataGrid extends Nette\Application\UI\Control
 	}
 
 
-	/** @return array */
-	public function getColumnNames()
-	{
-		$names = array_keys(iterator_to_array($this->getColumns()));
-		return array_merge(array_combine($this->getRecord()->getPrimaryKey(), $this->getRecord()->getPrimaryKey()), $names);
-	}
-
-
 	// === ACTIONS ======================================================
 
 	/**
@@ -499,7 +491,6 @@ class DataGrid extends Nette\Application\UI\Control
 
 			$args = [
 				$this,
-				$this->getColumnNames(),
 				$this->filters,
 				$order,
 			];
@@ -632,7 +623,7 @@ class DataGrid extends Nette\Application\UI\Control
 	protected function initPagination()
 	{
 		if ($this->itemCount === NULL) {
-			$this->itemCount = max(0, (int) NCallback::invoke($this->itemCounter, $this, $this->getColumnNames(), $this->filters));
+			$this->itemCount = max(0, (int) NCallback::invoke($this->itemCounter, $this, $this->filters));
 			$this->pageCount = (int) ceil($this->itemCount / $this->itemsPerPage);
 			$this->page = Helpers::fixPage($this->page, $this->pageCount);
 		}
