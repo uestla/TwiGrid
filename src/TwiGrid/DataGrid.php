@@ -109,6 +109,9 @@ class DataGrid extends Nette\Application\UI\Control
 	/** @var string */
 	private $templateFile = NULL;
 
+	/** @var string */
+	private $recordVariable = 'record';
+
 
 	// === LIFE CYCLE ======================================================
 
@@ -825,6 +828,17 @@ class DataGrid extends Nette\Application\UI\Control
 	}
 
 
+	/**
+	 * @param  string $name
+	 * @return DataGrid
+	 */
+	public function setRecordVariable($name)
+	{
+		$this->recordVariable = (string) $name;
+		return $this;
+	}
+
+
 	/** @return void */
 	public function render()
 	{
@@ -849,6 +863,7 @@ class DataGrid extends Nette\Application\UI\Control
 		$this->presenter->payload->twiGrid['forms'][$form->elementPrototype->id] = (string) $form->getAction();
 		$template->columns = $this->getColumns();
 		$template->dataLoader = [$this, 'getData'];
+		$template->recordVariable = $this->recordVariable;
 		$template->csrfToken = Helpers::getCsrfToken($this->session, $this->sessNamespace);
 		$template->rowActions = $this->getRowActions();
 		$template->hasRowActions = $template->rowActions !== NULL;

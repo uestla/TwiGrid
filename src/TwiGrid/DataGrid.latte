@@ -7,6 +7,7 @@
  * @param  TwiGrid\Forms\Form $form
  * @param  ArrayIterator $columns
  * @param  callable $dataLoader
+ * @param  string $recordVariable
  * @param  string $csrfToken
  * @param  \ArrayIterator|NULL $rowActions
  * @param  bool $hasRowActions
@@ -228,7 +229,7 @@
 
 		{foreach $columns as $name => $column}
 {var $params = [
-	record => $record,
+	$recordVariable => $record,
 	isInlineEdited => $isInlineEdited,
 	column => $name,
 	value => ($record |getValue:$name:FALSE)
@@ -250,7 +251,7 @@
 
 			<td n:if="$hasFilters || $hasRowActions || $hasInlineEdit" class="body-cell center">
 			{if $hasRowActions || $hasInlineEdit}
-{include #row-actions, i => $iterator->counter - 1, record => $record, isInlineEdited => $isInlineEdited, primaryString => $primaryString |indent:3}
+{include #row-actions, i => $iterator->counter - 1, $recordVariable => $$recordVariable, isInlineEdited => $isInlineEdited, primaryString => $primaryString |indent:3}
 
 			{else}
 				&nbsp;
@@ -308,7 +309,7 @@
 {var $params = [
 	name => $name,
 	action => $action,
-	record => $record,
+	$recordVariable => $$recordVariable,
 	link => $grid->link('rowAction!', [
 		action => $name,
 		primary => $primaryString,
