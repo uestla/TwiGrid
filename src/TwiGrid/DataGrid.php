@@ -195,19 +195,19 @@ class DataGrid extends Nette\Application\UI\Control
 	protected function validateState()
 	{
 		if ($this->getColumns() === NULL) {
-			throw new Nette\InvalidStateException("No columns set.");
+			throw new Nette\InvalidStateException('No columns set.');
 		}
 
 		if ($this->dataLoader === NULL) {
-			throw new Nette\InvalidStateException("Data loader not set.");
+			throw new Nette\InvalidStateException('Data loader not set.');
 		}
 
 		if ($this->getRecord()->getPrimaryKey() === NULL) {
-			throw new Nette\InvalidStateException("Primary key not set.");
+			throw new Nette\InvalidStateException('Primary key not set.');
 		}
 
 		if ($this->iePrimary !== NULL && $this->ieContainerFactory === NULL) {
-			throw new Nette\InvalidStateException("Inline editing not properly set.");
+			throw new Nette\InvalidStateException('Inline editing not properly set.');
 		}
 	}
 
@@ -423,7 +423,7 @@ class DataGrid extends Nette\Application\UI\Control
 	public function setDefaultFilters(array $filters)
 	{
 		if ($this->filterFactory === NULL) {
-			throw new Nette\InvalidStateException("Filter factory not set.");
+			throw new Nette\InvalidStateException('Filter factory not set.');
 		}
 
 		$this->defaultFilters = $filters;
