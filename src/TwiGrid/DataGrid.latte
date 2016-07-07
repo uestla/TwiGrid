@@ -287,7 +287,7 @@
 {* === ... ============================================ *}
 
 {define body-cell}
-	<td n:class='body-cell, "body-cell-{$column}"'>{$record |getValue:$name:FALSE}</td>
+	<td n:class='body-cell, "body-cell-{$column}"'>{$$recordVariable |getValue:$column:FALSE}</td>
 {/define}
 
 
