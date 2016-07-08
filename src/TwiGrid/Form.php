@@ -3,21 +3,22 @@
 /**
  * This file is part of the TwiGrid component
  *
- * Copyright (c) 2013, 2014 Petr Kessler (http://kesspess.1991.cz)
+ * Copyright (c) 2013-2016 Petr Kessler (http://kesspess.1991.cz)
  *
  * @license  MIT
  * @link     https://github.com/uestla/twigrid
  */
 
-namespace TwiGrid\Forms;
+namespace TwiGrid;
 
-use Nette;
-use TwiGrid\Record;
-use TwiGrid\Helpers;
-use Nette\Utils\Callback as NCallback;
+use Nette\Forms\Controls\Checkbox;
+use Nette\Forms\Controls\SubmitButton;
+use Nette\Application\UI\Form as NForm;
+use Nette\Utils\ArrayHash as NArrayHash;
+use Nette\Forms\Container as NContainer;
 
 
-class Form extends Nette\Application\UI\Form
+class Form extends NForm
 {
 
 	/**
@@ -27,7 +28,7 @@ class Form extends Nette\Application\UI\Form
 	 */
 	public function addFilterCriteria(callable $factory, array $defaults)
 	{
-		if (!$this->lazyCreateContainer('filters', 'criteria', $criteria, $factory)) {
+		if ($this->lazyCreateContainer('filters', 'criteria', $criteria, $factory)) {
 			$criteria->setDefaults($defaults);
 		}
 
@@ -42,9 +43,12 @@ class Form extends Nette\Application\UI\Form
 	 */
 	public function addFilterButtons($hasFilters)
 	{
-		if (!$this->lazyCreateContainer('filters', 'buttons', $buttons)) {
+		if ($this->lazyCreateContainer('filters', 'buttons', $buttons)) {
 			$buttons->addSubmit('filter', 'Filter');
-			$hasFilters && $buttons->addSubmit('reset', 'Cancel')->setValidationScope([]);
+
+			if ($hasFilters) {
+				$buttons->addSubmit('reset', 'Cancel')->setValidationScope([]);
+			}
 		}
 
 		return $this;
@@ -55,7 +59,11 @@ class Form extends Nette\Application\UI\Form
 	public function getFilterCriteria()
 	{
 		$this->validate();
-		return $this->isValid() ? Helpers::filterEmpty($this['filters']['criteria']->getValues(TRUE)) : NULL;
+		if ($this->isValid()) {
+			return Helpers::filterEmpty($this['filters']['criteria']->getValues(TRUE));
+		}
+
+		return NULL;
 	}
 
 
@@ -65,16 +73,20 @@ class Form extends Nette\Application\UI\Form
 	 */
 	public function addGroupActionCheckboxes(callable $primaryToString)
 	{
-		if (!$this->lazyCreateContainer('actions', 'records', $records)) {
+		if ($this->lazyCreateContainer('actions', 'records', $records)) {
 			$i = 0;
 			foreach ($this->getParent()->getData() as $record) {
-				$records->addComponent($c = new PrimaryCheckbox, $i);
-				$c->setPrimary(NCallback::invoke($primaryToString, $record));
-				$i++ === 0 && $c->addRule(__CLASS__ . '::validateCheckedCount', 'Choose at least one record.');
+				$primary = $primaryToString($record);
+				$records[$primary] = $checkbox = new Checkbox;
+
+				if ($i++ === 0) {
+					$checkbox->addRule(__CLASS__ . '::validateCheckedCount', 'Choose at least one record.');
+				}
+
 			}
 		}
 
-		foreach ($this['actions']['buttons']->components as $button) {
+		foreach ($this['actions']['buttons']->getComponents() as $button) {
 			$button->setValidationScope([$this['actions']['records']]);
 		}
 
@@ -88,7 +100,7 @@ class Form extends Nette\Application\UI\Form
 	 */
 	public function addGroupActionButtons(\ArrayIterator $actions)
 	{
-		if (!$this->lazyCreateContainer('actions', 'buttons', $buttons)) {
+		if ($this->lazyCreateContainer('actions', 'buttons', $buttons)) {
 			foreach ($actions as $name => $action) {
 				$buttons->addSubmit($name, $action->getLabel());
 			}
@@ -108,14 +120,7 @@ class Form extends Nette\Application\UI\Form
 
 		$this->validate();
 		if ($this->isValid()) {
-			$checked = [];
-			foreach ($this['actions']['records']->components as $checkbox) {
-				if ($checkbox->value) {
-					$checked[] = $checkbox->getPrimary();
-				}
-			}
-
-			return $checked;
+			return array_keys(array_filter($this['actions']['records']->getValues(TRUE)));
 		}
 
 		return NULL;
@@ -131,18 +136,19 @@ class Form extends Nette\Application\UI\Form
 	 */
 	public function addInlineEditControls($data, Record $record, callable $containerFactory, $iePrimary)
 	{
-		if (!$this->lazyCreateContainer('inline', 'buttons', $buttons)) {
-			foreach ($data as $r) {
-				if ($record->is($r, $iePrimary)) {
-					$this['inline']['values'] = $containerFactory($r);
+		if ($this->lazyCreateContainer('inline', 'buttons', $buttons)) {
+			foreach ($data as $rec) {
+				if ($record->is($rec, $iePrimary)) {
+					$this['inline']['values'] = $containerFactory($rec);
 					$buttons->addSubmit('edit', 'Edit')
 							->setValidationScope([$this['inline']['values']]);
 
 					$buttons->addSubmit('cancel', 'Cancel')->setValidationScope([]);
 
 				} else {
-					$buttons->addComponent($ab = new PrimarySubmitButton('Edit inline'), $record->primaryToString($r));
-					$ab->setPrimary($record->primaryToString($r))->setValidationScope([]);
+					$submit = new SubmitButton('Edit inline');
+					$submit->setValidationScope([]);
+					$buttons[$record->primaryToString($rec)] = $submit;
 				}
 
 			}
@@ -152,7 +158,7 @@ class Form extends Nette\Application\UI\Form
 	}
 
 
-	/** @return Nette\Utils\ArrayHash|NULL */
+	/** @return NArrayHash|NULL */
 	public function getInlineValues()
 	{
 		$this->validate();
@@ -167,7 +173,7 @@ class Form extends Nette\Application\UI\Form
 	 */
 	public function addPaginationControls($current, $pageCount)
 	{
-		if (!$this->lazyCreateContainer('pagination', 'controls', $controls)) {
+		if ($this->lazyCreateContainer('pagination', 'controls', $controls)) {
 			$pages = range(1, $pageCount);
 
 			$controls->addSelect('page', 'Page', array_combine($pages, $pages))
@@ -175,7 +181,7 @@ class Form extends Nette\Application\UI\Form
 				->setDefaultValue($current);
 		}
 
-		if (!$this->lazyCreateContainer('pagination', 'buttons', $buttons)) {
+		if ($this->lazyCreateContainer('pagination', 'buttons', $buttons)) {
 			$buttons->addSubmit('change', 'Change page')
 				->setValidationScope([$this['pagination']['controls']]);
 		}
@@ -187,31 +193,33 @@ class Form extends Nette\Application\UI\Form
 	/** @return int */
 	public function getPage()
 	{
-		return (int) $this['pagination']['controls']['page']->value;
+		return (int) $this['pagination']['controls']['page']->getValue();
 	}
 
 
 	/**
 	 * @param  string $parent
 	 * @param  string $name
-	 * @param  mixed $container
+	 * @param  NContainer $container
 	 * @param  callable $factory
-	 * @return bool does container already exist?
+	 * @return bool has the container been created?
 	 */
-	protected function lazyCreateContainer($parent, $name, & $container = NULL, callable $factory = NULL)
+	protected function lazyCreateContainer($parent, $name, NContainer & $container = NULL, callable $factory = NULL)
 	{
-		!isset($this[$parent]) && $this->addContainer($parent);
+		if (!isset($this[$parent])) {
+			$this->addContainer($parent);
+		}
 
 		if (!isset($this[$parent][$name])) {
 			if ($factory !== NULL) {
-				$subc = NCallback::invoke($factory);
-				if (!$subc instanceof Nette\Forms\Container) {
-					$type = gettype($subc);
-					throw new Nette\InvalidArgumentException("Filter factory is expected to return Nette\Forms\Container, '"
-							. ($type === 'object' ? get_class($subc) : $type) . "' given.");
+				$subcontainer = $factory();
+
+				if (!$subcontainer instanceof NContainer) {
+					throw new \RuntimeException("Filter factory is expected to return " . NContainer::class . ", '"
+							. (is_object($subcontainer) ? get_class($subcontainer) : gettype($subcontainer)) . "' given.");
 				}
 
-				$this[$parent][$name] = $subc;
+				$this[$parent][$name] = $subcontainer;
 
 			} else {
 				$this[$parent]->addContainer($name);
@@ -221,17 +229,17 @@ class Form extends Nette\Application\UI\Form
 		}
 
 		$container = $this[$parent][$name];
-		return !isset($created);
+		return isset($created);
 	}
 
 
 	/**
-	 * @param  PrimaryCheckbox $checkbox
+	 * @param  Checkbox $checkbox
 	 * @return bool
 	 */
-	public static function validateCheckedCount(PrimaryCheckbox $checkbox)
+	public static function validateCheckedCount(Checkbox $checkbox)
 	{
-		return $checkbox->getForm()->isSubmitted()->getParent()->lookupPath('Nette\Forms\Form') !== 'actions-buttons'
+		return $checkbox->getForm()->isSubmitted()->getParent()->lookupPath(NForm::class) !== 'actions-buttons'
 				|| in_array(TRUE, $checkbox->getParent()->getValues(TRUE), TRUE);
 	}
 

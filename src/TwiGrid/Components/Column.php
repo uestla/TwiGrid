@@ -3,15 +3,13 @@
 /**
  * This file is part of the TwiGrid component
  *
- * Copyright (c) 2013, 2014 Petr Kessler (http://kesspess.1991.cz)
+ * Copyright (c) 2013-2016 Petr Kessler (http://kesspess.1991.cz)
  *
  * @license  MIT
  * @link     https://github.com/uestla/twigrid
  */
 
 namespace TwiGrid\Components;
-
-use Nette;
 
 
 class Column extends Component
@@ -49,7 +47,7 @@ class Column extends Component
 	/** @return string */
 	public function getLabel()
 	{
-		return $this->getDataGrid()->translate($this->label);
+		return $this->translate($this->label);
 	}
 
 
@@ -80,7 +78,7 @@ class Column extends Component
 	public function setSortedBy($bool = TRUE, $sortDir = self::ASC, $sortIndex = 0)
 	{
 		if (!$this->sortable) {
-			throw new Nette\InvalidStateException("Column '{$this->getName()}' is not sortable.");
+			throw new \RuntimeException("Column '{$this->getName()}' is not sortable.");
 		}
 
 		$this->sortedBy = (bool) $bool;

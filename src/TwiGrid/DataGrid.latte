@@ -4,7 +4,7 @@
  * @param  TwiGrid\DataGrid $grid
  * @param  string $defaultTemplate
  * @param  array $flashes
- * @param  TwiGrid\Forms\Form $form
+ * @param  TwiGrid\Form $form
  * @param  ArrayIterator $columns
  * @param  callable $dataLoader
  * @param  string $recordVariable
@@ -163,15 +163,15 @@
 {* === ... ============================================ *}
 
 {define sort-labels}
-	<span n:class="glyphicon, $column->getSortDir() === TwiGrid\Components\Column::DESC ? glyphicon-chevron-down : glyphicon-chevron-up"
+	<span n:class="small, glyphicon, $column->getSortDir() === TwiGrid\Components\Column::DESC ? glyphicon-chevron-down : glyphicon-chevron-up"
 	   n:if="$column->isSortedBy()"></span>
 
 	<div class="pull-right" n:if="$grid->hasMultiSort()">
 	{if $column->isSortedBy()}
 		<span class="badge" n:if="count($grid->orderBy) > 1">{$column->getSortIndex() + 1}</span>
 	{/if}
-		<a href="{$multiSortLink}" class="multi-sort btn btn-xs btn-primary tw-ajax" n:if="$column->isSortable()">
-			<sup class="glyphicon glyphicon-plus-sign"></sup>
+		<a href="{$multiSortLink}" class="multi-sort btn btn-xs btn-default tw-ajax" n:if="$column->isSortable()">
+			<sup class="glyphicon glyphicon-plus"></sup>
 		</a>
 	</div>
 {/define}
@@ -224,7 +224,7 @@
 		<tr n:class="$isInlineEdited ? success">
 
 			<td class="body-cell center" n:if="$hasGroupActions">
-				<input n:name="'actions-records-' . ($iterator->counter - 1)">
+				<input n:name="'actions-records-' . $primaryString">
 			</td>
 
 		{foreach $columns as $name => $column}

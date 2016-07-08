@@ -3,7 +3,7 @@
 /**
  * This file is part of the TwiGrid component
  *
- * Copyright (c) 2013, 2014 Petr Kessler (http://kesspess.1991.cz)
+ * Copyright (c) 2013-2016 Petr Kessler (http://kesspess.1991.cz)
  *
  * @license  MIT
  * @link     https://github.com/uestla/twigrid
@@ -11,15 +11,9 @@
 
 namespace TwiGrid;
 
-use Nette;
-use Nette\Utils\Callback as NCallback;
-
 
 class Record
 {
-
-	use Nette\SmartObject;
-
 
 	/** @var array */
 	private $primaryKey = NULL;
@@ -32,7 +26,7 @@ class Record
 
 
 	/**
-	 * @param  string|array $key
+	 * @param  string|string[] $key
 	 * @return DataGrid
 	 */
 	public function setPrimaryKey($key)
@@ -63,18 +57,20 @@ class Record
 	/** @return callable */
 	public function getValueGetter()
 	{
-		$this->valueGetter === NULL && $this->setValueGetter(function ($record, $column, $need) {
-			if (!isset($record->$column)) {
-				if ($need) {
-					throw new Nette\InvalidArgumentException("Field '$column' not found in record of type "
-						. (is_object($record) ? get_class($record) : gettype($record)) . ".");
+		if ($this->valueGetter === NULL) {
+			$this->valueGetter = function ($record, $column, $need) {
+				if (!isset($record->$column)) {
+					if ($need) {
+						throw new \InvalidArgumentException("Field '$column' not found in record of type "
+							. (is_object($record) ? get_class($record) : gettype($record)) . ".");
+					}
+
+					return NULL;
 				}
 
-				return NULL;
-			}
-
-			return $record->$column;
-		});
+				return $record->$column;
+			};
+		}
 
 		return $this->valueGetter;
 	}
@@ -88,7 +84,8 @@ class Record
 	 */
 	public function getValue($record, $column, $need = TRUE)
 	{
-		return NCallback::invoke($this->getValueGetter(), $record, $column, $need);
+		$getter = $this->getValueGetter();
+		return $getter($record, $column, $need);
 	}
 
 
@@ -120,7 +117,12 @@ class Record
 	public function stringToPrimary($s)
 	{
 		$primaries = explode(static::PRIMARY_SEPARATOR, $s);
-		return count($primaries) === 1 ? (string) $primaries[0] : array_combine($this->primary, $primaries);
+
+		if (count($primaries) === 1) {
+			return $primaries[0];
+		}
+
+		return array_combine($this->primary, $primaries);
 	}
 
 

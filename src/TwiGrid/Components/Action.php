@@ -3,7 +3,7 @@
 /**
  * This file is part of the TwiGrid component
  *
- * Copyright (c) 2013, 2014 Petr Kessler (http://kesspess.1991.cz)
+ * Copyright (c) 2013-2016 Petr Kessler (http://kesspess.1991.cz)
  *
  * @license  MIT
  * @link     https://github.com/uestla/twigrid
@@ -11,7 +11,7 @@
 
 namespace TwiGrid\Components;
 
-use Nette;
+use Nette\Utils\Callback as NCallback;
 
 
 class Action extends Component
@@ -35,15 +35,15 @@ class Action extends Component
 	{
 		parent::__construct();
 
-		$this->label = (string) $label;
 		$this->callback = $callback;
+		$this->label = (string) $label;
 	}
 
 
 	/** @return string */
 	public function getLabel()
 	{
-		return $this->getDataGrid()->translate($this->label);
+		return $this->translate($this->label);
 	}
 
 
@@ -60,7 +60,7 @@ class Action extends Component
 	 */
 	public function setConfirmation($confirmation = NULL)
 	{
-		$this->confirmation = $confirmation === NULL ? NULL : (string) $confirmation;
+		$this->confirmation = strlen($confirmation) ? (string) $confirmation : NULL;
 		return $this;
 	}
 
@@ -68,7 +68,21 @@ class Action extends Component
 	/** @return string|NULL */
 	public function getConfirmation()
 	{
-		return $this->confirmation === NULL ? NULL : $this->getDataGrid()->translate($this->confirmation);
+		if ($this->confirmation === NULL) {
+			return NULL;
+		}
+
+		return $this->translate($this->confirmation);
+	}
+
+
+	/**
+	 * @param  mixed $record
+	 * @return void
+	 */
+	public function invoke($record)
+	{
+		return NCallback::invoke($this->callback, $record);
 	}
 
 }

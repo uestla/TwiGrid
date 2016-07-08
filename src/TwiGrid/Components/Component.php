@@ -3,7 +3,7 @@
 /**
  * This file is part of the TwiGrid component
  *
- * Copyright (c) 2013, 2014 Petr Kessler (http://kesspess.1991.cz)
+ * Copyright (c) 2013-2016 Petr Kessler (http://kesspess.1991.cz)
  *
  * @license  MIT
  * @link     https://github.com/uestla/twigrid
@@ -11,11 +11,11 @@
 
 namespace TwiGrid\Components;
 
-use Nette;
 use TwiGrid\DataGrid;
+use Nette\ComponentModel\Component as NComponent;
 
 
-abstract class Component extends Nette\ComponentModel\Component
+abstract class Component extends NComponent
 {
 
 	/**
@@ -25,6 +25,16 @@ abstract class Component extends Nette\ComponentModel\Component
 	final public function getDataGrid($need = TRUE)
 	{
 		return $this->lookup('TwiGrid\DataGrid', $need);
+	}
+
+
+	/**
+	 * @param  string $s
+	 * @return string
+	 */
+	protected function translate($s)
+	{
+		return $this->getDataGrid()->translate($s);
 	}
 
 }

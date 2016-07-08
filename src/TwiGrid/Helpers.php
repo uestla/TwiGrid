@@ -3,7 +3,7 @@
 /**
  * This file is part of the TwiGrid component
  *
- * Copyright (c) 2013, 2014 Petr Kessler (http://kesspess.1991.cz)
+ * Copyright (c) 2013-2016 Petr Kessler (http://kesspess.1991.cz)
  *
  * @license  MIT
  * @link     https://github.com/uestla/twigrid
@@ -11,28 +11,29 @@
 
 namespace TwiGrid;
 
-use Nette;
 use TwiGrid\Components\Column;
 use Nette\Utils\Random as NRandom;
 use Nette\Http\Session as NSession;
+use Nette\Http\SessionSection as NSessionSection;
 
 
 abstract class Helpers
 {
 
-	use Nette\StaticClass;
-
-
 	/**
 	 * @param  array $array
-	 * @param  int $flags
 	 * @return void
 	 */
-	public static function recursiveKSort(array & $array, $flags = SORT_REGULAR)
+	public static function recursiveKSort(array & $array)
 	{
-		count($array) && ksort($array, $flags);
+		if (count($array)) {
+			ksort($array);
+		}
+
 		foreach ($array as & $val) {
-			is_array($val) && static::recursiveKSort($val, $flags);
+			if (is_array($val)) {
+				static::recursiveKSort($val);
+			}
 		}
 	}
 
@@ -172,7 +173,7 @@ abstract class Helpers
 	/**
 	 * @param  NSession $session
 	 * @param  string $namespace
-	 * @return Nette\Http\SessionSection
+	 * @return NSessionSection
 	 */
 	private static function getCsrfTokenSession(NSession $session, $namespace)
 	{
