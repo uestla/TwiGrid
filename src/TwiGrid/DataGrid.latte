@@ -250,7 +250,7 @@
 
 			<td n:if="$hasFilters || $hasRowActions || $hasInlineEdit" class="body-cell center">
 			{if $hasRowActions || $hasInlineEdit}
-{include #row-actions, i => $iterator->counter - 1, $recordVariable => $$recordVariable, isInlineEdited => $isInlineEdited, primaryString => $primaryString |indent:3}
+{include #row-actions, i => $iterator->counter - 1, $recordVariable => $record, isInlineEdited => $isInlineEdited, primaryString => $primaryString |indent:3}
 
 			{else}
 				&nbsp;
