@@ -15,8 +15,8 @@ use Nette\Http\Session as NSession;
 use Nette\Utils\Callback as NCallback;
 use Nette\Application\UI\Control as NControl;
 use Nette\ComponentModel\Container as NContainer;
-use Nette\Localization\ITranslator as NITranslator;
 use Nette\ComponentModel\IComponent as NIComponent;
+use Nette\Localization\ITranslator as NITranslator;
 use Nette\Forms\Controls\SubmitButton as NSubmitButton;
 
 
@@ -465,19 +465,14 @@ class DataGrid extends NControl
 
 	/**
 	 * @param  array $filters
-	 * @param  bool $refresh
 	 * @return DataGrid
 	 */
-	protected function setFilters(array $filters, $refresh = TRUE)
+	protected function setFilters(array $filters)
 	{
 		Helpers::recursiveKSort($filters);
 
 		if (($diff = $this->filters !== $filters)) {
 			$this->filters = $filters;
-		}
-
-		if ($refresh) {
-			$this->refreshState();
 		}
 
 		$this->redraw(TRUE, TRUE, ['header-sort', 'filter-controls', 'body', 'footer']);
@@ -648,10 +643,9 @@ class DataGrid extends NControl
 
 	/**
 	 * @param  int $p
-	 * @param  bool $refresh
 	 * @return void
 	 */
-	public function handlePaginate($p, $refresh = TRUE)
+	public function handlePaginate($p)
 	{
 		if ($this->itemsPerPage !== NULL) {
 			$this->initPagination();
@@ -661,10 +655,6 @@ class DataGrid extends NControl
 				$this->page = $p;
 				$this->redraw(TRUE, FALSE, ['body', 'footer']);
 			}
-		}
-
-		if ($refresh) {
-			$this->refreshState();
 		}
 	}
 
@@ -833,10 +823,12 @@ class DataGrid extends NControl
 
 				if ($criteria !== NULL) {
 					$this->setFilters($criteria);
+					$this->refreshState();
 				}
 
 			} elseif ("$path-$name" === 'filters-buttons-reset') {
 				$this->setFilters([]);
+				$this->refreshState();
 
 				if ($this->defaultFilters !== NULL) {
 					$this->polluted = TRUE;
@@ -844,6 +836,7 @@ class DataGrid extends NControl
 
 			} elseif ("$path-$name" === 'pagination-buttons-change') {
 				$this->handlePaginate($form->getPage());
+				$this->refreshState();
 
 			} elseif ($path === 'actions-buttons') {
 				$checked = $form->getCheckedRecords([$this->getRecord(), 'primaryToString']);
