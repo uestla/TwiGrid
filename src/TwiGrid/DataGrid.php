@@ -11,11 +11,11 @@
 
 namespace TwiGrid;
 
-use Nette\Http\Session as NSession;
 use Nette\Utils\Callback as NCallback;
 use Nette\Application\UI\Control as NControl;
 use Nette\Application\UI\Presenter as NPresenter;
 use Nette\ComponentModel\Container as NContainer;
+use Nette\Http\SessionSection as NSessionSection;
 use Nette\Localization\ITranslator as NITranslator;
 use Nette\Forms\Controls\SubmitButton as NSubmitButton;
 
@@ -95,11 +95,8 @@ class DataGrid extends NControl
 
 	// === sessions ===========
 
-	/** @var NSession */
+	/** @var NSessionSection */
 	private $session;
-
-	/** @var string */
-	private $sessNamespace;
 
 
 	// === l10n ===========
@@ -119,14 +116,6 @@ class DataGrid extends NControl
 
 	// === LIFE CYCLE ======================================================
 
-	/** @param  NSession $s */
-	public function __construct(NSession $s)
-	{
-		parent::__construct();
-		$this->session = $s;
-	}
-
-
 	/**
 	 * @param  NPresenter $presenter
 	 * @return void
@@ -136,7 +125,7 @@ class DataGrid extends NControl
 		if ($presenter instanceof NPresenter) {
 			$this->build();
 			parent::attached($presenter);
-			$this->sessNamespace = __CLASS__ . '-' . $this->getName();
+			$this->session = $presenter->getSession(__CLASS__ . '-' . $this->getName());
 
 			if (!isset($presenter->payload->twiGrid)) {
 				$presenter->payload->twiGrid['forms'] = $this->presenter->payload->twiGrid = [];
@@ -348,7 +337,7 @@ class DataGrid extends NControl
 	{
 		$act = $this['rowActions']->getComponent($action);
 
-		if (!$act->isProtected() || Helpers::checkCsrfToken($this->session, $this->sessNamespace, $token)) {
+		if (!$act->isProtected() || Helpers::checkCsrfToken($this->session, $token)) {
 			$act->invoke(Helpers::findRecord($this->getData(), $primary, $this->getRecord()));
 			$this->refreshState();
 			$this->redraw(TRUE, TRUE, ['body', 'footer']);
@@ -910,7 +899,7 @@ class DataGrid extends NControl
 		$template->grid = $this;
 		$template->defaultTemplate = __DIR__ . '/DataGrid.latte';
 		$template->setFile($this->templateFile === NULL ? $template->defaultTemplate : $this->templateFile);
-		$template->csrfToken = Helpers::getCsrfToken($this->session, $this->sessNamespace);
+		$template->csrfToken = Helpers::getCsrfToken($this->session);
 
 		$latte = $template->getLatte();
 		$latte->addFilter('translate', [$this, 'translate']);

@@ -13,7 +13,6 @@ namespace TwiGrid;
 
 use TwiGrid\Components\Column;
 use Nette\Utils\Random as NRandom;
-use Nette\Http\Session as NSession;
 use Nette\Http\SessionSection as NSessionSection;
 
 
@@ -141,55 +140,32 @@ abstract class Helpers
 	// === CSRF PROTECTION ======================================================
 
 	/**
-	 * @param  NSession $session
-	 * @param  string $namespace
+	 * @param  NSessionSection $session
 	 * @return string
 	 */
-	public static function getCsrfToken(NSession $session, $namespace)
+	public static function getCsrfToken(NSessionSection $session)
 	{
-		return ($token = static::loadCsrfToken($session, $namespace)) === NULL
-				? static::getCsrfTokenSession($session, $namespace)->token = NRandom::generate(10)
-				: $token;
+		if (!isset($session->token)) {
+			$session->token = NRandom::generate(10);
+		}
+
+		return $session->token;
 	}
 
 
 	/**
-	 * @param  NSession $session
-	 * @param  string $namespace
+	 * @param  NSessionSection $session
 	 * @param  string $token
 	 * @return bool
 	 */
-	public static function checkCsrfToken(NSession $session, $namespace, $token)
+	public static function checkCsrfToken(NSessionSection $session, $token)
 	{
-		if (($stoken = static::loadCsrfToken($session, $namespace)) !== NULL && $stoken === $token) {
-			unset(static::getCsrfTokenSession($session, $namespace)->token);
+		if (isset($session->token) && strcmp($session->token, $token) === 0) {
+			unset($session->token);
 			return TRUE;
 		}
 
 		return FALSE;
-	}
-
-
-	/**
-	 * @param  NSession $session
-	 * @param  string $namespace
-	 * @return NSessionSection
-	 */
-	private static function getCsrfTokenSession(NSession $session, $namespace)
-	{
-		return $session->getSection($namespace);
-	}
-
-
-	/**
-	 * @param  NSession $session
-	 * @param  string $namespace
-	 * @return string|NULL
-	 */
-	private static function loadCsrfToken(NSession $session, $namespace)
-	{
-		$section = static::getCsrfTokenSession($session, $namespace);
-		return isset($section->token) ? $section->token : NULL;
 	}
 
 }
