@@ -14,8 +14,8 @@ namespace TwiGrid;
 use Nette\Http\Session as NSession;
 use Nette\Utils\Callback as NCallback;
 use Nette\Application\UI\Control as NControl;
+use Nette\Application\UI\Presenter as NPresenter;
 use Nette\ComponentModel\Container as NContainer;
-use Nette\ComponentModel\IComponent as NIComponent;
 use Nette\Localization\ITranslator as NITranslator;
 use Nette\Forms\Controls\SubmitButton as NSubmitButton;
 
@@ -128,17 +128,19 @@ class DataGrid extends NControl
 
 
 	/**
-	 * @param  NIComponent $presenter
+	 * @param  NPresenter $presenter
 	 * @return void
 	 */
 	protected function attached($presenter)
 	{
-		$this->build();
-		parent::attached($presenter);
-		$this->sessNamespace = __CLASS__ . '-' . $this->getName();
+		if ($presenter instanceof NPresenter) {
+			$this->build();
+			parent::attached($presenter);
+			$this->sessNamespace = __CLASS__ . '-' . $this->getName();
 
-		if (!isset($this->presenter->payload->twiGrid)) {
-			$this->presenter->payload->twiGrid['forms'] = $this->presenter->payload->twiGrid = [];
+			if (!isset($presenter->payload->twiGrid)) {
+				$presenter->payload->twiGrid['forms'] = $this->presenter->payload->twiGrid = [];
+			}
 		}
 	}
 
