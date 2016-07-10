@@ -264,7 +264,7 @@ $.nette.ext({
 								e.preventDefault();
 								submit.trigger('click');
 
-							} else if (cancel && e.keyCode === 27) {
+							} else if (e.keyCode === 27 && cancel) {
 								e.preventDefault();
 								e.stopImmediatePropagation();
 								cancel.trigger('click');
@@ -289,8 +289,8 @@ $.nette.ext({
 				});
 
 		header.find('.header-cell')
-			.off('click.tw-rowcheck')
-			.on('click.tw-rowcheck', function (event) {
+			.off('click.tw-allrowcheck')
+			.on('click.tw-allrowcheck', function (event) {
 				if (!self.isClickable(event.target) && self.noMetaKeysPressed(event)) {
 					groupCheckbox.twgToggleChecked();
 				}
@@ -410,7 +410,7 @@ $.nette.ext({
 	},
 
 	isClickable: function (target) {
-		return target.nodeName.toUpperCase() in {'A': 1, 'INPUT': 1};
+		return target.nodeName.toUpperCase() in {'A': 1, 'INPUT': 1, 'TEXTAREA': 1, 'SELECT': 1, 'LABEL': 1};
 	},
 
 	isInlineSubmitter: function (target) {
