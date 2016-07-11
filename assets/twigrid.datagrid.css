@@ -1,105 +1,109 @@
 
 /* === common ================ */
 
-.tw-cnt.js .js-hid {
+.tw-cnt.js .js-hidden
+{
 	display: none;
 }
-
-.tw-cnt .left {
-	text-align: left;
-}
-
-.tw-cnt .center {
-	text-align: center;
-}
-
-.tw-cnt .right {
-	text-align: right;
-}
-
-.tw-cnt .nowrap {
-	white-space: nowrap;
-}
-
 
 
 /* === table cells ================ */
 
-.tw-cnt thead th {
-	background: #eee;
-	white-space: nowrap;
+.tw-cnt thead th
+{
+	background-color: #eee;
 }
 
-.tw-cnt table > thead > tr > th, .tw-cnt table > tbody > tr th, .tw-cnt table > tbody > tr > td {
-	vertical-align: middle;
+
+.tw-cnt table > thead > tr > th,
+.tw-cnt table > tbody > tr > th,
+.tw-cnt table > tbody > tr > td
+{
+	vertical-align: top;
 }
 
-.tw-cnt .alert-warning {
-	background: #f2dede;
-}
 
-.tw-cnt tr.checked > td {
+.tw-cnt tr.checked > td
+{
 	background: #d9edf7 !important;
 }
 
-.tw-cnt tr.checked:hover > td {
+
+.tw-cnt tr.checked:hover > td
+{
 	background: #c4e3f3 !important;
 }
 
 
-
 /* === sorting ================ */
 
-.tw-cnt .header-cell .multi-sort {
-	padding: 2px 4px 4px;
+.tw-cnt .header-cell.sort-cell
+{
+	position: relative;
 }
 
 
-
-/* === form controls ================ */
-
-.tw-cnt select, .tw-cnt input[type="text"], .tw-cnt input[type="date"], .tw-cnt textarea {
-	display: block;
-	margin: 0;
-	width: 100%;
-	height: 100%;
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	box-sizing: border-box;
+.tw-cnt .header-cell.multi-sort
+{
+	padding-right: 40px;
 }
 
+
+.tw-cnt .header-cell.multi-sorted-by
+{
+	padding-right: 70px;
+}
+
+
+.tw-cnt .header-cell .sort-labels
+{
+	top: 7px;
+	right: 4px;
+	position: absolute;
+}
+
+
+.tw-cnt .header-cell .sort-labels .btn
+{
+	padding: 3px 4px 6px 5px;
+}
 
 
 /* === footer ================ */
 
-.tw-cnt .footer-cell > div {
+.tw-cnt .footer-cell > div
+{
 	line-height: 32px;
 }
 
 
-
 /* === group actions ================ */
 
-.tw-cnt .action-buttons-label {
+.tw-cnt .action-buttons-label
+{
 	display: inline-block;
 }
 
 
-
 /* === pagination ================ */
 
-.tw-cnt .tw-pagination {
+.tw-cnt .tw-pagination
+{
 	margin-top: 0;
 	margin-bottom: 0;
 }
 
-.tw-cnt .tw-pagination select {
+
+.tw-cnt .tw-pagination select
+{
 	width: auto;
 	padding: 5px 4px;
 	display: inline-block;
 }
 
-.tw-cnt .tw-pagination .actual {
+
+.tw-cnt .tw-pagination .actual
+{
 	margin: 0 8px;
 	display: inline-block;
 }

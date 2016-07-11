@@ -21,6 +21,18 @@ use Nette\Forms\Container as NContainer;
 class Form extends NForm
 {
 
+	/** @var RecordHandler */
+	private $recordHandler;
+
+
+	/** @param  RecordHandler $handler */
+	public function __construct(RecordHandler $handler)
+	{
+		parent::__construct();
+		$this->recordHandler = $handler;
+	}
+
+
 	/**
 	 * @param  callable $factory
 	 * @param  array $defaults
@@ -67,17 +79,14 @@ class Form extends NForm
 	}
 
 
-	/**
-	 * @param  callable $primaryToString
-	 * @return Form
-	 */
-	public function addGroupActionCheckboxes(callable $primaryToString)
+	/** @return Form */
+	public function addGroupActionCheckboxes()
 	{
 		if ($this->lazyCreateContainer('actions', 'records', $records)) {
 			$i = 0;
 			foreach ($this->getParent()->getData() as $record) {
-				$primary = $primaryToString($record);
-				$records[$primary] = $checkbox = new Checkbox;
+				$hash = $this->recordHandler->getPrimaryHash($record);
+				$records[$hash] = $checkbox = new Checkbox;
 
 				if ($i++ === 0) {
 					$checkbox->addRule(__CLASS__ . '::validateCheckedCount', 'Choose at least one record.');
@@ -110,13 +119,10 @@ class Form extends NForm
 	}
 
 
-	/**
-	 * @param  callable $primaryToString
-	 * @return array|NULL
-	 */
-	public function getCheckedRecords(callable $primaryToString)
+	/** @return array|NULL */
+	public function getCheckedRecords()
 	{
-		$this->addGroupActionCheckboxes($primaryToString);
+		$this->addGroupActionCheckboxes();
 
 		$this->validate();
 		if ($this->isValid()) {
@@ -129,26 +135,26 @@ class Form extends NForm
 
 	/**
 	 * @param  array|\Traversable $data
-	 * @param  Record $record
 	 * @param  callable $containerFactory
-	 * @param  string|NULL $iePrimary
+	 * @param  string|NULL $ieHash
 	 * @return Form
 	 */
-	public function addInlineEditControls($data, Record $record, callable $containerFactory, $iePrimary)
+	public function addInlineEditControls($data, callable $containerFactory, $ieHash)
 	{
 		if ($this->lazyCreateContainer('inline', 'buttons', $buttons)) {
-			foreach ($data as $rec) {
-				if ($record->is($rec, $iePrimary)) {
-					$this['inline']['values'] = $containerFactory($rec);
+			foreach ($data as $record) {
+				if ($this->recordHandler->is($record, $ieHash)) {
+					$this['inline']['values'] = $containerFactory($record);
 					$buttons->addSubmit('edit', 'Edit')
 							->setValidationScope([$this['inline']['values']]);
 
 					$buttons->addSubmit('cancel', 'Cancel')->setValidationScope([]);
 
 				} else {
-					$submit = new SubmitButton('Edit inline');
-					$submit->setValidationScope([]);
-					$buttons[$record->primaryToString($rec)] = $submit;
+					$hash = $this->recordHandler->getPrimaryHash($record);
+					$button = new SubmitButton('Edit inline');
+					$button->setValidationScope([]);
+					$buttons[$hash] = $button;
 				}
 
 			}

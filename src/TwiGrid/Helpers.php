@@ -62,26 +62,6 @@ abstract class Helpers
 	}
 
 
-	/**
-	 * @param  array|\Traversable $data
-	 * @param  mixed $primaryString
-	 * @param  Record $record
-	 * @return mixed|NULL
-	 */
-	public static function findRecord($data, $primaryString, Record $record)
-	{
-		$primary = $record->stringToPrimary($primaryString);
-
-		foreach ($data as $r) {
-			if ($record->is($r, $primary)) {
-				return $r;
-			}
-		}
-
-		return NULL;
-	}
-
-
 	// === SORTING ======================================================
 
 	const SORT_LINK_SINGLE = 0;

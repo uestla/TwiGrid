@@ -12,7 +12,7 @@
 namespace TwiGrid;
 
 
-class Record
+class RecordHandler
 {
 
 	/** @var array */
@@ -26,12 +26,12 @@ class Record
 
 
 	/**
-	 * @param  string|string[] $key
+	 * @param  string[] $keys
 	 * @return DataGrid
 	 */
-	public function setPrimaryKey($key)
+	public function setPrimaryKeys(array $keys)
 	{
-		$this->primaryKey = is_array($key) ? $key : func_get_args();
+		$this->primaryKey = $keys;
 		return $this;
 	}
 
@@ -91,46 +91,9 @@ class Record
 
 	/**
 	 * @param  mixed $record
-	 * @return string
-	 */
-	public function primaryToString($record)
-	{
-		return implode(static::PRIMARY_SEPARATOR, $this->getPrimary($record));
-	}
-
-
-	/**
-	 * @param  mixed $record
-	 * @param  array|string $primary
-	 * @return bool
-	 */
-	public function is($record, $primary)
-	{
-		return $this->primaryToString($record) === $primary;
-	}
-
-
-	/**
-	 * @param  string $s
-	 * @return array|string
-	 */
-	public function stringToPrimary($s)
-	{
-		$primaries = explode(static::PRIMARY_SEPARATOR, $s);
-
-		if (count($primaries) === 1) {
-			return $primaries[0];
-		}
-
-		return array_combine($this->primary, $primaries);
-	}
-
-
-	/**
-	 * @param  mixed $record
 	 * @return array
 	 */
-	protected function getPrimary($record)
+	public function getPrimary($record)
 	{
 		$primaries = [];
 		foreach ($this->primaryKey as $column) {
@@ -138,6 +101,44 @@ class Record
 		}
 
 		return $primaries;
+	}
+
+
+	/**
+	 * @param  mixed $record
+	 * @return string
+	 */
+	public function getPrimaryHash($record)
+	{
+		return substr(sha1(implode(static::PRIMARY_SEPARATOR, $this->getPrimary($record))), 0, 8);
+	}
+
+
+	/**
+	 * @param  string $hash
+	 * @param  array|\Traversable $data
+	 * @return mixed|NULL
+	 */
+	public function findIn($hash, $data)
+	{
+		foreach ($data as $record) {
+			if (strcmp($hash, $this->getPrimaryHash($record)) === 0) {
+				return $record;
+			}
+		}
+
+		return NULL;
+	}
+
+
+	/**
+	 * @param  mixed $record
+	 * @param  string $hash
+	 * @return bool
+	 */
+	public function is($record, $hash)
+	{
+		return strcmp($this->getPrimaryHash($record), $hash) === 0;
 	}
 
 }

@@ -76,28 +76,28 @@ $.nette.ext({
 		$(self.gridSelector).each(function () {
 			// grid parts
 			var grid = $(this);
-			var gForm = grid.find(self.formSelector);
-			var gHeader = grid.find(self.headerSelector);
-			var filterSubmit = gHeader.find(self.buttonSelector('[name="' + self.escape('filters[buttons][filter]') + '"]'));
-			var gBody = grid.find(self.bodySelector);
-			var gFooter = grid.find(self.footerSelector);
+			var form = $(self.formSelector, grid);
+			var header = $(self.headerSelector, grid);
+			var filterSubmit = $(self.buttonSelector('[name="' + self.escape('filters[buttons][filter]') + '"]'), header);
+			var body = $(self.bodySelector, grid);
+			var footer = $(self.footerSelector, grid);
 
 			grid.addClass('js');
-			self.focusingBehavior(grid.find(':input'));
+			self.focusingBehavior($(':input', grid));
 
 			// filtering
 			self.filterBehavior(
-				gHeader.find(':input:not(' + self.buttonSelector() + ')'),
-				gHeader.find('select[name^="' + self.escape('filters[criteria][') + '"]'),
+				$(':input:not(' + self.buttonSelector() + ')', header),
+				$('select[name^="' + self.escape('filters[criteria][') + '"]', header),
 				filterSubmit
 			);
 
 			// inline editing
 			self.inlineEditBehavior(
-				gBody.find(':input[name^="' + self.escape('inline[values][') + '"]'),
-				gBody.find(self.buttonSelector('[name="' + self.escape('inline[buttons][edit]') + '"]')),
-				gBody.find(self.buttonSelector('[name="' + self.escape('inline[buttons][cancel]') + '"]')),
-				gBody.children()
+				$(':input[name^="' + self.escape('inline[values][') + '"]', body),
+				$(self.buttonSelector('[name="' + self.escape('inline[buttons][edit]') + '"]'), body),
+				$(self.buttonSelector('[name="' + self.escape('inline[buttons][cancel]') + '"]'), body),
+				body.children()
 			);
 
 			// rows checkboxes
@@ -106,23 +106,23 @@ $.nette.ext({
 				self.rowsChecking(
 					grid,
 					checkboxes,
-					gFooter.find(self.buttonSelector('[name^="' + self.escape('actions[buttons][') + '"]')),
-					gHeader
+					$(self.buttonSelector('[name^="' + self.escape('actions[buttons][') + '"]'), footer),
+					header
 				);
 			}
 
 			// pagination
 			self.paginationBehavior(
 				grid,
-				gFooter.find('select[name^="' + self.escape('pagination[controls][') + '"]'),
-				gFooter.find(self.buttonSelector('[name="' + self.escape('pagination[buttons][change]') + '"]'))
+				$('select[name^="' + self.escape('pagination[controls][') + '"]', footer),
+				$(self.buttonSelector('[name="' + self.escape('pagination[buttons][change]') + '"]'), footer)
 			);
 
 			// ajaxification
 			self.ajaxify(
-				grid.find('a.tw-ajax'),
-				gForm,
-				grid.find(self.buttonSelector('.tw-ajax')),
+				$('a.tw-ajax', grid),
+				form,
+				$(self.buttonSelector('.tw-ajax'), grid),
 				handler
 			);
 		});
@@ -171,7 +171,7 @@ $.nette.ext({
 	bodySelector: '.body:first',
 	footerSelector: '.footer:first',
 
-	flashSelector: '.alert.hidable',
+	flashSelector: '.alert[data-hidable]',
 	scrollSpeed: 128,
 
 	buttonSelector: function (selector) {
@@ -186,7 +186,7 @@ $.nette.ext({
 	},
 
 	getGroupActionCheckboxes: function (grid) {
-		return grid.find('input[type="checkbox"][name^="' + this.escape('actions[records][') + '"]');
+		return $('input[type="checkbox"][name^="' + this.escape('actions[records][') + '"]', grid);
 	},
 
 	focusingBehavior: function (inputs) {
@@ -241,7 +241,7 @@ $.nette.ext({
 		rows.off('click.tw-inline')
 			.on('click.tw-inline', function (event) {
 				var row = $(this);
-				var edit = row.find(self.buttonSelector('[name^="' + self.escape('inline[buttons][') + '"]:first'));
+				var edit = $(self.buttonSelector('[name^="' + self.escape('inline[buttons][') + '"]:first'), row);
 
 				if (edit.length && !(edit.attr('name') in {'inline[buttons][edit]': 1, 'inline[buttons][cancel]': 1})
 						&& !self.isClickable(event.target) && self.onlyCtrlKeyPressed(event)) {
@@ -288,7 +288,7 @@ $.nette.ext({
 					checkboxes.twgChecked(groupCheckbox.prop('checked'));
 				});
 
-		header.find('.header-cell')
+		$('.header-cell', header)
 			.off('click.tw-allrowcheck')
 			.on('click.tw-allrowcheck', function (event) {
 				if (!self.isClickable(event.target) && self.noMetaKeysPressed(event)) {
