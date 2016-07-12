@@ -627,7 +627,7 @@ class DataGrid extends NControl
 	 * @param  callable $itemCounter
 	 * @return DataGrid
 	 */
-	public function setPagination($itemsPerPage, callable $itemCounter)
+	public function setPagination($itemsPerPage, callable $itemCounter = NULL)
 	{
 		$this->itemsPerPage = max(0, (int) $itemsPerPage);
 		$this->itemCounter = $itemCounter;
@@ -669,7 +669,11 @@ class DataGrid extends NControl
 	protected function initPagination()
 	{
 		if ($this->itemCount === NULL) {
-			$this->itemCount = max(0, (int) NCallback::invoke($this->itemCounter, $this->filters));
+			$count = $this->itemCounter !== NULL
+					? NCallback::invoke($this->itemCounter, $this->filters)
+					: count(NCallback::invoke($this->dataLoader, $this->filters, [], NULL, 0));
+
+			$this->itemCount = max(0, (int) $count);
 			$this->pageCount = (int) ceil($this->itemCount / $this->itemsPerPage);
 			$this->page = Helpers::fixPage($this->page, $this->pageCount);
 		}
