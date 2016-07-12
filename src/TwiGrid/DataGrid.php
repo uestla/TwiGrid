@@ -462,12 +462,12 @@ class DataGrid extends NControl
 	{
 		Helpers::recursiveKSort($filters);
 
-		if (($diff = $this->filters !== $filters)) {
+		if ($this->filters !== $filters) {
 			$this->filters = $filters;
 		}
 
 		$this->redraw(TRUE, TRUE, ['header-sort', 'filter-controls', 'body', 'footer']);
-		$this->handlePaginate(1, FALSE);
+		$this->setPage(1);
 
 		return $this;
 	}
@@ -637,15 +637,27 @@ class DataGrid extends NControl
 	 */
 	public function handlePaginate($p)
 	{
-		if ($this->itemsPerPage !== NULL) {
-			$this->initPagination();
-			$p = Helpers::fixPage($p, $this->pageCount);
+		$this->setPage($p);
+		$this->refreshState();
+		$this->redraw(TRUE, FALSE, ['body', 'footer']);
+	}
 
-			if ($this->page !== $p) {
-				$this->page = $p;
-				$this->redraw(TRUE, FALSE, ['body', 'footer']);
-			}
+
+	/**
+	 * @param  int $page
+	 * @return DataGrid
+	 */
+	protected function setPage($page)
+	{
+		if ($this->itemsPerPage !== NULL) {
+			$this->page = (int) $page;
+			$this->itemCount = NULL;
+
+		} else {
+			$this->page = 1;
 		}
+
+		return $this;
 	}
 
 
@@ -824,8 +836,9 @@ class DataGrid extends NControl
 				}
 
 			} elseif ("$path-$name" === 'pagination-buttons-change') {
-				$this->handlePaginate($form->getPage());
+				$this->setPage($form->getPage());
 				$this->refreshState();
+				$this->redraw(TRUE, FALSE, ['body', 'footer']);
 
 			} elseif ($path === 'actions-buttons') {
 				$checked = $form->getCheckedRecords();
