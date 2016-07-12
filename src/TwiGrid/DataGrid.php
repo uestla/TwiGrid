@@ -127,6 +127,10 @@ class DataGrid extends NControl
 			parent::attached($presenter);
 			$this->session = $presenter->getSession(__CLASS__ . '-' . $this->getName());
 
+			if ($this->translator === NULL) {
+				$this->translator = new Components\Translator;
+			}
+
 			if (!isset($presenter->payload->twiGrid)) {
 				$presenter->payload->twiGrid['forms'] = $this->presenter->payload->twiGrid = [];
 			}

@@ -262,7 +262,7 @@
 
 		{else}
 			<tr class="warning">
-				<td class="body-cell" colspan="{$columnCount}">{_'No data.'}</td>
+				<td class="body-cell" colspan="{$columnCount}">{_"twigrid.data.no_data"}</td>
 			</tr>
 		{/if $iterations}
 	</tbody>
@@ -403,7 +403,7 @@
 {* === ... ============================================ *}
 
 {define group-action-buttons-label}
-	<label class="action-buttons-label">{_'Checked:'}</label>
+	<label class="action-buttons-label">{_"twigrid.group_actions.checked"}</label>
 {/define}
 
 
@@ -422,7 +422,7 @@
 
 	<div class="col-xs-4 tw-pagination text-center">
 		<a n:href="paginate!, p => max(1, $grid->page - 1)" n:class="btn, btn-default, $grid->page <= 1 ? disabled, tw-ajax">
-			{_'Previous'}
+			{_"twigrid.pagination.previous"}
 		</a>
 
 		<div class="actual">
@@ -431,7 +431,7 @@
 		</div>
 
 		<a n:href="paginate!, p => min($grid->getPageCount(), $grid->page + 1)" n:class="btn, btn-default, $grid->page === $grid->getPageCount() ? disabled, tw-ajax">
-			{_'Next'}
+			{_"twigrid.pagination.next"}
 		</a>
 	</div>
 {/define}
@@ -441,7 +441,8 @@
 
 {define footer-info}
 	<div n:class="!$hasGroupActions && $grid->getPageCount() <= 1 ? col-xs-12 : col-xs-4, text-right" n:if="$isPaginated">
-		{($grid->page - 1) * $grid->getItemsPerPage() + 1}-{min($grid->getItemCount(), ($grid->page - 1) * $grid->getItemsPerPage() + $grid->getItemsPerPage())} / {_'%d items', $grid->getItemCount()}
+		{($grid->page - 1) * $grid->getItemsPerPage() + 1}-{min($grid->getItemCount(), ($grid->page - 1) * $grid->getItemsPerPage() + $grid->getItemsPerPage())}
+		/ {_"twigrid.pagination.total", $grid->getItemCount()}
 	</div>
 {/define}
 

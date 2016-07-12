@@ -59,7 +59,7 @@ class Form extends NForm
 			$buttons->addSubmit('filter', 'Filter');
 
 			if ($hasFilters) {
-				$buttons->addSubmit('reset', 'Cancel')->setValidationScope([]);
+				$buttons->addSubmit('reset', "twigrid.filters.cancel")->setValidationScope([]);
 			}
 		}
 
@@ -89,7 +89,7 @@ class Form extends NForm
 				$records[$hash] = $checkbox = new Checkbox;
 
 				if ($i++ === 0) {
-					$checkbox->addRule(__CLASS__ . '::validateCheckedCount', 'Choose at least one record.');
+					$checkbox->addRule(__CLASS__ . '::validateCheckedCount', "twigrid.group_actions.checked_count_message");
 				}
 
 			}
@@ -145,14 +145,14 @@ class Form extends NForm
 			foreach ($data as $record) {
 				if ($this->recordHandler->is($record, $ieHash)) {
 					$this['inline']['values'] = $containerFactory($record);
-					$buttons->addSubmit('edit', 'Edit')
+					$buttons->addSubmit('edit', "twigrid.inline.edit_confirm")
 							->setValidationScope([$this['inline']['values']]);
 
-					$buttons->addSubmit('cancel', 'Cancel')->setValidationScope([]);
+					$buttons->addSubmit('cancel', "twigrid.inline.cancel")->setValidationScope([]);
 
 				} else {
 					$hash = $this->recordHandler->getPrimaryHash($record);
-					$button = new SubmitButton('Edit inline');
+					$button = new SubmitButton("twigrid.inline.edit");
 					$button->setValidationScope([]);
 					$buttons[$hash] = $button;
 				}
