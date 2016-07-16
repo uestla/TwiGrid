@@ -28,6 +28,17 @@ class Translator implements NITranslator
 
 
 	/**
+	 * @param  array $dictionary
+	 * @return Translator
+	 */
+	public function addDictionary(array $dictionary)
+	{
+		$this->dictionary = $dictionary + $this->dictionary;
+		return $this;
+	}
+
+
+	/**
 	 * @param  string $message
 	 * @param  int $count
 	 * @return string
