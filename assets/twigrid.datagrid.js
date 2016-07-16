@@ -78,7 +78,7 @@ $.nette.ext({
 			var grid = $(this);
 			var form = $(self.formSelector, grid);
 			var header = $(self.headerSelector, grid);
-			var filterSubmit = $(self.buttonSelector('[name="' + self.escape('filters[buttons][filter]') + '"]'), header);
+			var filterSubmit = $(self.buttonSelector('[name="filters\[buttons\]\[filter\]"]'), header);
 			var body = $(self.bodySelector, grid);
 			var footer = $(self.footerSelector, grid);
 
@@ -88,15 +88,15 @@ $.nette.ext({
 			// filtering
 			self.filterBehavior(
 				$(':input:not(' + self.buttonSelector() + ')', header),
-				$('select[name^="' + self.escape('filters[criteria][') + '"]', header),
+				$('select[name^="filters\[criteria\]\["]', header),
 				filterSubmit
 			);
 
 			// inline editing
 			self.inlineEditBehavior(
-				$(':input[name^="' + self.escape('inline[values][') + '"]', body),
-				$(self.buttonSelector('[name="' + self.escape('inline[buttons][edit]') + '"]'), body),
-				$(self.buttonSelector('[name="' + self.escape('inline[buttons][cancel]') + '"]'), body),
+				$(':input[name^="inline\[values\]\["]', body),
+				$(self.buttonSelector('[name="inline\[buttons\]\[edit\]"]'), body),
+				$(self.buttonSelector('[name="inline\[buttons\]\[cancel\]"]'), body),
 				body.children()
 			);
 
@@ -106,7 +106,7 @@ $.nette.ext({
 				self.rowsChecking(
 					grid,
 					checkboxes,
-					$(self.buttonSelector('[name^="' + self.escape('actions[buttons][') + '"]'), footer),
+					$(self.buttonSelector('[name^="actions\[buttons\]\["]'), footer),
 					header
 				);
 			}
@@ -114,8 +114,8 @@ $.nette.ext({
 			// pagination
 			self.paginationBehavior(
 				grid,
-				$('select[name^="' + self.escape('pagination[controls][') + '"]', footer),
-				$(self.buttonSelector('[name="' + self.escape('pagination[buttons][change]') + '"]'), footer)
+				$('select[name^="pagination\[controls\]\["]', footer),
+				$(self.buttonSelector('[name="pagination\[buttons\]\[change\]"]'), footer)
 			);
 
 			// ajaxification
@@ -186,7 +186,7 @@ $.nette.ext({
 	},
 
 	getGroupActionCheckboxes: function (grid) {
-		return $('input[type="checkbox"][name^="' + this.escape('actions[records][') + '"]', grid);
+		return $('input[type="checkbox"][name^="actions\[records\]\["]', grid);
 	},
 
 	focusingBehavior: function (inputs) {
@@ -241,7 +241,7 @@ $.nette.ext({
 		rows.off('click.tw-inline')
 			.on('click.tw-inline', function (event) {
 				var row = $(this);
-				var edit = $(self.buttonSelector('[name^="' + self.escape('inline[buttons][') + '"]:first'), row);
+				var edit = $(self.buttonSelector('[name^="inline\[buttons\]\["]:first'), row);
 
 				if (edit.length && !(edit.attr('name') in {'inline[buttons][edit]': 1, 'inline[buttons][cancel]': 1})
 						&& !self.isClickable(event.target) && self.onlyCtrlKeyPressed(event)) {
@@ -404,10 +404,6 @@ $.nette.ext({
 	focusedGrid: null,
 	focusingInitialized: false,
 	lastChecked: null, // index of last checked row checkbox
-
-	escape: function (selector) {
-		return selector.replace(/[\!"#\$%&'\(\)\*\+,\.\/:;<=>\?@\[\\\]\^`\{\|\}~]/g, '\\$&');
-	},
 
 	isClickable: function (target) {
 		return target.nodeName.toUpperCase() in {'A': 1, 'INPUT': 1, 'TEXTAREA': 1, 'SELECT': 1, 'LABEL': 1};
