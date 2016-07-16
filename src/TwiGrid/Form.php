@@ -56,10 +56,10 @@ class Form extends NForm
 	public function addFilterButtons($hasFilters)
 	{
 		if ($this->lazyCreateContainer('filters', 'buttons', $buttons)) {
-			$buttons->addSubmit('filter', 'Filter');
+			$buttons->addSubmit('filter', 'twigrid.filters.filter');
 
 			if ($hasFilters) {
-				$buttons->addSubmit('reset', "twigrid.filters.cancel")->setValidationScope([]);
+				$buttons->addSubmit('reset', 'twigrid.filters.cancel')->setValidationScope([]);
 			}
 		}
 
@@ -89,7 +89,7 @@ class Form extends NForm
 				$records[$hash] = $checkbox = new Checkbox;
 
 				if ($i++ === 0) {
-					$checkbox->addRule(__CLASS__ . '::validateCheckedCount', "twigrid.group_actions.checked_count_message");
+					$checkbox->addRule(__CLASS__ . '::validateCheckedCount', 'twigrid.group_actions.checked_count_message');
 				}
 
 			}
@@ -145,14 +145,14 @@ class Form extends NForm
 			foreach ($data as $record) {
 				if ($this->recordHandler->is($record, $ieHash)) {
 					$this['inline']['values'] = $containerFactory($record);
-					$buttons->addSubmit('edit', "twigrid.inline.edit_confirm")
+					$buttons->addSubmit('edit', 'twigrid.inline.edit_confirm')
 							->setValidationScope([$this['inline']['values']]);
 
-					$buttons->addSubmit('cancel', "twigrid.inline.cancel")->setValidationScope([]);
+					$buttons->addSubmit('cancel', 'twigrid.inline.cancel')->setValidationScope([]);
 
 				} else {
 					$hash = $this->recordHandler->getPrimaryHash($record);
-					$button = new SubmitButton("twigrid.inline.edit");
+					$button = new SubmitButton('twigrid.inline.edit');
 					$button->setValidationScope([]);
 					$buttons[$hash] = $button;
 				}
@@ -221,7 +221,7 @@ class Form extends NForm
 				$subcontainer = $factory();
 
 				if (!$subcontainer instanceof NContainer) {
-					throw new \RuntimeException("Container factory is expected to return " . NContainer::class . ", '"
+					throw new \RuntimeException('Container factory is expected to return ' . NContainer::class . ", '"
 							. (is_object($subcontainer) ? get_class($subcontainer) : gettype($subcontainer)) . "' given.");
 				}
 

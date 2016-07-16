@@ -10,6 +10,7 @@ class Translator implements NITranslator
 
 	/** @var array */
 	private $dictionary = [
+		'twigrid.filters.filter' => 'Filter',
 		'twigrid.filters.cancel' => 'Cancel',
 		'twigrid.data.no_data' => 'No data.',
 
