@@ -19,22 +19,13 @@ abstract class Component extends NComponent
 {
 
 	/**
-	 * @param  bool $need
-	 * @return DataGrid
-	 */
-	final public function getDataGrid($need = TRUE)
-	{
-		return $this->lookup(DataGrid::class, $need);
-	}
-
-
-	/**
 	 * @param  string $s
+	 * @param  int $count
 	 * @return string
 	 */
-	protected function translate($s)
+	protected function translate($s, $count = NULL)
 	{
-		return $this->getDataGrid()->translate($s);
+		return $this->lookup(DataGrid::class)->translate($s, $count);
 	}
 
 }
