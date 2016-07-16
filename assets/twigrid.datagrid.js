@@ -83,17 +83,17 @@ $.nette.ext({
 			var footer = $(self.footerSelector, grid);
 
 			grid.addClass('js');
-			self.focusingBehavior($(':input', grid));
+			self.focusing($(':input', grid));
 
 			// filtering
-			self.filterBehavior(
+			self.filtering(
 				$(':input:not(' + self.buttonSelector() + ')', header),
-				$('select[name^="filters\[criteria\]\["]', header),
+				$('select[name^="filters\[criteria\]\["], :radio[name^="filters\[criteria\]\["], :checkbox[name^="filters\[criteria\]\["]', header),
 				filterSubmit
 			);
 
 			// inline editing
-			self.inlineEditBehavior(
+			self.inlineEditing(
 				$(':input[name^="inline\[values\]\["]', body),
 				$(self.buttonSelector('[name="inline\[buttons\]\[edit\]"]'), body),
 				$(self.buttonSelector('[name="inline\[buttons\]\[cancel\]"]'), body),
@@ -101,18 +101,15 @@ $.nette.ext({
 			);
 
 			// rows checkboxes
-			var checkboxes = self.getGroupActionCheckboxes(grid);
-			if (checkboxes.length) {
-				self.rowsChecking(
-					grid,
-					checkboxes,
-					$(self.buttonSelector('[name^="actions\[buttons\]\["]'), footer),
-					header
-				);
-			}
+			self.rowsChecking(
+				grid,
+				self.getGroupActionCheckboxes(grid),
+				$(self.buttonSelector('[name^="actions\[buttons\]\["]'), footer),
+				header
+			);
 
 			// pagination
-			self.paginationBehavior(
+			self.pagination(
 				grid,
 				$('select[name^="pagination\[controls\]\["]', footer),
 				$(self.buttonSelector('[name="pagination\[buttons\]\[change\]"]'), footer)
@@ -189,7 +186,7 @@ $.nette.ext({
 		return $('input[type="checkbox"][name^="actions\[records\]\["]', grid);
 	},
 
-	focusingBehavior: function (inputs) {
+	focusing: function (inputs) {
 		var self = this,
 			focusedTmp = null;
 
@@ -221,18 +218,18 @@ $.nette.ext({
 			});
 	},
 
-	filterBehavior: function (inputs, selects, submit) {
-		this.submittingBehavior(inputs, submit);
+	filtering: function (inputs, submitters, submit) {
+		this.keyboardSubmitting(inputs, submit);
 
-		selects.off('change.tw-filter')
+		submitters.off('change.tw-filter')
 			.on('change.tw-filter', function (event) {
 				submit.trigger('click');
 			});
 	},
 
-	inlineEditBehavior: function (inputs, submit, cancel, rows) {
+	inlineEditing: function (inputs, submit, cancel, rows) {
 		var self = this;
-		self.submittingBehavior(inputs, submit, cancel);
+		self.keyboardSubmitting(inputs, submit, cancel);
 
 		if (inputs.length) {
 			inputs.first().trigger('focus');
@@ -250,7 +247,7 @@ $.nette.ext({
 			});
 	},
 
-	submittingBehavior: function (inputs, submit, cancel) {
+	keyboardSubmitting: function (inputs, submit, cancel) {
 		var self = this;
 
 		if (inputs.length) {
@@ -281,6 +278,10 @@ $.nette.ext({
 	},
 
 	rowsChecking: function (grid, checkboxes, buttons, header) {
+		if (!checkboxes.length) {
+			return ;
+		}
+
 		var self = this,
 			groupCheckbox = $('<input type="checkbox" />')
 				.off('change.tw-rowcheck')
@@ -349,7 +350,7 @@ $.nette.ext({
 		});
 	},
 
-	paginationBehavior: function (grid, selects, submit) {
+	pagination: function (grid, selects, submit) {
 		if (!selects.length) {
 			return ;
 		}
