@@ -127,10 +127,6 @@ class DataGrid extends NControl
 			parent::attached($presenter);
 			$this->session = $presenter->getSession(__CLASS__ . '-' . $this->getName());
 
-			if ($this->translator === NULL) {
-				$this->translator = new Components\Translator;
-			}
-
 			if (!isset($presenter->payload->twiGrid)) {
 				$presenter->payload->twiGrid['forms'] = $this->presenter->payload->twiGrid = [];
 			}
@@ -250,6 +246,17 @@ class DataGrid extends NControl
 
 	// === L10N ======================================================
 
+	/** @return NITranslator */
+	public function getTranslator()
+	{
+		if ($this->translator === NULL) {
+			$this->translator = new Components\Translator;
+		}
+
+		return $this->translator;
+	}
+
+
 	/**
 	 * @param  NITranslator $translator
 	 * @return DataGrid
@@ -268,11 +275,7 @@ class DataGrid extends NControl
 	 */
 	public function translate($s, $count = NULL)
 	{
-		if ($this->translator === NULL) {
-			return sprintf($s, $count);
-		}
-
-		return $this->translator->translate($s, $count);
+		return $this->getTranslator()->translate($s, $count);
 	}
 
 
