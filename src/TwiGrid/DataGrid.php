@@ -498,7 +498,7 @@ class DataGrid extends NControl
 
 
 	/** @return bool */
-	public function hasFilters()
+	public function hasFiltering()
 	{
 		return $this->filterFactory !== NULL;
 	}
@@ -1005,7 +1005,7 @@ class DataGrid extends NControl
 
 		$template->columnCount = count($columns)
 				+ ($this->hasGroupActions() ? 1 : 0)
-				+ ($this->hasFilters() || $this->hasRowActions() || $this->hasInlineEditation() ? 1 : 0);
+				+ ($this->hasFiltering() || $this->hasRowActions() || $this->hasInlineEditation() ? 1 : 0);
 
 		$template->render();
 	}
