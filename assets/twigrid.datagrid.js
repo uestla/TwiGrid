@@ -146,15 +146,23 @@ $.nette.ext({
 			});
 		}
 
-		// scroll to first flash message
-		var flash = $(this.flashSelector);
-		if (flash.length) {
-			var offset = flash.offset().top,
-				docOffset = $(window).scrollTop();
+		// scroll to flash message with lowest top offset
+		var minFlashTop = null;
 
-			if (docOffset > offset) {
+		$(this.flashesSelector).each(function () {
+			var flashTop = $(this).offset().top + 1;
+
+			if (minFlashTop === null || flashTop < minFlashTop) {
+				minFlashTop = flashTop;
+			}
+		});
+
+		if (minFlashTop !== null) {
+			var windowTop = $(window).scrollTop();
+
+			if (windowTop > minFlashTop) {
 				$('html, body').animate({
-					scrollTop: offset
+					scrollTop: minFlashTop
 				}, this.scrollSpeed);
 			}
 		}
@@ -162,13 +170,13 @@ $.nette.ext({
 
 
 }, {
-	gridSelector: '.tw-cnt',
+	gridSelector: '.twigrid',
 	formSelector: '.form:first',
 	headerSelector: '.header:first',
 	bodySelector: '.body:first',
 	footerSelector: '.footer:first',
 
-	flashSelector: '.alert[data-hidable]',
+	flashesSelector: '.alert.tw-flash',
 	scrollSpeed: 128,
 
 	buttonSelector: function (selector) {
