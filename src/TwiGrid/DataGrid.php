@@ -27,7 +27,7 @@ class DataGrid extends NControl
 	public $polluted = FALSE;
 
 
-	// === sorting ===========
+	// === SORTING ===========
 
 	/** @persistent array */
 	public $orderBy = [];
@@ -39,7 +39,7 @@ class DataGrid extends NControl
 	private $multiSort = TRUE;
 
 
-	// === filtering ===========
+	// === FILTERING ===========
 
 	/** @persistent array */
 	public $filters = [];
@@ -51,7 +51,7 @@ class DataGrid extends NControl
 	private $filterFactory = NULL;
 
 
-	// === inline editing ===========
+	// === INLINE EDITATION ===========
 
 	/** @persistent string|NULL */
 	public $iePrimary = NULL;
@@ -63,7 +63,7 @@ class DataGrid extends NControl
 	private $ieProcessCallback = NULL;
 
 
-	// === pagination ===========
+	// === PAGINATION ===========
 
 	/** @persistent int */
 	public $page = 1;
@@ -81,7 +81,7 @@ class DataGrid extends NControl
 	private $pageCount = NULL;
 
 
-	// === data ===========
+	// === DATA ===========
 
 	/** @var RecordHandler */
 	private $recordHandler = NULL;
@@ -93,19 +93,19 @@ class DataGrid extends NControl
 	private $data = NULL;
 
 
-	// === sessions ===========
+	// === SESSIONS ===========
 
 	/** @var NSessionSection */
 	private $session;
 
 
-	// === l10n ===========
+	// === LOCALIZATION ===========
 
 	/** @var NITranslator */
 	private $translator = NULL;
 
 
-	// === rendering ===========
+	// === RENDERING ===========
 
 	/** @var string */
 	private $templateFile = NULL;
@@ -115,6 +115,11 @@ class DataGrid extends NControl
 
 
 	// === LIFE CYCLE ======================================================
+
+	/** @return void */
+	protected function build()
+	{}
+
 
 	/**
 	 * @param  NPresenter $presenter
@@ -132,11 +137,6 @@ class DataGrid extends NControl
 			}
 		}
 	}
-
-
-	/** @return void */
-	protected function build()
-	{}
 
 
 	/**
@@ -201,19 +201,19 @@ class DataGrid extends NControl
 	protected function validateState()
 	{
 		if ($this->getColumns() === NULL) {
-			throw new \RuntimeException('No columns set.');
+			throw new \RuntimeException('Please add at least one column using DataGrid::addColumn($name, $label).');
 		}
 
 		if ($this->dataLoader === NULL) {
-			throw new \RuntimeException('Data loader not set.');
+			throw new \RuntimeException('Please set the data loader callback using DataGrid::setDataLoader($callback).');
 		}
 
-		if ($this->getRecordHandler()->getPrimaryKey() === NULL) {
-			throw new \RuntimeException('Primary key not set.');
+		if ($this->getRecordHandler()->getPrimaryKeys() === NULL) {
+			throw new \RuntimeException('Please set record primary key using DataGrid::setPrimaryKey($key).');
 		}
 
 		if ($this->iePrimary !== NULL && $this->ieContainerFactory === NULL) {
-			throw new \RuntimeException('Inline editing not properly set.');
+			$this->iePrimary = NULL;
 		}
 	}
 
@@ -244,7 +244,7 @@ class DataGrid extends NControl
 	}
 
 
-	// === L10N ======================================================
+	// === LOCALIZATION ======================================================
 
 	/** @return NITranslator */
 	public function getTranslator()
@@ -306,7 +306,7 @@ class DataGrid extends NControl
 	}
 
 
-	// === ACTIONS ======================================================
+	// === ROW ACTIONS ======================================================
 
 	/**
 	 * @param  string $name
@@ -334,6 +334,13 @@ class DataGrid extends NControl
 	}
 
 
+	/** @return bool */
+	public function hasRowActions()
+	{
+		return $this->getRowActions() !== NULL;
+	}
+
+
 	/**
 	 * @param  string $action
 	 * @param  string $primary
@@ -354,6 +361,9 @@ class DataGrid extends NControl
 			$this->redirect('this');
 		}
 	}
+
+
+	// === GROUP ACTIONS ======================================================
 
 
 	/**
@@ -379,6 +389,13 @@ class DataGrid extends NControl
 	public function getGroupActions()
 	{
 		return isset($this['groupActions']) ? $this['groupActions']->getComponents() : NULL;
+	}
+
+
+	/** @return bool */
+	public function hasGroupActions()
+	{
+		return $this->getGroupActions() !== NULL;
 	}
 
 
@@ -453,7 +470,7 @@ class DataGrid extends NControl
 	public function setDefaultFilters(array $filters)
 	{
 		if ($this->filterFactory === NULL) {
-			throw new \RuntimeException('Filter factory not set.');
+			throw new \RuntimeException('Please set filter factory using DataGrid::setFilterFactory($callback).');
 		}
 
 		$this->defaultFilters = $filters;
@@ -477,6 +494,13 @@ class DataGrid extends NControl
 		$this->setPage(1);
 
 		return $this;
+	}
+
+
+	/** @return bool */
+	public function hasFilters()
+	{
+		return $this->filterFactory !== NULL;
 	}
 
 
@@ -522,7 +546,7 @@ class DataGrid extends NControl
 			$order = $this->orderBy;
 			$primaryDir = count($order) ? end($order) : Components\Column::ASC;
 
-			foreach ($this->getRecordHandler()->getPrimaryKey() as $column) {
+			foreach ($this->getRecordHandler()->getPrimaryKeys() as $column) {
 				if (!isset($order[$column])) {
 					$order[$column] = $primaryDir;
 				}
@@ -553,11 +577,27 @@ class DataGrid extends NControl
 	}
 
 
+	/** @return DataGrid */
+	public function setPropertyValueGetter()
+	{
+		$this->getRecordHandler()->setPropertyValueGetter();
+		return $this;
+	}
+
+
+	/** @return DataGrid */
+	public function setGetterValueGetter()
+	{
+		$this->getRecordHandler()->setGetterValueGetter();
+		return $this;
+	}
+
+
 	/**
 	 * @param  mixed|NULL $callback
 	 * @return DataGrid
 	 */
-	public function setValueGetter($callback = NULL)
+	public function setCustomValueGetter($callback = NULL)
 	{
 		$this->getRecordHandler()->setValueGetter($callback);
 		return $this;
@@ -586,17 +626,24 @@ class DataGrid extends NControl
 	}
 
 
-	// === INLINE EDITING ======================================================
+	// === INLINE EDITATION ======================================================
 
 	/**
 	 * @param  callable $containerCb
 	 * @param  callable $processCb
 	 * @return DataGrid
 	 */
-	public function setInlineEditing(callable $containerCb, callable $processCb)
+	public function setInlineEditation(callable $containerCb, callable $processCb)
 	{
 		$this->ieProcessCallback = $processCb;
 		$this->ieContainerFactory = $containerCb;
+	}
+
+
+	/** @return bool */
+	public function hasInlineEditation()
+	{
+		return $this->ieContainerFactory !== NULL;
 	}
 
 
@@ -604,7 +651,7 @@ class DataGrid extends NControl
 	 * @param  string $primary
 	 * @return void
 	 */
-	protected function activateInlineEditing($primary)
+	protected function activateInlineEditation($primary)
 	{
 		$this->refreshState();
 		$this->iePrimary = $primary;
@@ -616,7 +663,7 @@ class DataGrid extends NControl
 	 * @param  bool $dataAsWell
 	 * @return void
 	 */
-	protected function deactivateInlineEditing($dataAsWell = TRUE)
+	protected function deactivateInlineEditation($dataAsWell = TRUE)
 	{
 		$this->refreshState();
 		$this->redraw($dataAsWell, TRUE, ['body']);
@@ -635,6 +682,13 @@ class DataGrid extends NControl
 		$this->itemsPerPage = max(0, (int) $itemsPerPage);
 		$this->itemCounter = $itemCounter;
 		return $this;
+	}
+
+
+	/** @return bool */
+	public function hasPagination()
+	{
+		return $this->itemsPerPage !== NULL;
 	}
 
 
@@ -875,14 +929,14 @@ class DataGrid extends NControl
 
 					if ($values !== NULL) {
 						NCallback::invoke($this->ieProcessCallback, $this->getRecordHandler()->findIn($this->iePrimary, $this->getData()), $values);
-						$this->deactivateInlineEditing();
+						$this->deactivateInlineEditation();
 					}
 
 				} elseif ($name === 'cancel') {
-					$this->deactivateInlineEditing(FALSE);
+					$this->deactivateInlineEditation(FALSE);
 
 				} else {
-					$this->activateInlineEditing($button->getName());
+					$this->activateInlineEditation($button->getName());
 				}
 			}
 		}
@@ -932,7 +986,7 @@ class DataGrid extends NControl
 		});
 
 		if ($this->isControlInvalid()) {
-			$this->redraw(FALSE, FALSE, ['flashes']);
+			$this->redraw(FALSE, FALSE, ['flash-messages']);
 		}
 
 		$template->form = $form = $this['form'];
@@ -942,26 +996,16 @@ class DataGrid extends NControl
 			$latte->addProvider('formsStack', [$form]);
 		}
 
-		$template->columns = $this->getColumns();
+		$template->columns = $columns = $this->getColumns();
 		$template->dataLoader = [$this, 'getData'];
 		$template->recordVariable = $this->recordVariable;
-
-		$template->hasFilters = $this->filterFactory !== NULL;
-
 		$template->rowActions = $this->getRowActions();
-		$template->hasRowActions = $template->rowActions !== NULL;
-
 		$template->groupActions = $this->getGroupActions();
-		$template->hasGroupActions = $template->groupActions !== NULL;
-
-		$template->hasInlineEdit = $this->ieContainerFactory !== NULL;
 		$template->iePrimary = $this->iePrimary;
 
-		$template->isPaginated = $this->itemsPerPage !== NULL;
-
-		$template->columnCount = count($template->columns)
-				+ ($template->hasGroupActions ? 1 : 0)
-				+ ($template->hasFilters || $template->hasRowActions || $template->hasInlineEdit ? 1 : 0);
+		$template->columnCount = count($columns)
+				+ ($this->hasGroupActions() ? 1 : 0)
+				+ ($this->hasFilters() || $this->hasRowActions() || $this->hasInlineEditation() ? 1 : 0);
 
 		$template->render();
 	}

@@ -16,7 +16,7 @@ class RecordHandler
 {
 
 	/** @var array */
-	private $primaryKey = NULL;
+	private $primaryKeys = NULL;
 
 	/** @var callable */
 	private $valueGetter = NULL;
@@ -31,26 +31,15 @@ class RecordHandler
 	 */
 	public function setPrimaryKeys(array $keys)
 	{
-		$this->primaryKey = $keys;
+		$this->primaryKeys = $keys;
 		return $this;
 	}
 
 
 	/** @return array */
-	public function getPrimaryKey()
+	public function getPrimaryKeys()
 	{
-		return $this->primaryKey;
-	}
-
-
-	/**
-	 * @param  callable $callback
-	 * @return DataGrid
-	 */
-	public function setValueGetter(callable $callback)
-	{
-		$this->valueGetter = $callback;
-		return $this;
+		return $this->primaryKeys;
 	}
 
 
@@ -58,34 +47,55 @@ class RecordHandler
 	public function getValueGetter()
 	{
 		if ($this->valueGetter === NULL) {
-			$this->valueGetter = function ($record, $column, $need) {
-				if (!isset($record->$column)) {
-					if ($need) {
-						throw new \InvalidArgumentException("Field '$column' not found in record of type "
-							. (is_object($record) ? get_class($record) : gettype($record)) . ".");
-					}
-
-					return NULL;
-				}
-
-				return $record->$column;
-			};
+			$this->setPropertyValueGetter();
 		}
 
 		return $this->valueGetter;
 	}
 
 
+	/** @return RecordHandler */
+	public function setPropertyValueGetter()
+	{
+		$this->valueGetter = function ($record, $column) {
+			return $record->$column;
+		};
+
+		return $this;
+	}
+
+
+	/** @return RecordHandler */
+	public function setGetterValueGetter()
+	{
+		$this->valueGetter = function ($record, $column) {
+			return $record->{'get' . ucfirst($column)}();
+		};
+
+		return $this;
+	}
+
+
+	/**
+	 * @param  callable $callback
+	 * @return RecordHandler
+	 */
+	public function setCustomValueGetter(callable $callback)
+	{
+		$this->valueGetter = $callback;
+		return $this;
+	}
+
+
 	/**
 	 * @param  mixed $record
 	 * @param  string $column
-	 * @param  bool $need
 	 * @return mixed
 	 */
-	public function getValue($record, $column, $need = TRUE)
+	public function getValue($record, $column)
 	{
 		$getter = $this->getValueGetter();
-		return $getter($record, $column, $need);
+		return $getter($record, $column);
 	}
 
 
@@ -96,7 +106,7 @@ class RecordHandler
 	public function getPrimary($record)
 	{
 		$primaries = [];
-		foreach ($this->primaryKey as $column) {
+		foreach ($this->primaryKeys as $column) {
 			$primaries[$column] = (string) $this->getValue($record, $column); // intentional string conversion due to later comparison
 		}
 
