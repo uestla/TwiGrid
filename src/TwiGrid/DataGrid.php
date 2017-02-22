@@ -231,10 +231,15 @@ class DataGrid extends NControl
 	}
 
 
-	/** @return DataGrid */
-	protected function refreshState()
+	/**
+	 * @param  bool $resetInlineEdit
+	 * @return DataGrid
+	 */
+	protected function refreshState($resetInlineEdit = TRUE)
 	{
-		$this->iePrimary = NULL;
+		if ($resetInlineEdit) {
+			$this->iePrimary = NULL;
+		}
 
 		if (!$this->presenter->isAjax()) {
 			$this->redirect('this');
@@ -596,8 +601,8 @@ class DataGrid extends NControl
 	 */
 	protected function activateInlineEditing($primary)
 	{
-		$this->refreshState();
 		$this->iePrimary = $primary;
+		$this->refreshState(FALSE);
 		$this->redraw(FALSE, TRUE, ['body']);
 	}
 
