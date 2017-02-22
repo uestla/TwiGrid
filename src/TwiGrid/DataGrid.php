@@ -158,7 +158,7 @@ class DataGrid extends NControl
 			}
 
 			if ($this->defaultFilters !== NULL) {
-				$this->setFilters($this->defaultFilters, FALSE);
+				$this->setFilters($this->defaultFilters);
 				$this->polluted = TRUE;
 			}
 		}
