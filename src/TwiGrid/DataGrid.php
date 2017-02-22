@@ -461,10 +461,7 @@ class DataGrid extends NControl
 	protected function setFilters(array $filters)
 	{
 		Helpers::recursiveKSort($filters);
-
-		if (($diff = $this->filters !== $filters)) {
-			$this->filters = $filters;
-		}
+		$this->filters = $filters;
 
 		$this->redraw(TRUE, TRUE, ['header-sort', 'filter-controls', 'body', 'footer']);
 		$this->handlePaginate(1, FALSE);
