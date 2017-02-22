@@ -14,6 +14,7 @@ use Nette\Utils\Callback as NCallback;
 use Nette\Application\UI\Control as NControl;
 use Nette\Application\UI\Presenter as NPresenter;
 use Nette\ComponentModel\Container as NContainer;
+use Nette\Database\Table\Selection as NSelection;
 use Nette\Http\SessionSection as NSessionSection;
 use Nette\Localization\ITranslator as NITranslator;
 use Nette\Forms\Controls\SubmitButton as NSubmitButton;
@@ -622,7 +623,7 @@ class DataGrid extends NControl
 	 * @param  callable $itemCounter
 	 * @return DataGrid
 	 */
-	public function setPagination($itemsPerPage, callable $itemCounter)
+	public function setPagination($itemsPerPage, callable $itemCounter = NULL)
 	{
 		$this->itemsPerPage = max(0, (int) $itemsPerPage);
 		$this->itemCounter = $itemCounter;
@@ -652,7 +653,21 @@ class DataGrid extends NControl
 	protected function initPagination()
 	{
 		if ($this->itemCount === NULL) {
-			$this->itemCount = max(0, (int) NCallback::invoke($this->itemCounter, $this->filters));
+			if ($this->itemCounter === NULL) { // fallback - fetch data with empty filters
+				$data = NCallback::invoke($this->dataLoader, $this->filters, [], NULL, 0);
+
+				if ($data instanceof NSelection) {
+					$count = $data->count('*');
+
+				} else {
+					$count = count($data);
+				}
+
+			} else {
+				$count = NCallback::invoke($this->itemCounter, $this->filters);
+			}
+
+			$this->itemCount = max(0, (int) $count);
 			$this->pageCount = (int) ceil($this->itemCount / $this->itemsPerPage);
 			$this->page = Helpers::fixPage($this->page, $this->pageCount);
 		}
