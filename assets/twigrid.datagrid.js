@@ -1,9 +1,8 @@
 /**
  * This file is part of the TwiGrid component
  *
- * Copyright (c) 2013-2015 Petr Kessler (http://kesspess.1991.cz)
- *
  * @license  MIT
+ * @author   Petr Kessler (https://kesspess.cz)
  * @link     https://github.com/uestla/twigrid
  */
 
