@@ -93,9 +93,8 @@
 	margin-bottom: 0;
 }
 
-.tw-cnt .tw-pagination select {
+.tw-cnt .tw-pagination input[type="number"] {
 	width: auto;
-	padding: 5px 4px;
 	display: inline-block;
 }
 

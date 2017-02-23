@@ -146,7 +146,7 @@ $.nette.ext({
 			// pagination
 			self.paginationBehavior(
 				grid,
-				gFooter.find('select[name^="' + self.escape('pagination[controls][') + '"]'),
+				gFooter.find('input[name^="' + self.escape('pagination[controls][') + '"]'),
 				gFooter.find(self.buttonSelector('[name="' + self.escape('pagination[buttons][change]') + '"]'))
 			);
 
@@ -395,18 +395,14 @@ $.nette.ext({
 		});
 	},
 
-	paginationBehavior: function (grid, selects, submit) {
-		if (!selects.length) {
+	paginationBehavior: function (grid, input, submit) {
+		if (!input.length) {
 			return ;
 		}
 
 		var self = this;
 
-		selects.off('change.tw-pagination')
-			.on('change.tw-pagination', function (event) {
-				self.getGroupActionCheckboxes(grid).prop('checked', false);
-				submit.trigger('click');
-			});
+		self.submittingBehavior(input, submit);
 
 		$(window.document).off('keydown.tw-pagination')
 			.on('keydown.tw-pagination', function (event) {
@@ -414,7 +410,7 @@ $.nette.ext({
 						&& self.onlyCtrlKeyPressed(event) && (event.keyCode === 37 || event.keyCode === 39)) {
 					event.preventDefault();
 
-					selects.each(function () {
+					input.each(function () {
 						var select = $(this);
 						var selected = select.children(':selected');
 						var next = event.keyCode === 37 ? selected.prev() : selected.next();

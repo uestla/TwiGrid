@@ -173,10 +173,10 @@ class Form extends NForm
 	public function addPaginationControls($current, $pageCount)
 	{
 		if ($this->lazyCreateContainer('pagination', 'controls', $controls)) {
-			$pages = range(1, $pageCount);
-
-			$controls->addSelect('page', 'Page', array_combine($pages, $pages))
+			$controls->addText('page', 'Page')
 				->setRequired('Please select a page to go to.')
+				->addRule(Form::INTEGER, 'Page number must be an integer.')
+				->addRule(Form::RANGE, 'Page number must be greater than %d and %d.', [1, $pageCount])
 				->setDefaultValue($current);
 		}
 
