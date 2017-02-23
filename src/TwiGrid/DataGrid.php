@@ -81,6 +81,12 @@ class DataGrid extends NControl
 	private $pageCount = NULL;
 
 
+	// === refresh ===========
+
+	/** @var bool */
+	private $refreshing = FALSE;
+
+
 	// === data ===========
 
 	/** @var Record */
@@ -114,6 +120,12 @@ class DataGrid extends NControl
 	private $recordVariable = 'record';
 
 
+	// === payload sent in AJAX response ===========
+
+	/** @var \stdClass */
+	private $payload;
+
+
 	// === LIFE CYCLE ======================================================
 
 	/**
@@ -128,8 +140,8 @@ class DataGrid extends NControl
 			$this->session = $presenter->getSession(__CLASS__ . '-' . $this->getName());
 
 			if (!isset($presenter->payload->twiGrid)) {
-				$presenter->payload->twiGrid = [];
-				$presenter->payload->twiGrid['forms'] = [];
+				$this->payload = $presenter->payload->twiGrid = new \stdClass;
+				$this->payload->forms = [];
 			}
 		}
 	}
@@ -473,6 +485,17 @@ class DataGrid extends NControl
 		$this->setPage(1);
 
 		return $this;
+	}
+
+
+	// === REFRESH ======================================================
+
+	/** @return void */
+	public function handleRefresh()
+	{
+		$this->refreshing = TRUE;
+		$this->redraw(TRUE, TRUE);
+		$this->refreshState(FALSE);
 	}
 
 
@@ -951,7 +974,14 @@ class DataGrid extends NControl
 		}
 
 		$template->form = $form = $this['form'];
-		$this->presenter->payload->twiGrid['forms'][$form->getElementPrototype()->id] = (string) $form->getAction();
+
+		if ($this->presenter->isAjax()) {
+			$this->payload->id = $this->getSnippetId();
+			$this->payload->url = $this->link('this');
+			$this->payload->refreshing = $this->refreshing;
+			$this->payload->refreshSignal = $this->link('refresh!');
+			$this->payload->forms[$form->getElementPrototype()->id] = (string) $form->getAction();
+		}
 
 		if ($this->presenter->isAjax()) {
 			$latte->addProvider('formsStack', [$form]);

@@ -69,6 +69,39 @@ $.fn.extend({
 
 $.nette.ext({
 
+	init: function () {
+		var self = this;
+
+		// history API
+		if (self.historyAPI) {
+			// register initial states of all grids
+			$(self.gridSelector).each(function () {
+				var grid = $(this);
+				self.historyInitialStates[grid.attr('id')] = {
+					refreshSignal: grid.attr('data-refresh-signal')
+				};
+			});
+
+			// refresh grid on popstate
+			$(window).on('popstate', function (event) {
+				var state = event.originalEvent.state;
+
+				if (!state) { // no state - try to refresh initial state of lastly polluted grid
+					if (self.historyLastPolluted && self.historyInitialStates[self.historyLastPolluted]) {
+						$.nette.ajax({
+							url: self.historyInitialStates[self.historyLastPolluted].refreshSignal
+						});
+					}
+
+				} else if (state.twiGrid) {
+					$.nette.ajax({
+						url: state.twiGrid.refreshSignal
+					});
+				}
+			});
+		}
+	},
+
 	load: function (handler) {
 		var self = this;
 
@@ -148,6 +181,16 @@ $.nette.ext({
 			});
 		}
 
+		// history API - update URL and push state for later refreshing
+		if (this.historyAPI && payload.twiGrid && !payload.twiGrid.refreshing) {
+			window.history.pushState({
+				twiGrid: payload.twiGrid
+
+			}, null, payload.twiGrid.url);
+
+			this.historyLastPolluted = payload.twiGrid.id;
+		}
+
 		// scroll to first flash message
 		var flash = $(this.flashSelector);
 		if (flash.length) {
@@ -164,6 +207,10 @@ $.nette.ext({
 
 
 }, {
+	historyAPI: true,
+	historyInitialStates: {},
+	historyLastPolluted: null,
+
 	gridSelector: '.tw-cnt',
 	formSelector: '.form:first',
 	headerSelector: '.header:first',
