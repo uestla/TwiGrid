@@ -310,7 +310,7 @@ class DataGrid extends NControl
 	}
 
 
-	/** @return \ArrayIterator|NULL */
+	/** @return \ArrayIterator|Column[]|NULL */
 	public function getColumns()
 	{
 		return isset($this['columns']) ? $this['columns']->getComponents() : NULL;
