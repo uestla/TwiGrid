@@ -24,13 +24,19 @@ use Nette\Forms\Controls\SubmitButton as NSubmitButton;
 class DataGrid extends NControl
 {
 
-	/** @persistent bool */
+	/**
+	 * @var bool
+	 * @persistent
+	 */
 	public $polluted = FALSE;
 
 
 	// === sorting ===========
 
-	/** @persistent array */
+	/**
+	 * @var array
+	 * @persistent
+	 */
 	public $orderBy = [];
 
 	/** @var array */
@@ -42,7 +48,10 @@ class DataGrid extends NControl
 
 	// === filtering ===========
 
-	/** @persistent array */
+	/**
+	 * @var array
+	 * @persistent
+	 */
 	public $filters = [];
 
 	/** @var array */
@@ -54,7 +63,10 @@ class DataGrid extends NControl
 
 	// === inline editing ===========
 
-	/** @persistent string|NULL */
+	/**
+	 * @var string|NULL
+	 * @persistent
+	 */
 	public $iePrimary = NULL;
 
 	/** @var callable */
@@ -66,7 +78,10 @@ class DataGrid extends NControl
 
 	// === pagination ===========
 
-	/** @persistent int */
+	/**
+	 * @var int
+	 * @persistent
+	 */
 	public $page = 1;
 
 	/** @var int */
