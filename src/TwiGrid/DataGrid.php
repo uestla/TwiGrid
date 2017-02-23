@@ -10,6 +10,7 @@
 
 namespace TwiGrid;
 
+use TwiGrid\Components\Column;
 use Nette\Utils\Callback as NCallback;
 use Nette\Application\UI\Control as NControl;
 use Nette\Application\UI\Presenter as NPresenter;
@@ -314,6 +315,26 @@ class DataGrid extends NControl
 	public function getColumns()
 	{
 		return isset($this['columns']) ? $this['columns']->getComponents() : NULL;
+	}
+
+
+	/** @return bool */
+	public function hasManySortableColumns()
+	{
+		$hasMany = FALSE;
+
+		foreach ($this->getColumns() as $column) {
+			if ($column->isSortable()) {
+				if ($hasMany) { // 2nd sortable -> has many
+					return TRUE;
+
+				} else {
+					$hasMany = TRUE;
+				}
+			}
+		}
+
+		return FALSE;
 	}
 
 

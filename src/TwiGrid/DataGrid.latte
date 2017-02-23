@@ -166,7 +166,7 @@
 	<span n:class="small, glyphicon, $column->getSortDir() === TwiGrid\Components\Column::DESC ? glyphicon-chevron-down : glyphicon-chevron-up"
 	   n:if="$column->isSortedBy()"></span>
 
-	<div class="pull-right" n:if="$grid->hasMultiSort()">
+	<div class="pull-right" n:if="$grid->hasMultiSort() && $grid->hasManySortableColumns()">
 	{if $column->isSortedBy()}
 		<span class="badge" n:if="count($grid->orderBy) > 1">{$column->getSortIndex() + 1}</span>
 	{/if}
