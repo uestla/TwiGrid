@@ -214,7 +214,7 @@ class Form extends NForm
 				$subcontainer = $factory();
 
 				if (!$subcontainer instanceof NContainer) {
-					throw new \RuntimeException("Filter factory is expected to return " . NContainer::class . ", '"
+					throw new \RuntimeException('Container factory is expected to return ' . NContainer::class . ", '"
 							. (is_object($subcontainer) ? get_class($subcontainer) : gettype($subcontainer)) . "' given.");
 				}
 

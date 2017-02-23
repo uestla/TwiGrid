@@ -23,7 +23,7 @@ abstract class Component extends NComponent
 	 */
 	final public function getDataGrid($need = TRUE)
 	{
-		return $this->lookup('TwiGrid\DataGrid', $need);
+		return $this->lookup(DataGrid::class, $need);
 	}
 
 
