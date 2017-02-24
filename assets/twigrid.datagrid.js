@@ -401,6 +401,11 @@ $.nette.ext({
 
 		var self = this;
 
+		input.off('change.tw-pagination')
+			.on('change.tw-pagination', function (event) {
+				submit.trigger('click');
+			});
+
 		self.submittingBehavior(input, submit);
 
 		$(window.document).off('keydown.tw-pagination')
@@ -409,16 +414,14 @@ $.nette.ext({
 						&& self.onlyCtrlKeyPressed(event) && (event.keyCode === 37 || event.keyCode === 39)) {
 					event.preventDefault();
 
-					input.each(function () {
-						var select = $(this);
-						var selected = select.children(':selected');
-						var next = event.keyCode === 37 ? selected.prev() : selected.next();
+					var max = input.attr('max');
+					var actual = parseInt(input.val());
 
-						if (next.length) {
-							select.val(next.val());
-							select.trigger('change');
-						}
-					});
+					input.val(Math.max(1, Math.min(max, actual + (event.keyCode === 37 ? -1 : 1))));
+
+					if (actual !== parseInt(input.val())) {
+						input.trigger('change');
+					}
 				}
 			});
 	},
