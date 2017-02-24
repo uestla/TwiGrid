@@ -320,8 +320,7 @@ $.nette.ext({
 				})
 				.off('blur.tw-keyboard')
 				.on('blur.tw-keyboard', function (event) {
-					inputs.off('keypress.tw-keyboard')
-						.off('keydown.tw-keyboard');
+					inputs.off('keydown.tw-keyboard');
 				});
 		}
 	},
