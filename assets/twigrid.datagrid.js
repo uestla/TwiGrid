@@ -438,8 +438,8 @@ $.nette.ext({
 				.on('click.tw-ajax', self.buttonSelector(), handler);
 		}
 
-		form.off('click.tw-ajax', buttons.selector)
-			.on('click.tw-ajax', buttons.selector, handler);
+		buttons.off('click.tw-ajax')
+			.on('click.tw-ajax', handler);
 	},
 
 
