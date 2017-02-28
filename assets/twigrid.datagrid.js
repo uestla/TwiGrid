@@ -454,7 +454,7 @@ $.nette.ext({
 	},
 
 	isClickable: function (target) {
-		return target.nodeName.toUpperCase() in {'A': 1, 'INPUT': 1, 'TEXTAREA': 1, 'SELECT': 1, 'LABEL': 1};
+		return target.nodeName.toUpperCase() in {'A': 1, 'INPUT': 1, 'BUTTON': 1, 'TEXTAREA': 1, 'SELECT': 1, 'LABEL': 1};
 	},
 
 	isInlineSubmitter: function (target) {
