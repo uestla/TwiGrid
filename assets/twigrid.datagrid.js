@@ -115,7 +115,7 @@ $.nette.ext({
 			var gFooter = grid.find(self.footerSelector);
 
 			grid.addClass('js');
-			self.focusingBehavior(grid.find(':input'));
+			self.focusingBehavior();
 
 			// filtering
 			self.filterBehavior(
@@ -248,36 +248,19 @@ $.nette.ext({
 		return grid.find('input[type="checkbox"][name^="' + this.escape('actions[records][') + '"]');
 	},
 
-	focusingBehavior: function (inputs) {
-		var self = this,
-			focusedTmp = null;
+	focusingBehavior: function () {
+		var self = this;
+		var doc = $(window.document);
 
-		if (!self.focusingInitialized) {
-			var doc = $(window.document);
-
-			doc.off('click.tw-focus')
-				.on('click.tw-focus', function (event) {
-					var target = $(event.target);
-
-					if (!target.is(':input')) {
-						var grid = target.closest(self.gridSelector);
-						self.focusedGrid = grid.length ? grid : null;
-					}
-				});
-
-			self.focusingInitialized = true;
-		}
-
-		inputs.off('focus.tw-focus')
-			.on('focus.tw-focus', function (event) {
-				focusedTmp = self.focusedGrid;
-				self.focusedGrid = null;
-			})
-			.off('blur.tw-blur')
-			.on('blur.tw-blur', function (event) {
-				self.focusedGrid = focusedTmp;
-				focusedTmp = null;
+		doc.off('click.tw-focus')
+			.on('click.tw-focus', function (event) {
+				self.focusGridFromEvent(event);
 			});
+	},
+
+	focusGridFromEvent: function (event) {
+		var grid = $(event.target).closest(this.gridSelector);
+		this.focusedGrid = grid.length ? grid : null;
 	},
 
 	filterBehavior: function (inputs, selects, submit) {
@@ -439,27 +422,35 @@ $.nette.ext({
 			});
 	},
 
-	ajaxify: function (links, form, buttons, handler) {
+	ajaxify: function (links, form, buttons, origHandler) {
 		var self = this;
+
+		var focusGrid = function (event) {
+			self.focusGridFromEvent(event);
+		};
+
 		links.off('click.tw-ajax')
-			.on('click.tw-ajax', handler);
+			.on('click.tw-ajax', focusGrid)
+			.on('click.tw-ajax', origHandler);
 
 		if (form.hasClass('tw-ajax')) {
 			form.off('submit.tw-ajax')
-				.on('submit.tw-ajax', handler)
-				.off('click.tw-ajax', self.buttonSelector())
-				.on('click.tw-ajax', self.buttonSelector(), handler);
+				.on('submit.tw-ajax', focusGrid)
+				.on('submit.tw-ajax', origHandler)
+				.off('click.tw-ajax', this.buttonSelector())
+				.on('click.tw-ajax', this.buttonSelector(), focusGrid)
+				.on('click.tw-ajax', this.buttonSelector(), origHandler);
 		}
 
 		buttons.off('click.tw-ajax')
-			.on('click.tw-ajax', handler);
+			.on('click.tw-ajax', focusGrid)
+			.on('click.tw-ajax', origHandler);
 	},
 
 
 	// helpers
 
 	focusedGrid: null,
-	focusingInitialized: false,
 	lastChecked: null, // index of last checked row checkbox
 
 	escape: function (selector) {
