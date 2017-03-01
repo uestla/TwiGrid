@@ -176,12 +176,20 @@ $.nette.ext({
 	start: function (jqXHR, settings) {
 		if (this.focusedGrid) {
 			this.focusedGrid.addClass(this.loadingClass);
+
+			if (settings.nette && settings.nette.el) {
+				this.focusedGrid.find(settings.nette.el).attr('disabled', true).addClass('disabled');
+			}
 		}
 	},
 
 	complete: function (jqXHR, status, settings) {
 		if (this.focusedGrid) {
 			this.focusedGrid.removeClass(this.loadingClass);
+
+			if (settings.nette && settings.nette.el) {
+				this.focusedGrid.find(settings.nette.el).attr('disabled', null).removeClass('disabled');
+			}
 		}
 	},
 
