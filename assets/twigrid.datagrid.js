@@ -406,7 +406,7 @@ $.nette.ext({
 
 		$(window.document).off('keydown.tw-pagination')
 			.on('keydown.tw-pagination', function (event) {
-				if (self.focusedGrid !== null
+				if (self.focusedGrid !== null && !self.focusedGrid.find(':focus').length
 						&& self.onlyCtrlKeyPressed(event) && (event.keyCode === 37 || event.keyCode === 39)) {
 					event.preventDefault();
 
