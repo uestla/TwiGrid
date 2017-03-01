@@ -217,7 +217,6 @@ $.nette.ext({
 		}
 	}
 
-
 }, {
 	historyAPI: true,
 	historyInitialStates: {},
