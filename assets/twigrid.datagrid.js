@@ -173,6 +173,18 @@ $.nette.ext({
 		}
 	},
 
+	start: function (jqXHR, settings) {
+		if (this.focusedGrid) {
+			this.focusedGrid.addClass(this.loadingClass);
+		}
+	},
+
+	complete: function (jqXHR, status, settings) {
+		if (this.focusedGrid) {
+			this.focusedGrid.removeClass(this.loadingClass);
+		}
+	},
+
 	success: function (payload) {
 		// update form action
 		if (payload.twiGrid !== undefined && payload.twiGrid.forms !== undefined) {
@@ -216,6 +228,8 @@ $.nette.ext({
 	headerSelector: '.header:first',
 	bodySelector: '.body:first',
 	footerSelector: '.footer:first',
+
+	loadingClass: 'loading',
 
 	flashSelector: '.alert.hidable',
 	scrollSpeed: 128,

@@ -21,6 +21,10 @@
 	white-space: nowrap;
 }
 
+.tw-cnt.loading * {
+	cursor: wait !important;
+}
+
 
 
 /* === table cells ================ */
