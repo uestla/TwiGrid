@@ -330,12 +330,12 @@ $.nette.ext({
 	},
 
 	rowsChecking: function (grid, checkboxes, buttons, header) {
-		var self = this,
-			groupCheckbox = $('<input type="checkbox" />')
-				.off('change.tw-rowcheck')
-				.on('change.tw-rowcheck', function (event) {
-					checkboxes.twgChecked(groupCheckbox.prop('checked'));
-				});
+		var self = this;
+		var groupCheckbox = $('<input type="checkbox" />')
+			.off('change.tw-rowcheck')
+			.on('change.tw-rowcheck', function (event) {
+				checkboxes.twgChecked(groupCheckbox.prop('checked'));
+			});
 
 		header.find('.header-cell')
 			.off('click.tw-allrowcheck')
@@ -347,20 +347,20 @@ $.nette.ext({
 			.first().html(groupCheckbox);
 
 		checkboxes.each(function (k, val) {
-			var checkbox = $(val),
-				row = checkbox.parent().parent(),
-				handler = function () {
-					if (checkbox.prop('checked')) {
-						row.addClass('checked');
-						buttons.attr('disabled', false);
+			var checkbox = $(val);
+			var row = checkbox.parent().parent();
+			var handler = function () {
+				if (checkbox.prop('checked')) {
+					row.addClass('checked');
+					buttons.attr('disabled', false);
 
-					} else {
-						row.removeClass('checked');
-						if (!checkboxes.filter(':checked:first').length) {
-							buttons.attr('disabled', true);
-						}
+				} else {
+					row.removeClass('checked');
+					if (!checkboxes.filter(':checked:first').length) {
+						buttons.attr('disabled', true);
 					}
-				};
+				}
+			};
 
 			handler();
 
