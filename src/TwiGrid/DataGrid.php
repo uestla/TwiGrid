@@ -899,7 +899,7 @@ class DataGrid extends NControl
 
 		if ($button instanceof NSubmitButton) {
 			$name = $button->getName();
-			$path = $button->getParent()->lookupPath('TwiGrid\Form');
+			$path = $button->getParent()->lookupPath(Form::class);
 
 			if ("$path-$name" === 'filters-buttons-filter') {
 				$this->addFilterCriteria();
