@@ -168,10 +168,7 @@ class DataGrid extends NControl
 	{}
 
 
-	/**
-	 * @param  array $params
-	 * @return void
-	 */
+	/** @inheritdoc */
 	public function loadState(array $params)
 	{
 		parent::loadState(static::processParams($params));
