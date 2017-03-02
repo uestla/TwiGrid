@@ -100,6 +100,23 @@ class RecordHandler
 
 
 	/**
+	 * @param  string $primary
+	 * @param  array|\Traversable $data
+	 * @return mixed|NULL
+	 */
+	public function findIn($primary, $data)
+	{
+		foreach ($data as $record) {
+			if ($this->is($record, $primary)) {
+				return $record;
+			}
+		}
+
+		return NULL;
+	}
+
+
+	/**
 	 * @param  mixed $record
 	 * @param  array|string $primary
 	 * @return bool

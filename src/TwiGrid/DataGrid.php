@@ -389,7 +389,7 @@ class DataGrid extends NControl
 		$act = $this['rowActions']->getComponent($action);
 
 		if (!$act->isProtected() || Helpers::checkCsrfToken($this->session, $token)) {
-			$act->invoke(Helpers::findRecord($this->getData(), $primary, $this->getRecordHandler()));
+			$act->invoke($this->getRecordHandler()->findIn($primary, $this->getData()));
 			$this->refreshState();
 			$this->redraw(TRUE, TRUE, ['body', 'footer']);
 
@@ -923,12 +923,12 @@ class DataGrid extends NControl
 				$this->paginate($form->getPage());
 
 			} elseif ($path === 'actions-buttons') {
-				$checked = $form->getCheckedRecords([$this->getRecordHandler(), 'primaryToString']);
+				$checked = $form->getCheckedRecords();
 
 				if ($checked !== NULL) {
 					$records = [];
 					foreach ($checked as $primaryString) {
-						$record = Helpers::findRecord($this->getData(), $primaryString, $this->getRecordHandler());
+						$record = $this->getRecordHandler()->findIn($primaryString, $this->getData());
 
 						if ($record !== NULL) {
 							$records[] = $record;
@@ -945,7 +945,7 @@ class DataGrid extends NControl
 					$values = $form->getInlineValues();
 
 					if ($values !== NULL) {
-						NCallback::invoke($this->ieProcessCallback, Helpers::findRecord($this->getData(), $this->iePrimary, $this->getRecordHandler()), $values);
+						NCallback::invoke($this->ieProcessCallback, $this->getRecordHandler()->findIn($this->iePrimary, $this->getData()), $values);
 						$this->deactivateInlineEditing();
 					}
 
