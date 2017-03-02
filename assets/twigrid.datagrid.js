@@ -211,15 +211,24 @@ $.nette.ext({
 			this.historyLastPolluted = payload.twiGrid.id;
 		}
 
-		// scroll to first flash message
-		var flash = $(this.flashSelector);
-		if (flash.length) {
-			var offset = flash.offset().top,
-				docOffset = $(window).scrollTop();
+		// scroll to most top flash message
+		var minFlashTop = null;
 
-			if (docOffset > offset) {
+		$(this.flashSelector, this.gridSelector).each(function () {
+			var flashTop = $(this).offset().top;
+
+			if (minFlashTop === null || flashTop > minFlashTop) {
+				minFlashTop = flashTop;
+			}
+		});
+
+		if (minFlashTop !== null) {
+			var windowTop = $(window).scrollTop();
+
+			if (windowTop > minFlashTop) {
 				$('html, body').animate({
-					scrollTop: offset
+					scrollTop: minFlashTop
+
 				}, this.scrollSpeed);
 			}
 		}
