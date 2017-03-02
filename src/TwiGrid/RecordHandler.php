@@ -118,7 +118,7 @@ class RecordHandler
 
 	/**
 	 * @param  mixed $record
-	 * @param  array|string $primary
+	 * @param  string $primary
 	 * @return bool
 	 */
 	public function is($record, $primary)
