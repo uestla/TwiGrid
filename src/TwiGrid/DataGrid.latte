@@ -97,7 +97,7 @@
 {define header-sort-row}
 
 	<tr n:snippet="header-sort">
-		<th rowspan="2" class="header-cell center" n:if="$hasGroupActions"></th>
+		<th rowspan="2" class="header-cell text-center" n:if="$hasGroupActions"></th>
 
 		{foreach $columns as $name => $column}
 {var $params = [
@@ -134,7 +134,7 @@
 {/ifset}
 {/foreach}
 
-		<th class="filter-cell center">
+		<th class="filter-cell text-center">
 {include #filter-buttons |indent:2}
 		</th>
 	</tr>
@@ -223,7 +223,7 @@
 			$isInlineEdited = $hasInlineEdit && $iePrimary === $primaryString}
 		<tr n:class="$isInlineEdited ? success">
 
-			<td class="body-cell center" n:if="$hasGroupActions">
+			<td class="body-cell text-center" n:if="$hasGroupActions">
 				<input n:name="'actions-records-' . $primaryString">
 			</td>
 
@@ -248,7 +248,7 @@
 {/if}
 		{/foreach}
 
-			<td n:if="$hasFilters || $hasRowActions || $hasInlineEdit" class="body-cell center">
+			<td n:if="$hasFilters || $hasRowActions || $hasInlineEdit" class="body-cell text-center">
 			{if $hasRowActions || $hasInlineEdit}
 {include #row-actions, i => $iterator->counter - 1, $recordVariable => $record, isInlineEdited => $isInlineEdited, primaryString => $primaryString |indent:3}
 
@@ -413,7 +413,7 @@
 {php $grid->addPaginationControls() }
 	<div class="col-xs-4" n:if="!$hasGroupActions"></div>
 
-	<div class="col-xs-4 tw-pagination center">
+	<div class="col-xs-4 tw-pagination text-center">
 		<a n:href="paginate!, p => max(1, $grid->page - 1)" n:class="btn, btn-default, $grid->page <= 1 ? disabled, tw-ajax">
 			{_'Previous'}
 		</a>
@@ -433,7 +433,7 @@
 {* === ... ============================================ *}
 
 {define footer-info}
-	<div n:class="!$hasGroupActions && $grid->getPageCount() <= 1 ? col-xs-12 : col-xs-4, right" n:if="$isPaginated">
+	<div n:class="!$hasGroupActions && $grid->getPageCount() <= 1 ? col-xs-12 : col-xs-4, text-right" n:if="$isPaginated">
 		{($grid->page - 1) * $grid->getItemsPerPage() + 1}-{min($grid->getItemCount(), ($grid->page - 1) * $grid->getItemsPerPage() + $grid->getItemsPerPage())} / {_'%d items', $grid->getItemCount()}
 	</div>
 {/define}

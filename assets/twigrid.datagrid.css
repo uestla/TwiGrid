@@ -7,30 +7,6 @@
 }
 
 
-.tw-cnt .left
-{
-	text-align: left;
-}
-
-
-.tw-cnt .center
-{
-	text-align: center;
-}
-
-
-.tw-cnt .right
-{
-	text-align: right;
-}
-
-
-.tw-cnt .nowrap
-{
-	white-space: nowrap;
-}
-
-
 .tw-cnt.loading *
 {
 	cursor: wait !important;
