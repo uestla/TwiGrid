@@ -108,27 +108,27 @@ $.nette.ext({
 		$(self.gridSelector).each(function () {
 			// grid parts
 			var grid = $(this);
-			var gForm = grid.find(self.formSelector);
-			var gHeader = grid.find(self.headerSelector);
-			var filterSubmit = gHeader.find(self.buttonSelector('[name="' + self.escape('filters[buttons][filter]') + '"]'));
-			var gBody = grid.find(self.bodySelector);
-			var gFooter = grid.find(self.footerSelector);
+			var gForm = $(self.formSelector, grid);
+			var gHeader = $(self.headerSelector, grid);
+			var filterSubmit = $(self.buttonSelector('[name="' + self.escape('filters[buttons][filter]') + '"]'), gHeader);
+			var gBody = $(self.bodySelector, grid);
+			var gFooter = $(self.footerSelector, grid);
 
 			grid.addClass('js');
 			self.focusingBehavior();
 
 			// filtering
 			self.filterBehavior(
-				gHeader.find(':input:not(' + self.buttonSelector() + ')'),
-				gHeader.find('select[name^="' + self.escape('filters[criteria][') + '"]'),
+				$(':input:not(' + self.buttonSelector() + ')', gHeader),
+				$('select[name^="' + self.escape('filters[criteria][') + '"]', gHeader),
 				filterSubmit
 			);
 
 			// inline editing
 			self.inlineEditBehavior(
-				gBody.find(':input[name^="' + self.escape('inline[values][') + '"]'),
-				gBody.find(self.buttonSelector('[name="' + self.escape('inline[buttons][edit]') + '"]')),
-				gBody.find(self.buttonSelector('[name="' + self.escape('inline[buttons][cancel]') + '"]')),
+				$(':input[name^="' + self.escape('inline[values][') + '"]', gBody),
+				$(self.buttonSelector('[name="' + self.escape('inline[buttons][edit]') + '"]'), gBody),
+				$(self.buttonSelector('[name="' + self.escape('inline[buttons][cancel]') + '"]'), gBody),
 				gBody.children()
 			);
 
@@ -138,7 +138,7 @@ $.nette.ext({
 				self.rowsChecking(
 					grid,
 					checkboxes,
-					gFooter.find(self.buttonSelector('[name^="' + self.escape('actions[buttons][') + '"]')),
+					$(self.buttonSelector('[name^="' + self.escape('actions[buttons][') + '"]'), gFooter),
 					gHeader
 				);
 			}
@@ -146,15 +146,15 @@ $.nette.ext({
 			// pagination
 			self.paginationBehavior(
 				grid,
-				gFooter.find('input[name^="' + self.escape('pagination[controls][') + '"]'),
-				gFooter.find(self.buttonSelector('[name="' + self.escape('pagination[buttons][change]') + '"]'))
+				$('input[name^="' + self.escape('pagination[controls][') + '"]', gFooter),
+				$(self.buttonSelector('[name="' + self.escape('pagination[buttons][change]') + '"]'), gFooter)
 			);
 
 			// ajaxification
 			self.ajaxify(
-				grid.find('a.tw-ajax'),
+				$('a.tw-ajax', grid),
 				gForm,
-				grid.find(self.buttonSelector('.tw-ajax')),
+				$(self.buttonSelector('.tw-ajax'), grid),
 				handler
 			);
 		});
@@ -178,7 +178,7 @@ $.nette.ext({
 			this.focusedGrid.addClass(this.loadingClass);
 
 			if (settings.nette && settings.nette.el) {
-				this.focusedGrid.find(settings.nette.el).attr('disabled', true).addClass('disabled');
+				$(settings.nette.el, this.focusedGrid).attr('disabled', true).addClass('disabled');
 			}
 		}
 	},
@@ -188,7 +188,7 @@ $.nette.ext({
 			this.focusedGrid.removeClass(this.loadingClass);
 
 			if (settings.nette && settings.nette.el) {
-				this.focusedGrid.find(settings.nette.el).attr('disabled', null).removeClass('disabled');
+				$(settings.nette.el, this.focusedGrid).attr('disabled', null).removeClass('disabled');
 			}
 		}
 	},
@@ -253,7 +253,7 @@ $.nette.ext({
 	},
 
 	getGroupActionCheckboxes: function (grid) {
-		return grid.find('input[type="checkbox"][name^="' + this.escape('actions[records][') + '"]');
+		return $('input[type="checkbox"][name^="' + this.escape('actions[records][') + '"]', grid);
 	},
 
 	focusingBehavior: function () {
@@ -291,7 +291,7 @@ $.nette.ext({
 		rows.off('click.tw-inline')
 			.on('click.tw-inline', function (event) {
 				var row = $(this);
-				var edit = row.find(self.buttonSelector('[name^="' + self.escape('inline[buttons][') + '"]:first'));
+				var edit = $(self.buttonSelector('[name^="' + self.escape('inline[buttons][') + '"]:first'), row);
 
 				if (edit.length && !(edit.attr('name') in {'inline[buttons][edit]': 1, 'inline[buttons][cancel]': 1})
 						&& !self.isClickable(event.target) && self.onlyCtrlKeyPressed(event)) {
@@ -337,7 +337,7 @@ $.nette.ext({
 				checkboxes.twgChecked(groupCheckbox.prop('checked'));
 			});
 
-		header.find('.header-cell')
+		$('.header-cell', header)
 			.off('click.tw-allrowcheck')
 			.on('click.tw-allrowcheck', function (event) {
 				if (!self.isClickable(event.target) && self.noMetaKeysPressed(event)) {
@@ -414,7 +414,7 @@ $.nette.ext({
 
 		$(window.document).off('keydown.tw-pagination')
 			.on('keydown.tw-pagination', function (event) {
-				if (self.focusedGrid !== null && !self.focusedGrid.find(':focus').length
+				if (self.focusedGrid !== null && !$(':focus', self.focusedGrid).length
 						&& self.onlyCtrlKeyPressed(event) && (event.keyCode === 37 || event.keyCode === 39)) {
 					event.preventDefault();
 
