@@ -26,12 +26,12 @@ class RecordHandler
 
 
 	/**
-	 * @param  string|string[] $key
+	 * @param  string[] $keys
 	 * @return DataGrid
 	 */
-	public function setPrimaryKey($key)
+	public function setPrimaryKey(array $keys)
 	{
-		$this->primaryKey = is_array($key) ? $key : func_get_args();
+		$this->primaryKey = $keys;
 		return $this;
 	}
 

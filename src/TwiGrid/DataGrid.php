@@ -551,7 +551,7 @@ class DataGrid extends NControl
 	 */
 	public function setPrimaryKey($primaryKey)
 	{
-		$this->getRecordHandler()->setPrimaryKey($primaryKey);
+		$this->getRecordHandler()->setPrimaryKey(is_array($primaryKey) ? $primaryKey : func_get_args());
 		return $this;
 	}
 
@@ -783,7 +783,7 @@ class DataGrid extends NControl
 	/** @return Form */
 	protected function createComponentForm()
 	{
-		$form = new Form;
+		$form = new Form($this->getRecordHandler());
 		$form->addProtection();
 		$form->setTranslator($this->translator);
 		$form->onSuccess[] = [$this, 'processForm'];
@@ -821,7 +821,7 @@ class DataGrid extends NControl
 	{
 		if ($this->getGroupActions() !== NULL) {
 			$this->addGroupActionButtons();
-			$this['form']->addGroupActionCheckboxes([$this->getRecordHandler(), 'primaryToString']);
+			$this['form']->addGroupActionCheckboxes();
 		}
 
 		return $this;
@@ -845,7 +845,6 @@ class DataGrid extends NControl
 		if ($this->ieContainerFactory !== NULL) {
 			$this['form']->addInlineEditControls(
 				$this->getData(),
-				$this->getRecordHandler(),
 				$this->ieContainerFactory,
 				$this->iePrimary
 			);

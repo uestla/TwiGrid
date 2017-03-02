@@ -20,6 +20,17 @@ use Nette\Forms\Container as NContainer;
 class Form extends NForm
 {
 
+	/** @var RecordHandler */
+	private $recordHandler;
+
+
+	/** @param  RecordHandler $handler */
+	public function __construct(RecordHandler $handler)
+	{
+		$this->recordHandler = $handler;
+	}
+
+
 	/**
 	 * @param  callable $factory
 	 * @param  array $defaults
@@ -66,22 +77,18 @@ class Form extends NForm
 	}
 
 
-	/**
-	 * @param  callable $primaryToString
-	 * @return Form
-	 */
-	public function addGroupActionCheckboxes(callable $primaryToString)
+	/** @return Form */
+	public function addGroupActionCheckboxes()
 	{
 		if ($this->lazyCreateContainer('actions', 'records', $records)) {
 			$i = 0;
 			foreach ($this->getParent()->getData() as $record) {
-				$primary = $primaryToString($record);
+				$primary = $this->recordHandler->primaryToString($record);
 				$records[$primary] = $checkbox = new Checkbox;
 
 				if ($i++ === 0) {
 					$checkbox->addRule(__CLASS__ . '::validateCheckedCount', 'Choose at least one record.');
 				}
-
 			}
 		}
 
@@ -109,13 +116,10 @@ class Form extends NForm
 	}
 
 
-	/**
-	 * @param  callable $primaryToString
-	 * @return array|NULL
-	 */
-	public function getCheckedRecords(callable $primaryToString)
+	/** @return array|NULL */
+	public function getCheckedRecords()
 	{
-		$this->addGroupActionCheckboxes($primaryToString);
+		$this->addGroupActionCheckboxes();
 
 		$this->validate();
 		if ($this->isValid()) {
@@ -128,17 +132,16 @@ class Form extends NForm
 
 	/**
 	 * @param  array|\Traversable $data
-	 * @param  RecordHandler $record
 	 * @param  callable $containerFactory
 	 * @param  string|NULL $iePrimary
 	 * @return Form
 	 */
-	public function addInlineEditControls($data, RecordHandler $record, callable $containerFactory, $iePrimary)
+	public function addInlineEditControls($data, callable $containerFactory, $iePrimary)
 	{
 		if ($this->lazyCreateContainer('inline', 'buttons', $buttons)) {
-			foreach ($data as $rec) {
-				if ($record->is($rec, $iePrimary)) {
-					$this['inline']['values'] = $containerFactory($rec);
+			foreach ($data as $record) {
+				if ($this->recordHandler->is($record, $iePrimary)) {
+					$this['inline']['values'] = $containerFactory($record);
 					$buttons->addSubmit('edit', 'Edit')
 							->setValidationScope([$this['inline']['values']]);
 
@@ -147,7 +150,7 @@ class Form extends NForm
 				} else {
 					$submit = new SubmitButton('Edit inline');
 					$submit->setValidationScope([]);
-					$buttons[$record->primaryToString($rec)] = $submit;
+					$buttons[$this->recordHandler->primaryToString($record)] = $submit;
 				}
 
 			}
