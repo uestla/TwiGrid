@@ -83,8 +83,8 @@ class Form extends NForm
 		if ($this->lazyCreateContainer('actions', 'records', $records)) {
 			$i = 0;
 			foreach ($this->getParent()->getData() as $record) {
-				$primary = $this->recordHandler->primaryToString($record);
-				$records[$primary] = $checkbox = new Checkbox;
+				$hash = $this->recordHandler->getPrimaryHash($record);
+				$records[$hash] = $checkbox = new Checkbox;
 
 				if ($i++ === 0) {
 					$checkbox->addRule(__CLASS__ . '::validateCheckedCount', 'Choose at least one record.');
@@ -150,7 +150,7 @@ class Form extends NForm
 				} else {
 					$submit = new SubmitButton('Edit inline');
 					$submit->setValidationScope([]);
-					$buttons[$this->recordHandler->primaryToString($record)] = $submit;
+					$buttons[$this->recordHandler->getPrimaryHash($record)] = $submit;
 				}
 
 			}

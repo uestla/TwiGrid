@@ -995,7 +995,7 @@ class DataGrid extends NControl
 
 		$latte = $template->getLatte();
 		$latte->addFilter('translate', [$this, 'translate']);
-		$latte->addFilter('primaryToString', [$this->getRecordHandler(), 'primaryToString']);
+		$latte->addFilter('primaryToString', [$this->getRecordHandler(), 'getPrimaryHash']);
 		$latte->addFilter('getValue', [$this->getRecordHandler(), 'getValue']);
 		$latte->addFilter('sortLink', function (Components\Column $c, $m = Helpers::SORT_LINK_SINGLE) {
 			return Helpers::createSortLink($this, $c, $m);

@@ -91,11 +91,26 @@ class RecordHandler
 
 	/**
 	 * @param  mixed $record
+	 * @return array
+	 */
+	public function getPrimary($record)
+	{
+		$primaries = [];
+		foreach ($this->primaryKey as $column) {
+			$primaries[$column] = (string) $this->getValue($record, $column); // intentional string conversion due to later comparison
+		}
+
+		return $primaries;
+	}
+
+
+	/**
+	 * @param  mixed $record
 	 * @return string
 	 */
-	public function primaryToString($record)
+	public function getPrimaryHash($record)
 	{
-		return implode(static::PRIMARY_SEPARATOR, $this->getPrimary($record));
+		return substr(sha1(implode(static::PRIMARY_SEPARATOR, $this->getPrimary($record))), 0, 8);
 	}
 
 
@@ -123,38 +138,7 @@ class RecordHandler
 	 */
 	public function is($record, $primary)
 	{
-		return $this->primaryToString($record) === $primary;
-	}
-
-
-	/**
-	 * @param  string $s
-	 * @return array|string
-	 */
-	public function stringToPrimary($s)
-	{
-		$primaries = explode(static::PRIMARY_SEPARATOR, $s);
-
-		if (count($primaries) === 1) {
-			return $primaries[0];
-		}
-
-		return array_combine($this->primary, $primaries);
-	}
-
-
-	/**
-	 * @param  mixed $record
-	 * @return array
-	 */
-	protected function getPrimary($record)
-	{
-		$primaries = [];
-		foreach ($this->primaryKey as $column) {
-			$primaries[$column] = (string) $this->getValue($record, $column); // intentional string conversion due to later comparison
-		}
-
-		return $primaries;
+		return $this->getPrimaryHash($record) === $primary;
 	}
 
 }
