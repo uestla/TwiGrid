@@ -11,6 +11,7 @@
 namespace TwiGrid;
 
 
+/** @internal */
 class Record
 {
 
