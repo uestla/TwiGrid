@@ -1,68 +1,92 @@
 
 /* === common ================ */
 
-.tw-cnt.js .js-hid {
+.tw-cnt.js .js-hid
+{
 	display: none;
 }
 
-.tw-cnt .left {
+
+.tw-cnt .left
+{
 	text-align: left;
 }
 
-.tw-cnt .center {
+
+.tw-cnt .center
+{
 	text-align: center;
 }
 
-.tw-cnt .right {
+
+.tw-cnt .right
+{
 	text-align: right;
 }
 
-.tw-cnt .nowrap {
+
+.tw-cnt .nowrap
+{
 	white-space: nowrap;
 }
 
-.tw-cnt.loading * {
+
+.tw-cnt.loading *
+{
 	cursor: wait !important;
 }
 
 
-
 /* === table cells ================ */
 
-.tw-cnt thead th {
+.tw-cnt thead th
+{
 	background: #eee;
 	white-space: nowrap;
 }
 
-.tw-cnt table > thead > tr > th, .tw-cnt table > tbody > tr th, .tw-cnt table > tbody > tr > td {
+
+.tw-cnt table > thead > tr > th,
+.tw-cnt table > tbody > tr th,
+.tw-cnt table > tbody > tr > td
+{
 	vertical-align: middle;
 }
 
-.tw-cnt .alert-warning {
+
+.tw-cnt .alert-warning
+{
 	background: #f2dede;
 }
 
-.tw-cnt tr.checked > td {
+
+.tw-cnt tr.checked > td
+{
 	background: #d9edf7 !important;
 }
 
-.tw-cnt tr.checked:hover > td {
+
+.tw-cnt tr.checked:hover > td
+{
 	background: #c4e3f3 !important;
 }
 
 
-
 /* === sorting ================ */
 
-.tw-cnt .header-cell .multi-sort {
+.tw-cnt .header-cell .multi-sort
+{
 	padding: 2px 4px 4px;
 }
 
 
-
 /* === form controls ================ */
 
-.tw-cnt select, .tw-cnt input[type="text"], .tw-cnt input[type="date"], .tw-cnt textarea {
+.tw-cnt select,
+.tw-cnt input[type="text"],
+.tw-cnt input[type="date"],
+.tw-cnt textarea
+{
 	display: block;
 	margin: 0;
 	width: 100%;
@@ -73,36 +97,40 @@
 }
 
 
-
 /* === footer ================ */
 
-.tw-cnt .footer-cell > div {
+.tw-cnt .footer-cell > div
+{
 	line-height: 32px;
 }
 
 
-
 /* === group actions ================ */
 
-.tw-cnt .action-buttons-label {
+.tw-cnt .action-buttons-label
+{
 	display: inline-block;
 }
-
 
 
 /* === pagination ================ */
 
-.tw-cnt .tw-pagination {
+.tw-cnt .tw-pagination
+{
 	margin-top: 0;
 	margin-bottom: 0;
 }
 
-.tw-cnt .tw-pagination input[type="number"] {
+
+.tw-cnt .tw-pagination input[type="number"]
+{
 	width: auto;
 	display: inline-block;
 }
 
-.tw-cnt .tw-pagination .actual {
+
+.tw-cnt .tw-pagination .actual
+{
 	margin: 0 8px;
 	display: inline-block;
 }
