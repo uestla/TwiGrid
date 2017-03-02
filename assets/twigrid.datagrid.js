@@ -215,7 +215,15 @@ $.nette.ext({
 		var minFlashTop = null;
 
 		$(this.flashSelector, this.gridSelector).each(function () {
-			var flashTop = $(this).offset().top;
+			var flash = $(this);
+			flash.append($('<button />', {
+				type: 'button',
+				class: 'close',
+				html: '&times;',
+				'data-dismiss': 'alert'
+			}));
+
+			var flashTop = flash.offset().top;
 
 			if (minFlashTop === null || flashTop > minFlashTop) {
 				minFlashTop = flashTop;
@@ -247,7 +255,7 @@ $.nette.ext({
 
 	loadingClass: 'loading',
 
-	flashSelector: '.alert.hidable',
+	flashSelector: '.alert',
 	scrollSpeed: 128,
 
 	buttonSelector: function (selector) {
