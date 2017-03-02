@@ -128,12 +128,12 @@ class Form extends NForm
 
 	/**
 	 * @param  array|\Traversable $data
-	 * @param  Record $record
+	 * @param  RecordHandler $record
 	 * @param  callable $containerFactory
 	 * @param  string|NULL $iePrimary
 	 * @return Form
 	 */
-	public function addInlineEditControls($data, Record $record, callable $containerFactory, $iePrimary)
+	public function addInlineEditControls($data, RecordHandler $record, callable $containerFactory, $iePrimary)
 	{
 		if ($this->lazyCreateContainer('inline', 'buttons', $buttons)) {
 			foreach ($data as $rec) {

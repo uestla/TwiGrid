@@ -105,8 +105,8 @@ class DataGrid extends NControl
 
 	// === data ===========
 
-	/** @var Record */
-	private $record = NULL;
+	/** @var RecordHandler */
+	private $recordHandler = NULL;
 
 	/** @var callable */
 	private $dataLoader = NULL;
@@ -234,7 +234,7 @@ class DataGrid extends NControl
 			throw new \RuntimeException('Data loader not set.');
 		}
 
-		if ($this->getRecord()->getPrimaryKey() === NULL) {
+		if ($this->getRecordHandler()->getPrimaryKey() === NULL) {
 			throw new \RuntimeException('Primary key not set.');
 		}
 
@@ -389,7 +389,7 @@ class DataGrid extends NControl
 		$act = $this['rowActions']->getComponent($action);
 
 		if (!$act->isProtected() || Helpers::checkCsrfToken($this->session, $token)) {
-			$act->invoke(Helpers::findRecord($this->getData(), $primary, $this->getRecord()));
+			$act->invoke(Helpers::findRecord($this->getData(), $primary, $this->getRecordHandler()));
 			$this->refreshState();
 			$this->redraw(TRUE, TRUE, ['body', 'footer']);
 
@@ -534,14 +534,14 @@ class DataGrid extends NControl
 
 	// === DATA LOADING ======================================================
 
-	/** @return Record */
-	private function getRecord()
+	/** @return RecordHandler */
+	private function getRecordHandler()
 	{
-		if ($this->record === NULL) {
-			$this->record = new Record;
+		if ($this->recordHandler === NULL) {
+			$this->recordHandler = new RecordHandler;
 		}
 
-		return $this->record;
+		return $this->recordHandler;
 	}
 
 
@@ -551,7 +551,7 @@ class DataGrid extends NControl
 	 */
 	public function setPrimaryKey($primaryKey)
 	{
-		$this->getRecord()->setPrimaryKey($primaryKey);
+		$this->getRecordHandler()->setPrimaryKey($primaryKey);
 		return $this;
 	}
 
@@ -574,7 +574,7 @@ class DataGrid extends NControl
 			$order = $this->orderBy;
 			$primaryDir = count($order) ? end($order) : Components\Column::ASC;
 
-			foreach ($this->getRecord()->getPrimaryKey() as $column) {
+			foreach ($this->getRecordHandler()->getPrimaryKey() as $column) {
 				if (!isset($order[$column])) {
 					$order[$column] = $primaryDir;
 				}
@@ -611,7 +611,7 @@ class DataGrid extends NControl
 	 */
 	public function setValueGetter($callback = NULL)
 	{
-		$this->getRecord()->setValueGetter($callback);
+		$this->getRecordHandler()->setValueGetter($callback);
 		return $this;
 	}
 
@@ -821,7 +821,7 @@ class DataGrid extends NControl
 	{
 		if ($this->getGroupActions() !== NULL) {
 			$this->addGroupActionButtons();
-			$this['form']->addGroupActionCheckboxes([$this->getRecord(), 'primaryToString']);
+			$this['form']->addGroupActionCheckboxes([$this->getRecordHandler(), 'primaryToString']);
 		}
 
 		return $this;
@@ -845,7 +845,7 @@ class DataGrid extends NControl
 		if ($this->ieContainerFactory !== NULL) {
 			$this['form']->addInlineEditControls(
 				$this->getData(),
-				$this->getRecord(),
+				$this->getRecordHandler(),
 				$this->ieContainerFactory,
 				$this->iePrimary
 			);
@@ -923,12 +923,12 @@ class DataGrid extends NControl
 				$this->paginate($form->getPage());
 
 			} elseif ($path === 'actions-buttons') {
-				$checked = $form->getCheckedRecords([$this->getRecord(), 'primaryToString']);
+				$checked = $form->getCheckedRecords([$this->getRecordHandler(), 'primaryToString']);
 
 				if ($checked !== NULL) {
 					$records = [];
 					foreach ($checked as $primaryString) {
-						$record = Helpers::findRecord($this->getData(), $primaryString, $this->getRecord());
+						$record = Helpers::findRecord($this->getData(), $primaryString, $this->getRecordHandler());
 
 						if ($record !== NULL) {
 							$records[] = $record;
@@ -945,7 +945,7 @@ class DataGrid extends NControl
 					$values = $form->getInlineValues();
 
 					if ($values !== NULL) {
-						NCallback::invoke($this->ieProcessCallback, Helpers::findRecord($this->getData(), $this->iePrimary, $this->getRecord()), $values);
+						NCallback::invoke($this->ieProcessCallback, Helpers::findRecord($this->getData(), $this->iePrimary, $this->getRecordHandler()), $values);
 						$this->deactivateInlineEditing();
 					}
 
@@ -996,8 +996,8 @@ class DataGrid extends NControl
 
 		$latte = $template->getLatte();
 		$latte->addFilter('translate', [$this, 'translate']);
-		$latte->addFilter('primaryToString', [$this->getRecord(), 'primaryToString']);
-		$latte->addFilter('getValue', [$this->getRecord(), 'getValue']);
+		$latte->addFilter('primaryToString', [$this->getRecordHandler(), 'primaryToString']);
+		$latte->addFilter('getValue', [$this->getRecordHandler(), 'getValue']);
 		$latte->addFilter('sortLink', function (Components\Column $c, $m = Helpers::SORT_LINK_SINGLE) {
 			return Helpers::createSortLink($this, $c, $m);
 		});

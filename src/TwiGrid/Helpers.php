@@ -64,10 +64,10 @@ abstract class Helpers
 	/**
 	 * @param  array|\Traversable $data
 	 * @param  mixed $primaryString
-	 * @param  Record $record
+	 * @param  RecordHandler $record
 	 * @return mixed|NULL
 	 */
-	public static function findRecord($data, $primaryString, Record $record)
+	public static function findRecord($data, $primaryString, RecordHandler $record)
 	{
 		$primary = $record->stringToPrimary($primaryString);
 

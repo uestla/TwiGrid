@@ -12,7 +12,7 @@ namespace TwiGrid;
 
 
 /** @internal */
-class Record
+class RecordHandler
 {
 
 	/** @var array */
