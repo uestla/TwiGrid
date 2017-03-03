@@ -263,11 +263,20 @@
 			{/foreach}
 
 		{else}
-			<tr class="warning">
-				<td class="body-cell" colspan="{$columnCount}">{_'twigrid.data.no_data'}</td>
-			</tr>
+			{include #body-no-data}
 		{/if $iterations}
 	</tbody>
+
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define body-no-data}
+
+	<tr class="warning">
+		<td class="body-cell" colspan="{$columnCount}">{_'twigrid.data.no_data'}</td>
+	</tr>
 
 {/define}
 
