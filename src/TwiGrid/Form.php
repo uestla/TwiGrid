@@ -54,10 +54,10 @@ class Form extends NForm
 	public function addFilterButtons($hasFilters)
 	{
 		if ($this->lazyCreateContainer('filters', 'buttons', $buttons)) {
-			$buttons->addSubmit('filter', 'Filter');
+			$buttons->addSubmit('filter', 'twigrid.filters.filter');
 
 			if ($hasFilters) {
-				$buttons->addSubmit('reset', 'Cancel')->setValidationScope([]);
+				$buttons->addSubmit('reset', 'twigrid.filters.cancel')->setValidationScope([]);
 			}
 		}
 
@@ -87,7 +87,7 @@ class Form extends NForm
 				$records[$hash] = $checkbox = new Checkbox;
 
 				if ($i++ === 0) {
-					$checkbox->addRule(__CLASS__ . '::validateCheckedCount', 'Choose at least one record.');
+					$checkbox->addRule(__CLASS__ . '::validateCheckedCount', 'twigrid.group_actions.checked_count_message');
 				}
 			}
 		}
@@ -142,13 +142,13 @@ class Form extends NForm
 			foreach ($data as $record) {
 				if ($this->recordHandler->is($record, $iePrimary)) {
 					$this['inline']['values'] = $containerFactory($record);
-					$buttons->addSubmit('edit', 'Edit')
+					$buttons->addSubmit('edit', 'twigrid.inline.edit_confirm')
 							->setValidationScope([$this['inline']['values']]);
 
-					$buttons->addSubmit('cancel', 'Cancel')->setValidationScope([]);
+					$buttons->addSubmit('cancel', 'twigrid.inline.cancel')->setValidationScope([]);
 
 				} else {
-					$submit = new SubmitButton('Edit inline');
+					$submit = new SubmitButton('twigrid.inline.edit');
 					$submit->setValidationScope([]);
 					$buttons[$this->recordHandler->getPrimaryHash($record)] = $submit;
 				}
@@ -177,14 +177,14 @@ class Form extends NForm
 	{
 		if ($this->lazyCreateContainer('pagination', 'controls', $controls)) {
 			$controls->addText('page', 'Page')
-				->setRequired('Please select a page to go to.')
-				->addRule(Form::INTEGER, 'Page number must be an integer.')
-				->addRule(Form::RANGE, 'Page number must be greater than %d and %d.', [1, $pageCount])
+				->setRequired('twigrid.pagination.page_required')
+				->addRule(Form::INTEGER, 'twigrid.pagination.page_integer')
+				->addRule(Form::RANGE, 'twigrid.pagination.page_range', [1, $pageCount])
 				->setDefaultValue($current);
 		}
 
 		if ($this->lazyCreateContainer('pagination', 'buttons', $buttons)) {
-			$buttons->addSubmit('change', 'Change page')
+			$buttons->addSubmit('change', 'twigrid.pagination.change')
 				->setValidationScope([$this['pagination']['controls']]);
 		}
 

@@ -277,6 +277,17 @@ class DataGrid extends NControl
 
 	// === L10N ======================================================
 
+	/** @return NITranslator */
+	public function getTranslator()
+	{
+		if ($this->translator === NULL) {
+			$this->translator = new Components\Translator;
+		}
+
+		return $this->translator;
+	}
+
+
 	/**
 	 * @param  NITranslator $translator
 	 * @return DataGrid
@@ -295,11 +306,7 @@ class DataGrid extends NControl
 	 */
 	public function translate($s, $count = NULL)
 	{
-		if ($this->translator === NULL) {
-			return sprintf($s, $count);
-		}
-
-		return $this->translator->translate($s, $count);
+		return $this->getTranslator()->translate($s, $count);
 	}
 
 
@@ -785,7 +792,7 @@ class DataGrid extends NControl
 	{
 		$form = new Form($this->getRecordHandler());
 		$form->addProtection();
-		$form->setTranslator($this->translator);
+		$form->setTranslator($this->getTranslator());
 		$form->onSuccess[] = [$this, 'processForm'];
 		$form->onSubmit[] = [$this, 'formSubmitted'];
 
