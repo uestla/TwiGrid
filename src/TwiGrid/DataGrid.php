@@ -227,15 +227,15 @@ class DataGrid extends NControl
 	protected function validateState()
 	{
 		if ($this->getColumns() === NULL) {
-			throw new \RuntimeException('No columns set.');
+			throw new \RuntimeException('At least one column must be added using DataGrid::addColumn($name, $label).');
 		}
 
 		if ($this->dataLoader === NULL) {
-			throw new \RuntimeException('Data loader not set.');
+			throw new \RuntimeException('Data loader callback must be set using DataGrid::setDataLoader($callback).');
 		}
 
 		if ($this->getRecordHandler()->getPrimaryKey() === NULL) {
-			throw new \RuntimeException('Primary key not set.');
+			throw new \RuntimeException('Record primary key must be set using DataGrid::setPrimaryKey($key).');
 		}
 
 		if ($this->iePrimary !== NULL && $this->ieContainerFactory === NULL) {
@@ -506,7 +506,7 @@ class DataGrid extends NControl
 	public function setDefaultFilters(array $filters)
 	{
 		if ($this->filterFactory === NULL) {
-			throw new \RuntimeException('Filter factory not set.');
+			throw new \RuntimeException('Filter factory must be set using DataGrid::setFilterFactory($callback).');
 		}
 
 		$this->defaultFilters = $filters;
