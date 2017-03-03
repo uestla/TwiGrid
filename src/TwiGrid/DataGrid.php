@@ -31,7 +31,7 @@ class DataGrid extends NControl
 	public $polluted = FALSE;
 
 
-	// === sorting ===========
+	// === SORTING ===========
 
 	/**
 	 * @var array
@@ -46,7 +46,7 @@ class DataGrid extends NControl
 	private $multiSort = TRUE;
 
 
-	// === filtering ===========
+	// === FILTERING ===========
 
 	/**
 	 * @var array
@@ -61,7 +61,7 @@ class DataGrid extends NControl
 	private $filterFactory = NULL;
 
 
-	// === inline editing ===========
+	// === INLINE EDITING ===========
 
 	/**
 	 * @var string|NULL
@@ -76,7 +76,7 @@ class DataGrid extends NControl
 	private $ieProcessCallback = NULL;
 
 
-	// === pagination ===========
+	// === PAGINATION ===========
 
 	/**
 	 * @var int
@@ -97,13 +97,13 @@ class DataGrid extends NControl
 	private $pageCount = NULL;
 
 
-	// === refresh ===========
+	// === REFRESH ===========
 
 	/** @var bool */
 	private $refreshing = FALSE;
 
 
-	// === data ===========
+	// === DATA ===========
 
 	/** @var RecordHandler */
 	private $recordHandler = NULL;
@@ -115,19 +115,19 @@ class DataGrid extends NControl
 	private $data = NULL;
 
 
-	// === sessions ===========
+	// === SESSION ===========
 
 	/** @var NSessionSection */
 	private $session;
 
 
-	// === l10n ===========
+	// === LOCALIZATION ===========
 
 	/** @var NITranslator */
 	private $translator = NULL;
 
 
-	// === rendering ===========
+	// === RENDERING ===========
 
 	/** @var string */
 	private $templateFile = NULL;
@@ -136,7 +136,7 @@ class DataGrid extends NControl
 	private $recordVariable = 'record';
 
 
-	// === payload sent in AJAX response ===========
+	// === AJAX PAYLOAD ===========
 
 	/** @var \stdClass */
 	private $payload;
@@ -275,7 +275,7 @@ class DataGrid extends NControl
 	}
 
 
-	// === L10N ======================================================
+	// === LOCALIZATION ======================================================
 
 	/** @return NITranslator */
 	public function getTranslator()
@@ -357,7 +357,7 @@ class DataGrid extends NControl
 	}
 
 
-	// === ACTIONS ======================================================
+	// === ROW ACTIONS ======================================================
 
 	/**
 	 * @param  string $name
@@ -406,6 +406,8 @@ class DataGrid extends NControl
 		}
 	}
 
+
+	// === GROUP ACTIONS ======================================================
 
 	/**
 	 * @param  string $name
