@@ -286,7 +286,9 @@
 {define body-cell-inline}
 
 	{ifset $form["inline-values-$column"]}
-		<td n:class='body-inline-cell, "body-inline-cell-{$column}"'>{input inline-values-$column, class => 'form-control'}</td>
+		<td n:class='body-inline-cell, "body-inline-cell-{$column}"'>
+			{input inline-values-$column, class => 'form-control'}
+		</td>
 
 	{else}
 		{ifset #body-cell-$column}
