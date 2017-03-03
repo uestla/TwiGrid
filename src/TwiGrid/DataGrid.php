@@ -239,7 +239,7 @@ class DataGrid extends NControl
 		}
 
 		if ($this->iePrimary !== NULL && $this->ieContainerFactory === NULL) {
-			throw new \RuntimeException('Inline editing not properly set.');
+			$this->iePrimary = NULL;
 		}
 	}
 
