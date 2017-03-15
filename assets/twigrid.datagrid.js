@@ -223,7 +223,7 @@ $.nette.ext({
 				'data-dismiss': 'alert'
 			}));
 
-			var flashTop = flash.offset().top;
+			var flashTop = flash.offset().top - $('body').offset().top;
 
 			if (minFlashTop === null || flashTop > minFlashTop) {
 				minFlashTop = flashTop;
