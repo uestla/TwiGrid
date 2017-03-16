@@ -97,7 +97,7 @@ class RecordHandler
 	{
 		$primaries = [];
 		foreach ($this->primaryKey as $column) {
-			$primaries[$column] = (string) $this->getValue($record, $column); // intentional string conversion due to later comparison
+			$primaries[$column] = (string) $this->getValue($record, $column);
 		}
 
 		return $primaries;
