@@ -24,6 +24,5 @@
 		"psr-0": {
 			"TwiGrid": "src/"
 		}
-	},
-	"minimum-stability": "dev"
+	}
 }
