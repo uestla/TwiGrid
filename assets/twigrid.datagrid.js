@@ -212,8 +212,9 @@ $.nette.ext({
 		}
 
 		// scroll to most top flash message
+		var $body = $('body');
 		var minFlashTop = null;
-		var bodyPaddingTopOffset = $('body').offset().top + parseInt($('body').css('padding-top'));
+		var bodyOffsetTop = $body.offset().top + parseInt($body.css('padding-top'));
 
 		$(this.flashSelector, this.gridSelector).each(function () {
 			var flash = $(this);
@@ -224,7 +225,7 @@ $.nette.ext({
 				'data-dismiss': 'alert'
 			}));
 
-			var flashTop = flash.offset().top - bodyPaddingTopOffset;
+			var flashTop = flash.offset().top - bodyOffsetTop;
 
 			if (minFlashTop === null || flashTop > minFlashTop) {
 				minFlashTop = flashTop;
