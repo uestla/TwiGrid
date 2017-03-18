@@ -18,6 +18,7 @@
 		"nette/http": "^2.3",
 		"nette/forms": "^2.3",
 		"nette/utils": "^2.4",
+		"latte/latte": "^2.4",
 		"nette/application": "^2.3"
 	},
 	"require-dev": {
