@@ -11,6 +11,7 @@
 namespace TwiGrid\Components;
 
 use TwiGrid\DataGrid;
+use Nette\ComponentModel\IComponent;
 use Nette\ComponentModel\Component as NComponent;
 
 
@@ -19,7 +20,8 @@ abstract class Component extends NComponent
 
 	/**
 	 * @param  bool $need
-	 * @return DataGrid
+	 * @return DataGrid|IComponent
+	 *
 	 */
 	final public function getDataGrid($need = TRUE)
 	{

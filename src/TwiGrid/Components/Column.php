@@ -39,7 +39,7 @@ class Column extends Component
 	{
 		parent::__construct();
 
-		$this->label = (string) $label;
+		$this->label = $label;
 	}
 
 
@@ -80,9 +80,9 @@ class Column extends Component
 			throw new \RuntimeException("Column '{$this->getName()}' is not sortable.");
 		}
 
+		$this->sortIndex = $sortIndex;
 		$this->sortedBy = (bool) $bool;
-		$this->sortDir = $bool && (bool) $sortDir;
-		$this->sortIndex = (int) $sortIndex;
+		$this->sortDir = $bool && $sortDir;
 		return $this;
 	}
 

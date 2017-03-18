@@ -75,6 +75,8 @@ abstract class Helpers
 	 */
 	public static function createSortLink(DataGrid $grid, Column $column, $mode = self::SORT_LINK_SINGLE)
 	{
+		$by = NULL;
+
 		if ($mode === self::SORT_LINK_SINGLE) {
 			$by = [];
 			if (!$column->isSortedBy() || count($grid->orderBy) > 1) {
@@ -112,7 +114,7 @@ abstract class Helpers
 	 */
 	public static function fixPage($page, $pageCount)
 	{
-		return max(1, min((int) $page, $pageCount));
+		return max(1, min($page, $pageCount));
 	}
 
 

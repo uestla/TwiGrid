@@ -12,6 +12,7 @@ namespace TwiGrid;
 
 use TwiGrid\Components\Column;
 use Nette\Utils\Callback as NCallback;
+use Nette\Bridges\ApplicationLatte\Template;
 use Nette\Application\UI\Control as NControl;
 use Nette\Application\UI\Presenter as NPresenter;
 use Nette\ComponentModel\Container as NContainer;
@@ -39,7 +40,7 @@ class DataGrid extends NControl
 	 */
 	public $orderBy = [];
 
-	/** @var array */
+	/** @var array|NULL */
 	private $defaultOrderBy = NULL;
 
 	/** @var bool */
@@ -54,10 +55,10 @@ class DataGrid extends NControl
 	 */
 	public $filters = [];
 
-	/** @var array */
+	/** @var array|NULL */
 	private $defaultFilters = NULL;
 
-	/** @var callable */
+	/** @var callable|NULL */
 	private $filterFactory = NULL;
 
 
@@ -69,10 +70,10 @@ class DataGrid extends NControl
 	 */
 	public $iePrimary = NULL;
 
-	/** @var callable */
+	/** @var callable|NULL */
 	private $ieContainerFactory = NULL;
 
-	/** @var callable */
+	/** @var callable|NULL */
 	private $ieProcessCallback = NULL;
 
 
@@ -84,16 +85,16 @@ class DataGrid extends NControl
 	 */
 	public $page = 1;
 
-	/** @var int */
+	/** @var int|NULL */
 	private $itemsPerPage = NULL;
 
-	/** @var callable */
+	/** @var callable|NULL */
 	private $itemCounter = NULL;
 
-	/** @var int */
+	/** @var int|NULL */
 	private $itemCount = NULL;
 
-	/** @var int */
+	/** @var int|NULL */
 	private $pageCount = NULL;
 
 
@@ -105,13 +106,13 @@ class DataGrid extends NControl
 
 	// === DATA ===========
 
-	/** @var RecordHandler */
+	/** @var RecordHandler|NULL */
 	private $recordHandler = NULL;
 
-	/** @var callable */
+	/** @var callable|NULL */
 	private $dataLoader = NULL;
 
-	/** @var array|\Traversable */
+	/** @var array|\Traversable|NULL */
 	private $data = NULL;
 
 
@@ -123,13 +124,13 @@ class DataGrid extends NControl
 
 	// === LOCALIZATION ===========
 
-	/** @var NITranslator */
+	/** @var NITranslator|NULL */
 	private $translator = NULL;
 
 
 	// === RENDERING ===========
 
-	/** @var string */
+	/** @var string|NULL */
 	private $templateFile = NULL;
 
 	/** @var string */
@@ -460,7 +461,7 @@ class DataGrid extends NControl
 
 		} else {
 			$this->defaultOrderBy = [
-				(string) $column => (bool) $dir,
+				(string) $column => $dir,
 			];
 		}
 
@@ -693,7 +694,7 @@ class DataGrid extends NControl
 	 */
 	public function setPagination($itemsPerPage, callable $itemCounter = NULL)
 	{
-		$this->itemsPerPage = max(0, (int) $itemsPerPage);
+		$this->itemsPerPage = max(0, $itemsPerPage);
 		$this->itemCounter = $itemCounter;
 		return $this;
 	}
@@ -728,7 +729,7 @@ class DataGrid extends NControl
 	protected function setPage($page)
 	{
 		if ($this->itemsPerPage !== NULL) {
-			$this->page = (int) $page;
+			$this->page = $page;
 			$this->itemCount = NULL;
 
 		} else {
@@ -976,7 +977,7 @@ class DataGrid extends NControl
 	 */
 	public function setTemplateFile($templateFile)
 	{
-		$this->templateFile = (string) $templateFile;
+		$this->templateFile = $templateFile;
 		return $this;
 	}
 
@@ -987,7 +988,7 @@ class DataGrid extends NControl
 	 */
 	public function setRecordVariable($name)
 	{
-		$this->recordVariable = (string) $name;
+		$this->recordVariable = $name;
 		return $this;
 	}
 
@@ -995,6 +996,7 @@ class DataGrid extends NControl
 	/** @return void */
 	public function render()
 	{
+		/** @var Template $template */
 		$template = $this->createTemplate();
 
 		$template->grid = $this;

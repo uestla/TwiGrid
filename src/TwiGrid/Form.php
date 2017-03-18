@@ -27,6 +27,7 @@ class Form extends NForm
 	/** @param  RecordHandler $handler */
 	public function __construct(RecordHandler $handler)
 	{
+		parent::__construct();
 		$this->recordHandler = $handler;
 	}
 

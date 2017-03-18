@@ -22,7 +22,7 @@ class Action extends Component
 	/** @var callable */
 	private $callback;
 
-	/** @var string */
+	/** @var string|NULL */
 	private $confirmation = NULL;
 
 
@@ -34,8 +34,8 @@ class Action extends Component
 	{
 		parent::__construct();
 
+		$this->label = $label;
 		$this->callback = $callback;
-		$this->label = (string) $label;
 	}
 
 
@@ -55,7 +55,7 @@ class Action extends Component
 
 	/**
 	 * @param  string $confirmation
-	 * @return RowAction
+	 * @return Action
 	 */
 	public function setConfirmation($confirmation = NULL)
 	{
@@ -77,7 +77,7 @@ class Action extends Component
 
 	/**
 	 * @param  mixed $record
-	 * @return void
+	 * @return mixed
 	 */
 	public function invoke($record)
 	{

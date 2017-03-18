@@ -15,10 +15,10 @@ namespace TwiGrid;
 class RecordHandler
 {
 
-	/** @var array */
+	/** @var array|NULL */
 	private $primaryKey = NULL;
 
-	/** @var callable */
+	/** @var callable|NULL */
 	private $valueGetter = NULL;
 
 
@@ -27,7 +27,7 @@ class RecordHandler
 
 	/**
 	 * @param  string[] $keys
-	 * @return DataGrid
+	 * @return RecordHandler
 	 */
 	public function setPrimaryKey(array $keys)
 	{
@@ -45,7 +45,7 @@ class RecordHandler
 
 	/**
 	 * @param  callable $callback
-	 * @return DataGrid
+	 * @return RecordHandler
 	 */
 	public function setValueGetter(callable $callback)
 	{
