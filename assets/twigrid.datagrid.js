@@ -15,20 +15,11 @@
 $.fn.extend({
 
 	twgChecked: function (bool) {
-		this.each(function () {
-			$(this).prop('checked', !!bool)
-					.trigger('change');
-		});
-
-		return this;
+		return this.prop('checked', !!bool).trigger('change');
 	},
 
 	twgToggleChecked: function () {
-		this.each(function () {
-			$(this).twgChecked(!$(this).prop('checked'));
-		});
-
-		return this;
+		return this.twgChecked(!$(this).prop('checked'));
 	},
 
 	twgDisableSelection: function () {
