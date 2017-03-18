@@ -382,13 +382,17 @@ $.nette.ext({
 			row.off('click.tw-rowcheck')
 				.on('click.tw-rowcheck', function (event) {
 					if (!self.isClickable(event.target)) {
+						var gridID = grid.attr('id');
+
 						if (self.onlyShiftKeyPressed(event)) {
 							grid.twgDisableSelection();
 
-							if (self.lastChecked !== null) {
-								var checked = checkboxes.eq(self.lastChecked).prop('checked');
-								for (var i = 0; i < Math.abs(k - self.lastChecked); i++) {
-									checkboxes.eq(Math.abs(k > self.lastChecked ? k - i : k + i))
+							if (typeof self.lastCheckedRows[gridID] !== 'undefined') { // may be 0
+								var lastCheckedIdx = self.lastCheckedRows[gridID];
+								var checked = checkboxes.eq(lastCheckedIdx).prop('checked');
+
+								for (var i = 0; i < Math.abs(k - lastCheckedIdx); i++) {
+									checkboxes.eq(Math.abs(k > lastCheckedIdx ? k - i : k + i))
 										.twgChecked(checked);
 								}
 
@@ -402,7 +406,7 @@ $.nette.ext({
 							checkbox.twgToggleChecked();
 						}
 
-						self.lastChecked = k;
+						self.lastCheckedRows[gridID] = k;
 					}
 				});
 		});
@@ -469,7 +473,7 @@ $.nette.ext({
 	// helpers
 
 	focusedGrid: null,
-	lastChecked: null, // index of last checked row checkbox
+	lastCheckedRows: {}, // index of last checked row checkbox in each grid
 
 	isClickable: function (target) {
 		return target.nodeName.toUpperCase() in {'A': 1, 'INPUT': 1, 'BUTTON': 1, 'TEXTAREA': 1, 'SELECT': 1, 'LABEL': 1};
