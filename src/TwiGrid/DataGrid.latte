@@ -1,3 +1,5 @@
+{spaceless}
+
 {**
  * Default DataGrid template
  *
@@ -19,8 +21,6 @@
  * @param  bool $isPaginated
  * @param  int $columnCount total number of columns in grid table
  *}
-
-{spaceless}
 
 <div class="tw-cnt" data-refresh-signal="{link refresh!}" n:snippet="">
 	{include #flashes}
@@ -46,16 +46,24 @@
 {define datagrid}
 
 	<form n:name="$form" class="form tw-ajax">
-		<div n:snippet="form-errors">
-			{if $errors = $form->errors}
-				<div class="alert alert-danger" n:foreach="$errors as $error">
-					{$error}
-				</div>
-			{/if}
-		</div>
-
+		{include #form-errors}
 		{include #container}
 	</form>
+
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define form-errors}
+
+	<div n:snippet="form-errors">
+		{if $errors = $form->errors}
+			<div class="alert alert-danger" n:foreach="$errors as $error">
+				{$error}
+			</div>
+		{/if}
+	</div>
 
 {/define}
 
@@ -93,27 +101,47 @@
 {define header-sort-row}
 
 	<tr n:snippet="header-sort">
-		<th rowspan="2" class="header-cell text-center" n:if="$hasGroupActions"></th>
-
-		{foreach $columns as $name => $column}
-			{var $params = [
-				name => $name,
-				column => $column,
-				sortLink => ($column |sortLink),
-				multiSortLink => ($column |sortLink:TwiGrid\Helpers::SORT_LINK_MULTI)
-			]}
-
-			{ifset #header-cell-$name}
-				{include #"header-cell-$name", (expand) $params}
-
-			{else}
-				{include #header-cell, (expand) $params}
-			{/ifset}
-		{/foreach}
-
-		<th class="header-cell header-cell--buttons" n:if="$hasFilters || $hasRowActions || $hasInlineEdit">&nbsp;</th>
+		{include #header-sort-row-cells}
 	</tr>
 
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define header-sort-row-cells}
+
+	{if $hasGroupActions}
+		{include #header-cell-group-checkbox}
+	{/if}
+
+	{foreach $columns as $name => $column}
+		{ifset #header-cell-$name}
+			{include #"header-cell-$name", column => $column}
+
+		{else}
+			{include #header-cell, column => $column}
+		{/ifset}
+	{/foreach}
+
+	{if $hasFilters || $hasRowActions || $hasInlineEdit}
+		{include #header-cell-buttons-empty}
+	{/if}
+
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define header-cell-group-checkbox}
+	<th rowspan="2" class="header-cell text-center"></th>
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define header-cell-buttons-empty}
+	<th class="header-cell header-cell--buttons">&nbsp;</th>
 {/define}
 
 
@@ -124,21 +152,26 @@
 	<tr n:snippet="filter-controls">
 		{php $grid->addFilterCriteria(); $grid->addFilterButtons() }
 
-		{foreach $columns as $name => $column}
-			{var $params = [column => $name]}
-
-			{ifset #filter-cell-$name}
-				{include #"filter-cell-$name", (expand) $params}
-
-			{else}
-				{include #filter-cell, (expand) $params}
-			{/ifset}
-		{/foreach}
-
-		<th class="filter-cell text-center">
-			{include #filter-buttons}
-		</th>
+		{include #header-filter-row-cells}
 	</tr>
+
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define header-filter-row-cells}
+
+	{foreach $columns as $name => $column}
+		{ifset #filter-cell-$name}
+			{include #"filter-cell-$name", column => $name}
+
+		{else}
+			{include #filter-cell, column => $name}
+		{/ifset}
+	{/foreach}
+
+	{include #header-cell-filter-buttons}
 
 {/define}
 
@@ -148,9 +181,12 @@
 {define header-cell}
 
 	<th n:class='header-cell, "header-cell-{$column->getName()}"'>
-		<a href="{$sortLink}" n:class='sort, "sort-{$column->getName()}", tw-ajax' n:tag-if="$column->isSortable()">
+		{if $column->isSortable()}
+			{include #sort-button, column => $column}
+
+		{else}
 			{$column->getLabel()}
-		</a>
+		{/if}
 
 		{include #sort-labels, (expand) get_defined_vars()}
 	</th>
@@ -160,19 +196,99 @@
 
 {* === ... ============================================ *}
 
+{define sort-button}
+
+	<a href="{$column |sortLink}" n:class='sort, "sort-{$column->getName()}", tw-ajax'>
+		{$column->getLabel()}
+	</a>
+
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define header-cell-filter-buttons}
+
+	<th class="filter-cell text-center">
+		{include #filter-buttons}
+	</th>
+
+{/define}
+
+
+{* === ... ============================================ *}
+
 {define sort-labels}
 
-	<span n:class="small, glyphicon, $column->getSortDir() === TwiGrid\Components\Column::DESC ? glyphicon-chevron-down : glyphicon-chevron-up"
-		n:if="$column->isSortedBy()"></span>
+	{if $column->isSortedBy()}
+		{if $column->getSortDir() === TwiGrid\Components\Column::ASC}
+			{include #sort-icon-asc}
 
-	<div class="pull-right" n:if="$grid->hasMultiSort() && $grid->hasManySortableColumns()">
-		<span class="badge" n:if="$column->isSortedBy() && count($grid->orderBy) > 1">{$column->getSortIndex() + 1}</span>
+		{else}
+			{include #sort-icon-desc}
+		{/if}
+	{/if}
 
-		<a href="{$multiSortLink}" class="multi-sort btn btn-xs btn-default tw-ajax" n:if="$column->isSortable()">
-			<sup class="glyphicon glyphicon-plus"></sup>
-		</a>
+	{if $grid->hasMultiSort() && $grid->hasManySortableColumns()}
+		{include #multisort-labels, column => $column}
+	{/if}
+
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define sort-icon-asc}
+	<span class="glyphicon glyphicon-chevron-up"></span>
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define sort-icon-desc}
+	<span class="glyphicon glyphicon-chevron-down"></span>
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define multisort-labels}
+
+	<div class="pull-right">
+		{if $column->isSortedBy() && count($grid->orderBy) > 1}
+			{include #multisort-number, column => $column}
+		{/if}
+
+		{if $column->isSortable()}
+			{include #multisort-button, column => $column}
+		{/if}
 	</div>
 
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define multisort-button}
+
+	<a href="{$column |sortLink:TwiGrid\Helpers::SORT_LINK_MULTI}" class="multi-sort btn btn-xs btn-default tw-ajax">
+		{include #multisort-icon-plus}
+	</a>
+
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define multisort-number}
+	<span class="badge">{$column->getSortIndex() + 1}</span>
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define multisort-icon-plus}
+	<sup class="glyphicon glyphicon-plus"></sup>
 {/define}
 
 
@@ -219,53 +335,90 @@
 		{if}{php $grid->addGroupActionCheckboxes(); $grid->addInlineEditControls() }
 
 			{foreach $dataLoader() as $record}
-				{var $primaryString = ($record |primaryToString), $isInlineEdited = ($hasInlineEdit && $iePrimary === $primaryString)}
+				{var $primaryString = ($record |primaryToString),
+							$isInlineEdited = ($hasInlineEdit && $iePrimary === $primaryString)}
 
-				<tr n:class="$isInlineEdited ? success">
-					<td class="body-cell text-center" n:if="$hasGroupActions">
-						<input n:name="'actions-records-' . $primaryString">
-					</td>
-
-					{foreach $columns as $name => $column}
-						{var $params = [
-							$recordVariable => $record,
-							isInlineEdited => $isInlineEdited,
-							column => $name,
-						]}
-
-						{if $isInlineEdited}
-							{ifset #body-cell-$name-inline}
-								{include #"body-cell-$name-inline", (expand) $params}
-
-							{else}
-								{include #body-cell-inline, (expand) $params}
-							{/ifset}
-
-						{else}
-							{ifset #body-cell-$name}
-								{include #"body-cell-$name", (expand) $params}
-
-							{else}
-								{include #body-cell, (expand) $params}
-							{/ifset}
-						{/if}
-					{/foreach}
-
-					<td n:if="$hasFilters || $hasRowActions || $hasInlineEdit" class="body-cell text-center">
-						{if $hasRowActions || $hasInlineEdit}
-							{include #row-actions, i => $iterator->counter - 1, $recordVariable => $record, isInlineEdited => $isInlineEdited, primaryString => $primaryString}
-
-						{else}
-							&nbsp;
-						{/if}
-					</td>
-				</tr>
+				{include #body-row, (expand) get_defined_vars()}
 			{/foreach}
 
 		{else}
 			{include #body-no-data}
 		{/if $iterations}
 	</tbody>
+
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define body-row}
+
+	<tr n:class="$isInlineEdited ? success">
+		{include #body-row-cells, (expand) get_defined_vars()}
+	</tr>
+
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define body-row-cells}
+
+	{include #body-cell-group-checkbox, (expand) get_defined_vars()}
+
+	{foreach $columns as $name => $column}
+		{var $params = [
+			$recordVariable => $record,
+			isInlineEdited => $isInlineEdited,
+			column => $name,
+		]}
+
+		{if $isInlineEdited}
+			{ifset #body-cell-$name-inline}
+				{include #"body-cell-$name-inline", (expand) $params}
+
+			{else}
+				{include #body-cell-inline, (expand) $params}
+			{/ifset}
+
+		{else}
+			{ifset #body-cell-$name}
+				{include #"body-cell-$name", (expand) $params}
+
+			{else}
+				{include #body-cell, (expand) $params}
+			{/ifset}
+		{/if}
+	{/foreach}
+
+	{include #body-cell-row-actions, (expand) get_defined_vars()}
+
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define body-cell-group-checkbox}
+
+	<td class="body-cell text-center" n:if="$hasGroupActions">
+		<input n:name="'actions-records-' . $primaryString">
+	</td>
+
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define body-cell-row-actions}
+
+	<td n:if="$hasFilters || $hasRowActions || $hasInlineEdit" class="body-cell text-center">
+		{if $hasRowActions || $hasInlineEdit}
+			{include #row-actions, i => $iterator->counter - 1, $recordVariable => $record, isInlineEdited => $isInlineEdited, primaryString => $primaryString}
+
+		{else}
+			&nbsp;
+		{/if}
+	</td>
 
 {/define}
 
@@ -290,13 +443,11 @@
 			{input inline-values-$column, class => 'form-control'}
 		</td>
 
-	{else}
-		{ifset #body-cell-$column}
-			{include #"body-cell-$column", (expand) get_defined_vars()}
+	{elseifset #body-cell-$column}
+		{include #"body-cell-$column", (expand) get_defined_vars()}
 
-		{else}
-			{include #body-cell, (expand) get_defined_vars()}
-		{/ifset}
+	{else}
+		{include #body-cell, (expand) get_defined_vars()}
 	{/ifset}
 
 {/define}
@@ -377,23 +528,33 @@
 	<tfoot class="footer" n:snippet="footer">
 		{capture $footerInfo}{include #footer-info}{/capture}
 
-		<tr n:if="$grid->hasData() && (strlen(trim($footerInfo)) || $hasGroupActions || $grid->getPageCount() > 1)">
-			<td colspan="{$columnCount}" class="container footer-cell">
-				<div class="row">
-					{if $hasGroupActions}
-						{include #group-action-buttons}
-					{/if}
-
-					{if $grid->getPageCount() > 1}
-						{include #pagination}
-					{/if}
-
-					{$footerInfo |noescape}
-				</div>
-			</td>
-		</tr>
-
+		{if $grid->hasData() && (strlen(trim($footerInfo)) || $hasGroupActions || $grid->getPageCount() > 1)}
+			{include #footer-row, footerInfo => $footerInfo}
+		{/if}
 	</tfoot>
+
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define footer-row}
+
+	<tr>
+		<td colspan="{$columnCount}" class="container footer-cell">
+			<div class="row">
+				{if $hasGroupActions}
+					{include #group-action-buttons}
+				{/if}
+
+				{if $grid->getPageCount() > 1}
+					{include #pagination}
+				{/if}
+
+				{$footerInfo |noescape}
+			</div>
+		</td>
+	</tr>
 
 {/define}
 
@@ -404,7 +565,7 @@
 
 	{php $grid->addGroupActionButtons() }
 
-	<div n:class="$isPaginated ? ($grid->getPageCount() <= 1 ? col-xs-8 : col-xs-4) : col-xs-12">
+	<div n:class="$isPaginated ? ($grid->getPageCount() <= 1 ? col-md-8 : col-md-4) : col-md-12">
 		{include #group-action-buttons-label}
 
 		<div class="btn-group">
@@ -437,9 +598,9 @@
 
 	{php $grid->addPaginationControls() }
 
-	<div class="col-xs-4" n:if="!$hasGroupActions"></div>
+	<div class="col-md-4" n:if="!$hasGroupActions"></div>
 
-	<div class="col-xs-4 tw-pagination text-center">
+	<div class="col-md-4 tw-pagination text-center">
 		<a n:href="paginate!, p => max(1, $grid->page - 1)" n:class="btn, btn-default, $grid->page <= 1 ? disabled, tw-ajax">
 			{_'twigrid.pagination.previous'}
 		</a>
@@ -461,7 +622,7 @@
 
 {define footer-info}
 
-	<div n:class="!$hasGroupActions && $grid->getPageCount() <= 1 ? col-xs-12 : col-xs-4, text-right" n:if="$isPaginated">
+	<div n:class="!$hasGroupActions && $grid->getPageCount() <= 1 ? col-md-12 : col-md-4, text-right" n:if="$isPaginated">
 		{($grid->page - 1) * $grid->getItemsPerPage() + 1}-{min($grid->getItemCount(), ($grid->page - 1) * $grid->getItemsPerPage() + $grid->getItemsPerPage())}
 		/ {_'twigrid.pagination.total', $grid->getItemCount()}
 	</div>
