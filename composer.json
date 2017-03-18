@@ -21,7 +21,8 @@
 		"nette/application": "^2.3"
 	},
 	"require-dev": {
-		"phpstan/phpstan": "^0.6"
+		"phpstan/phpstan": "^0.6",
+		"phpstan/phpstan-nette": "^0.6"
 	},
 	"autoload": {
 		"psr-0": {
@@ -29,6 +30,6 @@
 		}
 	},
 	"scripts": {
-		"phpstan": "phpstan analyze -l 4 src/"
+		"phpstan": "phpstan analyze -l 4 -c phpstan.neon src/"
 	}
 }
