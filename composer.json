@@ -15,11 +15,11 @@
 	],
 	"require" : {
 		"php": ">= 5.6.0",
-		"nette/http": "^2.3",
-		"nette/forms": "^2.3",
+		"nette/http": "^2.4",
+		"nette/forms": "^2.4",
 		"nette/utils": "^2.4",
 		"latte/latte": "^2.4",
-		"nette/application": "^2.3"
+		"nette/application": "^2.4"
 	},
 	"require-dev": {
 		"phpstan/phpstan": "^0.6",
