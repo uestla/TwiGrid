@@ -13,47 +13,13 @@
 // === jQuery extensions ==========================================
 
 $.fn.extend({
-
 	twgChecked: function (bool) {
 		return this.prop('checked', !!bool).trigger('change');
 	},
-
 	twgToggleChecked: function () {
 		return this.twgChecked(!$(this).prop('checked'));
-	},
-
-	twgDisableSelection: function () {
-		this.attr('unselectable', 'on')
-			.css('user-select', 'none')
-			.off('selectstart.twg').on('selectstart.twg', false);
-
-		return this;
-	},
-
-	twgClearSelection: function () {
-		if (window.getSelection) {
-			var selection = window.getSelection();
-			if (selection.removeAllRanges) {
-				selection.removeAllRanges();
-			}
-
-		} else if (window.document.selection) {
-			window.document.selection.empty();
-		}
-	},
-
-	twgEnableSelection: function () {
-		this.twgClearSelection();
-
-		this.attr('unselectable', 'off')
-			.attr('style', null)
-			.off('selectstart.twg');
-
-		return this;
 	}
-
 });
-
 
 
 // === nette.ajax extension ==========================================
@@ -385,7 +351,7 @@ $.nette.ext({
 						var gridID = grid.attr('id');
 
 						if (self.onlyShiftKeyPressed(event)) {
-							grid.twgDisableSelection();
+							self.clearTextSelection();
 
 							if (typeof self.lastCheckedRows[gridID] !== 'undefined') { // may be 0
 								var lastCheckedIdx = self.lastCheckedRows[gridID];
@@ -400,9 +366,7 @@ $.nette.ext({
 								checkbox.twgToggleChecked();
 							}
 
-							grid.twgEnableSelection();
-
-						} else if (self.noMetaKeysPressed(event)) {
+						} else if (self.noMetaKeysPressed(event) && !self.hasTextSelection()) {
 							checkbox.twgToggleChecked();
 						}
 
@@ -493,6 +457,31 @@ $.nette.ext({
 
 	onlyShiftKeyPressed: function (event) {
 		return event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey;
+	},
+
+	hasTextSelection: function () {
+		if (window.getSelection) {
+			return window.getSelection().toString().length > 0;
+
+		} else if (document.selection && document.selection.type.toUpperCase() !== 'CONTROL') {
+			return document.seletion.createRange().text.length > 0;
+		}
+
+		return false;
+	},
+
+	clearTextSelection: function () {
+		if (window.getSelection) {
+			if (window.getSelection().empty) {
+				window.getSelection().empty();
+
+			} else if (window.getSelection().removeAllRanges) {
+				window.getSelection().removeAllRanges();
+			}
+
+		} else if (window.document.selection && window.document.selection.empty) {
+			window.document.selection.empty();
+		}
 	}
 
 });
