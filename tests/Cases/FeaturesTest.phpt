@@ -15,11 +15,10 @@ class FeaturesTest extends TestCase
 {
 
 	/**
-	 * Creates DataGrids with all possible features combinations,
-	 * renders them and checks they're rendered properly.
+	 * Creates DataGrids with all possible features and data-presence
+	 * combinations, renders them and checks they're rendered properly.
 	 *
-	 * This should prevent mutual collisions amongst individual
-	 * features.
+	 * This should prevent mutual collisions amongst individual features.
 	 */
 	public function testAllFeatureCombinations(): void
 	{
@@ -32,10 +31,11 @@ class FeaturesTest extends TestCase
 		];
 
 		$testedHashes = [];
+		$combinations = 1 << (count($features) + 1);
 
-		for ($i = 0; $i < (1 << count($features)); $i++) {
+		for ($i = 0; $i < $combinations; $i++) {
 			// create grid and add features which have 1 on their index in binary $i
-			$grid = $this->createGrid();
+			$grid = $this->createGrid((bool) ($i << (count($features) + 1)));
 
 			foreach ($features as $j => $feature) {
 				if ($i & (1 << $j)) {
@@ -55,20 +55,24 @@ class FeaturesTest extends TestCase
 	}
 
 
-	private function createGrid(): DataGrid
+	private function createGrid(bool $hasData): DataGrid
 	{
 		$grid = new DataGrid;
 		$grid->addColumn('fistname')->setSortable();
 		$grid->addColumn('lastname')->setSortable();
 
-		$grid->setDataLoader(function () {
-			return [
-				(object) [
-					'id' => 1,
-					'firstname' => 'John',
-					'lastname' => 'Doe',
-				],
-			];
+		$grid->setDataLoader(function () use ($hasData) {
+			if ($hasData) {
+				return [
+					(object) [
+						'id' => 1,
+						'firstname' => 'John',
+						'lastname' => 'Doe',
+					],
+				];
+			}
+
+			return [];
 		});
 
 		$grid->setPrimaryKey('id');
