@@ -518,11 +518,36 @@
 {* === ... ============================================ *}
 
 {define body-no-data}
+	{include #body-no-data-row} {* backwards compatibility *}
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define body-no-data-row}
 
 	<tr class="warning">
-		<td class="body-cell" colspan="{$columnCount}">{_'twigrid.data.no_data'}</td>
+		{include #body-no-data-cell}
 	</tr>
 
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define body-no-data-cell}
+
+	<td class="body-cell no-data" colspan="{$columnCount}">
+		{include #body-no-data-content}
+	</td>
+
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define body-no-data-content}
+	{_'twigrid.data.no_data'}
 {/define}
 
 
