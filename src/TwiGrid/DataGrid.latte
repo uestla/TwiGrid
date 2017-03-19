@@ -606,7 +606,7 @@
 		</a>
 
 		<div class="actual">
-			<input n:name="pagination-controls-page" class="form-control"> / {$grid->getPageCount()}
+			<input n:name="pagination-controls-page" class="form-control" style="width: {2 * 12 + 37 + 10 * (int) log10($grid->getPageCount())}px;"> / {$grid->getPageCount()}
 			<input n:name="pagination-buttons-change" class="js-hid btn btn-default">
 		</div>
 
