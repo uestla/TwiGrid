@@ -445,7 +445,23 @@
 {* === ... ============================================ *}
 
 {define body-cell}
-	<td n:class='body-cell, "body-cell-{$column}"'>{$$recordVariable |getValue:$column:FALSE}</td>
+
+	<td n:class='body-cell, "body-cell-{$column}"'>
+		{ifset #body-cell-$column-content}
+			{include #"body-cell-$column-content", $recordVariable => $$recordVariable, column => $column}
+
+		{else}
+			{include #body-cell-content, $recordVariable => $$recordVariable, column => $column}
+		{/ifset}
+	</td>
+
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define body-cell-content}
+	{$$recordVariable |getValue:$column:FALSE}
 {/define}
 
 
@@ -455,7 +471,7 @@
 
 	<td class="body-cell row-actions">
 		{if $hasRowActions || $hasInlineEdit}
-			{include #row-actions, i => $iterator->counter - 1, $recordVariable => $record, isInlineEdited => $isInlineEdited, primaryString => $primaryString}
+			{include #row-actions, $recordVariable => $record, isInlineEdited => $isInlineEdited, primaryString => $primaryString}
 
 		{else}
 			&nbsp;
