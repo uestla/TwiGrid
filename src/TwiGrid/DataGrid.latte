@@ -348,7 +348,7 @@
 
 			{foreach $dataLoader() as $record}
 				{include #body-row,
-					record => $record,
+					$recordVariable => $record,
 					primaryString => ($primaryString = ($record |primaryToString)),
 					isInlineEdited => $hasInlineEdit && $iePrimary === $primaryString
 				}
@@ -368,7 +368,7 @@
 
 	<tr n:class="$isInlineEdited ? success">
 		{include #body-row-cells,
-			record => $record,
+			$recordVariable => $$recordVariable,
 			primaryString => ($primaryString = ($record |primaryToString)),
 			isInlineEdited => $hasInlineEdit && $iePrimary === $primaryString
 		}
@@ -388,7 +388,7 @@
 	{foreach $columns as $name => $column}
 		{var $params = [
 			column => $name,
-			$recordVariable => $record,
+			$recordVariable => $$recordVariable,
 			isInlineEdited => $isInlineEdited,
 		]}
 
@@ -412,9 +412,9 @@
 
 	{if $hasFilters || $hasRowActions || $hasInlineEdit}
 		{include #body-cell-row-actions,
-			record => $record,
 			primaryString => $primaryString,
-			isInlineEdited => $isInlineEdited
+			isInlineEdited => $isInlineEdited,
+			$recordVariable => $$recordVariable
 		}
 	{/if}
 
@@ -442,10 +442,10 @@
 		</td>
 
 	{elseifset #body-cell-$column}
-		{include #"body-cell-$column", column => $column, record => $record}
+		{include #"body-cell-$column", column => $column, $recordVariable => $$recordVariable}
 
 	{else}
-		{include #body-cell, column => $column, record => $record}
+		{include #body-cell, column => $column, $recordVariable => $$recordVariable}
 	{/ifset}
 
 {/define}
