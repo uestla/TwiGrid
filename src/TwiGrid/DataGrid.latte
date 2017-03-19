@@ -432,7 +432,7 @@
 			{input inline-values-$column, class => 'form-control'}
 		</td>
 
-		{elseifset #body-cell-$column}
+	{elseifset #body-cell-$column}
 		{include #"body-cell-$column", (expand) get_defined_vars()}
 
 	{else}
