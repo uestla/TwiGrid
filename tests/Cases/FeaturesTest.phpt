@@ -30,12 +30,11 @@ class FeaturesTest extends TestCase
 			'pagination',
 		];
 
-		$testedHashes = [];
 		$combinations = 1 << (count($features) + 1);
 
 		for ($i = 0; $i < $combinations; $i++) {
 			// create grid and add features which have 1 on their index in binary $i
-			$grid = $this->createGrid((bool) ($i << (count($features) + 1)));
+			$grid = $this->createGrid((bool) ($i & 1));
 
 			foreach ($features as $j => $feature) {
 				if ($i & (1 << $j)) {
@@ -43,14 +42,7 @@ class FeaturesTest extends TestCase
 				}
 			}
 
-			// make sure this combination has not been tested yet
-			ob_start(function () {});
-			var_dump($grid);
-			$hash = sha1(ob_get_clean());
-			Assert::notContains($hash, $testedHashes);
-
 			$this->renderGrid($grid);
-			$testedHashes[] = $hash;
 		}
 	}
 
@@ -61,8 +53,8 @@ class FeaturesTest extends TestCase
 		$grid->addColumn('fistname')->setSortable();
 		$grid->addColumn('lastname')->setSortable();
 
-		$grid->setDataLoader(function () use ($hasData) {
-			if ($hasData) {
+		if ($hasData) {
+			$grid->setDataLoader(function () {
 				return [
 					(object) [
 						'id' => 1,
@@ -70,10 +62,13 @@ class FeaturesTest extends TestCase
 						'lastname' => 'Doe',
 					],
 				];
-			}
+			});
 
-			return [];
-		});
+		} else {
+			$grid->setDataLoader(function () {
+				return [];
+			});
+		}
 
 		$grid->setPrimaryKey('id');
 		return $grid;
