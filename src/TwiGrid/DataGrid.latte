@@ -152,7 +152,7 @@
 			{include #sort-button, column => $column}
 
 		{else}
-			{$column->getLabel()}
+			{include #column-label, column => $column}
 		{/if}
 
 		{include #sort-labels, (expand) get_defined_vars()}
@@ -166,9 +166,16 @@
 {define sort-button}
 
 	<a href="{$column |sortLink}" n:class='sort, "sort-{$column->getName()}", tw-ajax'>
-		{$column->getLabel()}
+		{include #column-label, column => $column}
 	</a>
 
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define column-label}
+	{$column->getLabel()}
 {/define}
 
 
