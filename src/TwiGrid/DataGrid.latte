@@ -180,7 +180,12 @@
 
 {define header-cell}
 
-	<th n:class='header-cell, "header-cell-{$column->getName()}"'>
+	<th n:class='
+			header-cell,
+			"header-cell-{$column->getName()}",
+			$grid->hasMultiSort() ? multisort,
+			$grid->hasMultiSort() && $column->isSortedBy() && count($grid->orderBy) > 1 ? multisorted-by
+	'>
 		{if $column->isSortable()}
 			{include #sort-button, column => $column}
 
@@ -254,7 +259,7 @@
 
 {define multisort-labels}
 
-	<div class="pull-right">
+	<div class="multisort-labels">
 		{if $column->isSortedBy() && count($grid->orderBy) > 1}
 			{include #multisort-number, column => $column}
 		{/if}
@@ -271,7 +276,7 @@
 
 {define multisort-button}
 
-	<a href="{$column |sortLink:TwiGrid\Helpers::SORT_LINK_MULTI}" class="multi-sort btn btn-xs btn-default tw-ajax">
+	<a href="{$column |sortLink:TwiGrid\Helpers::SORT_LINK_MULTI}" class="btn btn-xs btn-default tw-ajax">
 		{include #multisort-icon-plus}
 	</a>
 
@@ -288,7 +293,7 @@
 {* === ... ============================================ *}
 
 {define multisort-icon-plus}
-	<sup class="glyphicon glyphicon-plus"></sup>
+	<span class="glyphicon glyphicon-plus"></span>
 {/define}
 
 

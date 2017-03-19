@@ -50,9 +50,30 @@
 
 /* === sorting ================ */
 
-.tw-cnt .header-cell .multi-sort
+.tw-cnt .header-cell.multisort
 {
-	padding: 2px 4px 4px;
+	position: relative;
+	padding-right: 40px;
+}
+
+
+.tw-cnt .header-cell.multisorted-by
+{
+	padding-right: 70px;
+}
+
+
+.tw-cnt .header-cell .multisort-labels
+{
+	top: 4px;
+	right: 4px;
+	position: absolute;
+}
+
+
+.tw-cnt .header-cell .multisort-labels .btn
+{
+	padding: 2px 3px 2px 5px;
 }
 
 
