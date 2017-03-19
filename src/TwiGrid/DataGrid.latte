@@ -155,7 +155,7 @@
 			{include #column-label, column => $column}
 		{/if}
 
-		{include #sort-labels, (expand) get_defined_vars()}
+		{include #sort-labels, column => $column}
 	</th>
 
 {/define}
@@ -347,10 +347,11 @@
 		{if}{php $grid->addGroupActionCheckboxes(); $grid->addInlineEditControls() }
 
 			{foreach $dataLoader() as $record}
-				{var $primaryString = ($record |primaryToString),
-							$isInlineEdited = ($hasInlineEdit && $iePrimary === $primaryString)}
-
-				{include #body-row, (expand) get_defined_vars()}
+				{include #body-row,
+					record => $record,
+					primaryString => ($primaryString = ($record |primaryToString)),
+					isInlineEdited => $hasInlineEdit && $iePrimary === $primaryString
+				}
 			{/foreach}
 
 		{else}
@@ -366,7 +367,11 @@
 {define body-row}
 
 	<tr n:class="$isInlineEdited ? success">
-		{include #body-row-cells, (expand) get_defined_vars()}
+		{include #body-row-cells,
+			record => $record,
+			primaryString => ($primaryString = ($record |primaryToString)),
+			isInlineEdited => $hasInlineEdit && $iePrimary === $primaryString
+		}
 	</tr>
 
 {/define}
@@ -382,9 +387,9 @@
 
 	{foreach $columns as $name => $column}
 		{var $params = [
+			column => $name,
 			$recordVariable => $record,
 			isInlineEdited => $isInlineEdited,
-			column => $name,
 		]}
 
 		{if $isInlineEdited}
@@ -406,7 +411,11 @@
 	{/foreach}
 
 	{if $hasFilters || $hasRowActions || $hasInlineEdit}
-		{include #body-cell-row-actions, (expand) get_defined_vars()}
+		{include #body-cell-row-actions,
+			record => $record,
+			primaryString => $primaryString,
+			isInlineEdited => $isInlineEdited
+		}
 	{/if}
 
 {/define}
@@ -433,10 +442,10 @@
 		</td>
 
 	{elseifset #body-cell-$column}
-		{include #"body-cell-$column", (expand) get_defined_vars()}
+		{include #"body-cell-$column", column => $column, record => $record}
 
 	{else}
-		{include #body-cell, (expand) get_defined_vars()}
+		{include #body-cell, column => $column, record => $record}
 	{/ifset}
 
 {/define}
