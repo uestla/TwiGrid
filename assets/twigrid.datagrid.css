@@ -77,6 +77,31 @@
 }
 
 
+/* === group checkboxes & button columns ================ */
+
+.tw-cnt .header-cell.group-checkbox,
+.tw-cnt .body-cell.group-checkbox
+{
+	width: 1%;
+}
+
+
+.tw-cnt .filter-cell.buttons,
+.tw-cnt .body-cell.row-actions
+{
+	width: 1%;
+	font-size: 0;
+	white-space: nowrap;
+}
+
+
+.tw-cnt .filter-cell.buttons .btn,
+.tw-cnt .body-cell.row-actions .btn
+{
+	float: none;
+}
+
+
 /* === form controls ================ */
 
 .tw-cnt select,

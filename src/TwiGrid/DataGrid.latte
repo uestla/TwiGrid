@@ -134,7 +134,7 @@
 {* === ... ============================================ *}
 
 {define header-cell-group-checkbox}
-	<th rowspan="2" class="header-cell text-center"></th>
+	<th rowspan="2" class="header-cell group-checkbox"></th>
 {/define}
 
 
@@ -251,7 +251,7 @@
 {* === ... ============================================ *}
 
 {define header-cell-buttons-empty}
-	<th class="header-cell header-cell--buttons">&nbsp;</th>
+	<th class="header-cell">&nbsp;</th>
 {/define}
 
 
@@ -305,7 +305,7 @@
 
 {define header-cell-filter-buttons}
 
-	<th class="filter-cell text-center">
+	<th class="filter-cell buttons">
 		{include #filter-buttons}
 	</th>
 
@@ -369,7 +369,9 @@
 
 {define body-row-cells}
 
-	{include #body-cell-group-checkbox, (expand) get_defined_vars()}
+	{if $hasGroupActions}
+		{include #body-cell-group-checkbox, primaryString => $primaryString}
+	{/if}
 
 	{foreach $columns as $name => $column}
 		{var $params = [
@@ -396,7 +398,9 @@
 		{/if}
 	{/foreach}
 
-	{include #body-cell-row-actions, (expand) get_defined_vars()}
+	{if $hasFilters || $hasRowActions || $hasInlineEdit}
+		{include #body-cell-row-actions, (expand) get_defined_vars()}
+	{/if}
 
 {/define}
 
@@ -405,7 +409,7 @@
 
 {define body-cell-group-checkbox}
 
-	<td class="body-cell text-center" n:if="$hasGroupActions">
+	<td class="body-cell group-checkbox">
 		<input n:name="'actions-records-' . $primaryString">
 	</td>
 
@@ -442,7 +446,7 @@
 
 {define body-cell-row-actions}
 
-	<td n:if="$hasFilters || $hasRowActions || $hasInlineEdit" class="body-cell text-center">
+	<td class="body-cell row-actions">
 		{if $hasRowActions || $hasInlineEdit}
 			{include #row-actions, i => $iterator->counter - 1, $recordVariable => $record, isInlineEdited => $isInlineEdited, primaryString => $primaryString}
 
