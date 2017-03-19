@@ -140,44 +140,6 @@
 
 {* === ... ============================================ *}
 
-{define header-cell-buttons-empty}
-	<th class="header-cell header-cell--buttons">&nbsp;</th>
-{/define}
-
-
-{* === ... ============================================ *}
-
-{define header-filter-row}
-
-	<tr n:snippet="filter-controls">
-		{php $grid->addFilterCriteria(); $grid->addFilterButtons() }
-
-		{include #header-filter-row-cells}
-	</tr>
-
-{/define}
-
-
-{* === ... ============================================ *}
-
-{define header-filter-row-cells}
-
-	{foreach $columns as $name => $column}
-		{ifset #filter-cell-$name}
-			{include #"filter-cell-$name", column => $name}
-
-		{else}
-			{include #filter-cell, column => $name}
-		{/ifset}
-	{/foreach}
-
-	{include #header-cell-filter-buttons}
-
-{/define}
-
-
-{* === ... ============================================ *}
-
 {define header-cell}
 
 	<th n:class='
@@ -206,17 +168,6 @@
 	<a href="{$column |sortLink}" n:class='sort, "sort-{$column->getName()}", tw-ajax'>
 		{$column->getLabel()}
 	</a>
-
-{/define}
-
-
-{* === ... ============================================ *}
-
-{define header-cell-filter-buttons}
-
-	<th class="filter-cell text-center">
-		{include #filter-buttons}
-	</th>
 
 {/define}
 
@@ -274,6 +225,13 @@
 
 {* === ... ============================================ *}
 
+{define multisort-number}
+	<span class="badge">{$column->getSortIndex() + 1}</span>
+{/define}
+
+
+{* === ... ============================================ *}
+
 {define multisort-button}
 
 	<a href="{$column |sortLink:TwiGrid\Helpers::SORT_LINK_MULTI}" class="btn btn-xs btn-default tw-ajax">
@@ -285,15 +243,46 @@
 
 {* === ... ============================================ *}
 
-{define multisort-number}
-	<span class="badge">{$column->getSortIndex() + 1}</span>
+{define multisort-icon-plus}
+	<span class="glyphicon glyphicon-plus"></span>
 {/define}
 
 
 {* === ... ============================================ *}
 
-{define multisort-icon-plus}
-	<span class="glyphicon glyphicon-plus"></span>
+{define header-cell-buttons-empty}
+	<th class="header-cell header-cell--buttons">&nbsp;</th>
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define header-filter-row}
+
+	<tr n:snippet="filter-controls">
+		{php $grid->addFilterCriteria(); $grid->addFilterButtons() }
+
+		{include #header-filter-row-cells}
+	</tr>
+
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define header-filter-row-cells}
+
+	{foreach $columns as $name => $column}
+		{ifset #filter-cell-$name}
+			{include #"filter-cell-$name", column => $name}
+
+		{else}
+			{include #filter-cell, column => $name}
+		{/ifset}
+	{/foreach}
+
+	{include #header-cell-filter-buttons}
+
 {/define}
 
 
@@ -307,6 +296,17 @@
 		{else}
 			&nbsp;
 		{/if}
+	</th>
+
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define header-cell-filter-buttons}
+
+	<th class="filter-cell text-center">
+		{include #filter-buttons}
 	</th>
 
 {/define}
@@ -414,33 +414,6 @@
 
 {* === ... ============================================ *}
 
-{define body-cell-row-actions}
-
-	<td n:if="$hasFilters || $hasRowActions || $hasInlineEdit" class="body-cell text-center">
-		{if $hasRowActions || $hasInlineEdit}
-			{include #row-actions, i => $iterator->counter - 1, $recordVariable => $record, isInlineEdited => $isInlineEdited, primaryString => $primaryString}
-
-		{else}
-			&nbsp;
-		{/if}
-	</td>
-
-{/define}
-
-
-{* === ... ============================================ *}
-
-{define body-no-data}
-
-	<tr class="warning">
-		<td class="body-cell" colspan="{$columnCount}">{_'twigrid.data.no_data'}</td>
-	</tr>
-
-{/define}
-
-
-{* === ... ============================================ *}
-
 {define body-cell-inline}
 
 	{ifset $form["inline-values-$column"]}
@@ -448,7 +421,7 @@
 			{input inline-values-$column, class => 'form-control'}
 		</td>
 
-	{elseifset #body-cell-$column}
+		{elseifset #body-cell-$column}
 		{include #"body-cell-$column", (expand) get_defined_vars()}
 
 	{else}
@@ -462,6 +435,22 @@
 
 {define body-cell}
 	<td n:class='body-cell, "body-cell-{$column}"'>{$$recordVariable |getValue:$column:FALSE}</td>
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define body-cell-row-actions}
+
+	<td n:if="$hasFilters || $hasRowActions || $hasInlineEdit" class="body-cell text-center">
+		{if $hasRowActions || $hasInlineEdit}
+			{include #row-actions, i => $iterator->counter - 1, $recordVariable => $record, isInlineEdited => $isInlineEdited, primaryString => $primaryString}
+
+		{else}
+			&nbsp;
+		{/if}
+	</td>
+
 {/define}
 
 
@@ -528,6 +517,17 @@
 
 {* === ... ============================================ *}
 
+{define body-no-data}
+
+	<tr class="warning">
+		<td class="body-cell" colspan="{$columnCount}">{_'twigrid.data.no_data'}</td>
+	</tr>
+
+{/define}
+
+
+{* === ... ============================================ *}
+
 {define footer}
 
 	<tfoot class="footer" n:snippet="footer">
@@ -537,6 +537,18 @@
 			{include #footer-row, footerInfo => $footerInfo}
 		{/if}
 	</tfoot>
+
+{/define}
+
+
+{* === ... ============================================ *}
+
+{define footer-info}
+
+	<div n:class="!$hasGroupActions && $grid->getPageCount() <= 1 ? col-md-12 : col-md-4, text-right" n:if="$isPaginated">
+		{($grid->page - 1) * $grid->getItemsPerPage() + 1}-{min($grid->getItemCount(), ($grid->page - 1) * $grid->getItemsPerPage() + $grid->getItemsPerPage())}
+		/ {_'twigrid.pagination.total', $grid->getItemCount()}
+	</div>
 
 {/define}
 
@@ -618,18 +630,6 @@
 		<a n:href="paginate!, p => min($grid->getPageCount(), $grid->page + 1)" n:class="btn, btn-default, $grid->page === $grid->getPageCount() ? disabled, tw-ajax">
 			{_'twigrid.pagination.next'}
 		</a>
-	</div>
-
-{/define}
-
-
-{* === ... ============================================ *}
-
-{define footer-info}
-
-	<div n:class="!$hasGroupActions && $grid->getPageCount() <= 1 ? col-md-12 : col-md-4, text-right" n:if="$isPaginated">
-		{($grid->page - 1) * $grid->getItemsPerPage() + 1}-{min($grid->getItemCount(), ($grid->page - 1) * $grid->getItemsPerPage() + $grid->getItemsPerPage())}
-		/ {_'twigrid.pagination.total', $grid->getItemCount()}
 	</div>
 
 {/define}
