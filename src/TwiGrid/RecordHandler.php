@@ -25,37 +25,27 @@ class RecordHandler
 	const PRIMARY_SEPARATOR = '|';
 
 
-	/**
-	 * @param  string[] $keys
-	 * @return RecordHandler
-	 */
-	public function setPrimaryKey(array $keys)
+	public function setPrimaryKey(array $keys): self
 	{
 		$this->primaryKey = $keys;
 		return $this;
 	}
 
 
-	/** @return array */
-	public function getPrimaryKey()
+	public function getPrimaryKey(): array
 	{
 		return $this->primaryKey;
 	}
 
 
-	/**
-	 * @param  callable $callback
-	 * @return RecordHandler
-	 */
-	public function setValueGetter(callable $callback)
+	public function setValueGetter(callable $callback): self
 	{
 		$this->valueGetter = $callback;
 		return $this;
 	}
 
 
-	/** @return callable */
-	public function getValueGetter()
+	public function getValueGetter(): callable
 	{
 		if ($this->valueGetter === NULL) {
 			$this->valueGetter = function ($record, $column, $need) {
@@ -82,7 +72,7 @@ class RecordHandler
 	 * @param  bool $need
 	 * @return mixed
 	 */
-	public function getValue($record, $column, $need = TRUE)
+	public function getValue($record, string $column, bool $need = TRUE)
 	{
 		$getter = $this->getValueGetter();
 		return $getter($record, $column, $need);
@@ -93,7 +83,7 @@ class RecordHandler
 	 * @param  mixed $record
 	 * @return array
 	 */
-	public function getPrimary($record)
+	public function getPrimary($record): array
 	{
 		$primaries = [];
 		foreach ($this->primaryKey as $column) {
@@ -108,7 +98,7 @@ class RecordHandler
 	 * @param  mixed $record
 	 * @return string
 	 */
-	public function getPrimaryHash($record)
+	public function getPrimaryHash($record): string
 	{
 		return substr(sha1(implode(static::PRIMARY_SEPARATOR, $this->getPrimary($record))), 0, 8);
 	}
@@ -119,7 +109,7 @@ class RecordHandler
 	 * @param  array|\Traversable $data
 	 * @return mixed|NULL
 	 */
-	public function findIn($primary, $data)
+	public function findIn(string $primary, $data)
 	{
 		foreach ($data as $record) {
 			if ($this->is($record, $primary)) {
@@ -133,10 +123,10 @@ class RecordHandler
 
 	/**
 	 * @param  mixed $record
-	 * @param  string $primary
+	 * @param  string|NULL $primary
 	 * @return bool
 	 */
-	public function is($record, $primary)
+	public function is($record, ?string $primary): bool
 	{
 		return $this->getPrimaryHash($record) === $primary;
 	}

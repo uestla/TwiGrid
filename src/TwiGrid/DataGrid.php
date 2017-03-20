@@ -10,7 +10,9 @@
 
 namespace TwiGrid;
 
+use TwiGrid\Components\Action;
 use TwiGrid\Components\Column;
+use TwiGrid\Components\RowAction;
 use Nette\Utils\Callback as NCallback;
 use Nette\Bridges\ApplicationLatte\Template;
 use Nette\Application\UI\Control as NControl;
@@ -145,11 +147,8 @@ class DataGrid extends NControl
 
 	// === LIFE CYCLE ======================================================
 
-	/**
-	 * @param  NPresenter $presenter
-	 * @return void
-	 */
-	protected function attached($presenter)
+	/** @param  NPresenter $presenter */
+	protected function attached($presenter): void
 	{
 		if ($presenter instanceof NPresenter) {
 			$this->build();
@@ -164,13 +163,12 @@ class DataGrid extends NControl
 	}
 
 
-	/** @return void */
 	protected function build()
 	{}
 
 
 	/** @inheritdoc */
-	public function loadState(array $params)
+	public function loadState(array $params): void
 	{
 		parent::loadState(static::processParams($params));
 
@@ -208,11 +206,7 @@ class DataGrid extends NControl
 	}
 
 
-	/**
-	 * @param  array $params
-	 * @return array
-	 */
-	protected static function processParams(array $params)
+	protected static function processParams(array $params): array
 	{
 		if (isset($params['orderBy'])) {
 			foreach ($params['orderBy'] as & $dir) {
@@ -224,8 +218,7 @@ class DataGrid extends NControl
 	}
 
 
-	/** @return void */
-	protected function validateState()
+	protected function validateState(): void
 	{
 		if ($this->getColumns() === NULL) {
 			throw new \RuntimeException('At least one column must be added using DataGrid::addColumn($name, $label).');
@@ -245,8 +238,7 @@ class DataGrid extends NControl
 	}
 
 
-	/** @return bool */
-	protected function isInDefaultState()
+	protected function isInDefaultState(): bool
 	{
 		foreach (static::getReflection()->getPersistentParams() as $name => $meta) {
 			if ($this->$name !== $meta['def']) {
@@ -258,11 +250,7 @@ class DataGrid extends NControl
 	}
 
 
-	/**
-	 * @param  bool $resetInlineEdit
-	 * @return DataGrid
-	 */
-	protected function refreshState($resetInlineEdit = TRUE)
+	protected function refreshState(bool $resetInlineEdit = TRUE): self
 	{
 		if ($resetInlineEdit) {
 			$this->iePrimary = NULL;
@@ -278,8 +266,7 @@ class DataGrid extends NControl
 
 	// === LOCALIZATION ======================================================
 
-	/** @return NITranslator */
-	public function getTranslator()
+	public function getTranslator(): NITranslator
 	{
 		if ($this->translator === NULL) {
 			$this->translator = new Components\Translator;
@@ -289,23 +276,14 @@ class DataGrid extends NControl
 	}
 
 
-	/**
-	 * @param  NITranslator $translator
-	 * @return DataGrid
-	 */
-	public function setTranslator(NITranslator $translator)
+	public function setTranslator(NITranslator $translator): self
 	{
 		$this->translator = $translator;
 		return $this;
 	}
 
 
-	/**
-	 * @param  string $s
-	 * @param  int $count
-	 * @return string
-	 */
-	public function translate($s, $count = NULL)
+	public function translate(string $s, int $count = NULL): string
 	{
 		return $this->getTranslator()->translate($s, $count);
 	}
@@ -313,12 +291,7 @@ class DataGrid extends NControl
 
 	// === COLUMNS ======================================================
 
-	/**
-	 * @param  string $name
-	 * @param  string $label
-	 * @return Components\Column
-	 */
-	public function addColumn($name, $label = NULL)
+	public function addColumn(string $name, string $label = NULL): Column
 	{
 		if (!isset($this['columns'])) {
 			$this['columns'] = new NContainer;
@@ -332,14 +305,13 @@ class DataGrid extends NControl
 
 
 	/** @return \ArrayIterator|Column[]|NULL */
-	public function getColumns()
+	public function getColumns(): ?\ArrayIterator
 	{
 		return isset($this['columns']) ? $this['columns']->getComponents() : NULL;
 	}
 
 
-	/** @return bool */
-	public function hasManySortableColumns()
+	public function hasManySortableColumns(): bool
 	{
 		$hasMany = FALSE;
 
@@ -360,13 +332,7 @@ class DataGrid extends NControl
 
 	// === ROW ACTIONS ======================================================
 
-	/**
-	 * @param  string $name
-	 * @param  string $label
-	 * @param  callable $callback
-	 * @return Components\RowAction
-	 */
-	public function addRowAction($name, $label, callable $callback)
+	public function addRowAction(string $name, string $label, callable $callback): RowAction
 	{
 		if (!isset($this['rowActions'])) {
 			$this['rowActions'] = new NContainer;
@@ -379,25 +345,19 @@ class DataGrid extends NControl
 	}
 
 
-	/** @return \ArrayIterator|NULL */
-	public function getRowActions()
+	/** @return \ArrayIterator|RowAction[]|NULL */
+	public function getRowActions(): ?\ArrayIterator
 	{
 		return isset($this['rowActions']) ? $this['rowActions']->getComponents() : NULL;
 	}
 
 
-	/**
-	 * @param  string $action
-	 * @param  string $primary
-	 * @param  string|NULL $token
-	 * @return void
-	 */
-	public function handleRowAction($action, $primary, $token = NULL)
+	public function handleRowAction(string $name, string $primary, string $token = NULL): void
 	{
-		$act = $this['rowActions']->getComponent($action);
+		$action = $this['rowActions']->getComponent($name);
 
-		if (!$act->isProtected() || Helpers::checkCsrfToken($this->session, $token)) {
-			$act->invoke($this->getRecordHandler()->findIn($primary, $this->getData()));
+		if (!$action->isProtected() || Helpers::checkCsrfToken($this->session, $token)) {
+			$action->invoke($this->getRecordHandler()->findIn($primary, $this->getData()));
 			$this->refreshState();
 			$this->redraw(TRUE, TRUE, ['body', 'footer']);
 
@@ -416,7 +376,7 @@ class DataGrid extends NControl
 	 * @param  callable $callback
 	 * @return Components\Action
 	 */
-	public function addGroupAction($name, $label, callable $callback)
+	public function addGroupAction(string $name, string $label, callable $callback): Action
 	{
 		if (!isset($this['groupActions'])) {
 			$this['groupActions'] = new NContainer;
@@ -429,8 +389,8 @@ class DataGrid extends NControl
 	}
 
 
-	/** @return \ArrayIterator|NULL */
-	public function getGroupActions()
+	/** @return \ArrayIterator|Action[]|NULL */
+	public function getGroupActions(): ?\ArrayIterator
 	{
 		return isset($this['groupActions']) ? $this['groupActions']->getComponents() : NULL;
 	}
@@ -438,11 +398,7 @@ class DataGrid extends NControl
 
 	// === SORTING ======================================================
 
-	/**
-	 * @param  array $orderBy
-	 * @return void
-	 */
-	public function handleSort(array $orderBy)
+	public function handleSort(array $orderBy): void
 	{
 		$this->refreshState();
 		$this->redraw(TRUE, TRUE, ['header-sort', 'body', 'footer']);
@@ -454,7 +410,7 @@ class DataGrid extends NControl
 	 * @param  bool $dir
 	 * @return DataGrid
 	 */
-	public function setDefaultOrderBy($column, $dir = Components\Column::ASC)
+	public function setDefaultOrderBy($column, bool $dir = Components\Column::ASC): self
 	{
 		if (is_array($column)) {
 			$this->defaultOrderBy = $column;
@@ -469,19 +425,14 @@ class DataGrid extends NControl
 	}
 
 
-	/**
-	 * @param  bool $bool
-	 * @return DataGrid
-	 */
-	public function setMultiSort($bool = TRUE)
+	public function setMultiSort(bool $bool = TRUE): self
 	{
-		$this->multiSort = (bool) $bool;
+		$this->multiSort = $bool;
 		return $this;
 	}
 
 
-	/** @return bool */
-	public function hasMultiSort()
+	public function hasMultiSort(): bool
 	{
 		return $this->multiSort;
 	}
@@ -489,22 +440,14 @@ class DataGrid extends NControl
 
 	// === FILTERING ======================================================
 
-	/**
-	 * @param  callable $factory
-	 * @return DataGrid
-	 */
-	public function setFilterFactory(callable $factory)
+	public function setFilterFactory(callable $factory): self
 	{
 		$this->filterFactory = $factory;
 		return $this;
 	}
 
 
-	/**
-	 * @param  array $filters
-	 * @return DataGrid
-	 */
-	public function setDefaultFilters(array $filters)
+	public function setDefaultFilters(array $filters): self
 	{
 		if ($this->filterFactory === NULL) {
 			throw new \RuntimeException('Filter factory must be set using DataGrid::setFilterFactory($callback).');
@@ -515,11 +458,7 @@ class DataGrid extends NControl
 	}
 
 
-	/**
-	 * @param  array $filters
-	 * @return DataGrid
-	 */
-	protected function setFilters(array $filters)
+	protected function setFilters(array $filters): self
 	{
 		Helpers::recursiveKSort($filters);
 		$this->filters = $filters;
@@ -533,8 +472,7 @@ class DataGrid extends NControl
 
 	// === REFRESH ======================================================
 
-	/** @return void */
-	public function handleRefresh()
+	public function handleRefresh(): void
 	{
 		$this->refreshing = TRUE;
 		$this->redraw(TRUE, TRUE);
@@ -544,8 +482,7 @@ class DataGrid extends NControl
 
 	// === DATA LOADING ======================================================
 
-	/** @return RecordHandler */
-	private function getRecordHandler()
+	private function getRecordHandler(): RecordHandler
 	{
 		if ($this->recordHandler === NULL) {
 			$this->recordHandler = new RecordHandler;
@@ -559,18 +496,14 @@ class DataGrid extends NControl
 	 * @param  string|array $primaryKey
 	 * @return DataGrid
 	 */
-	public function setPrimaryKey($primaryKey)
+	public function setPrimaryKey($primaryKey): self
 	{
 		$this->getRecordHandler()->setPrimaryKey(is_array($primaryKey) ? $primaryKey : func_get_args());
 		return $this;
 	}
 
 
-	/**
-	 * @param  callable $loader
-	 * @return DataGrid
-	 */
-	public function setDataLoader(callable $loader)
+	public function setDataLoader(callable $loader): self
 	{
 		$this->dataLoader = $loader;
 		return $this;
@@ -608,31 +541,20 @@ class DataGrid extends NControl
 	}
 
 
-	/** @return bool */
-	public function hasData()
+	public function hasData(): bool
 	{
 		return count($this->getData());
 	}
 
 
-	/**
-	 * @param  mixed|NULL $callback
-	 * @return DataGrid
-	 */
-	public function setValueGetter($callback = NULL)
+	public function setValueGetter(callable $callback = NULL): self
 	{
 		$this->getRecordHandler()->setValueGetter($callback);
 		return $this;
 	}
 
 
-	/**
-	 * @param  bool $reloadData
-	 * @param  bool $reloadForm
-	 * @param  string[] $snippets
-	 * @return void
-	 */
-	protected function redraw($reloadData = TRUE, $reloadForm = FALSE, array $snippets = [NULL])
+	protected function redraw(bool $reloadData = TRUE, bool $reloadForm = FALSE, array $snippets = [NULL]): void
 	{
 		if ($reloadData) {
 			$this->data = NULL;
@@ -650,23 +572,15 @@ class DataGrid extends NControl
 
 	// === INLINE EDITING ======================================================
 
-	/**
-	 * @param  callable $containerCb
-	 * @param  callable $processCb
-	 * @return DataGrid
-	 */
-	public function setInlineEditing(callable $containerCb, callable $processCb)
+	public function setInlineEditing(callable $containerCb, callable $processCb): self
 	{
 		$this->ieProcessCallback = $processCb;
 		$this->ieContainerFactory = $containerCb;
+		return $this;
 	}
 
 
-	/**
-	 * @param  string $primary
-	 * @return void
-	 */
-	protected function activateInlineEditing($primary)
+	protected function activateInlineEditing(string $primary): void
 	{
 		$this->iePrimary = $primary;
 		$this->refreshState(FALSE);
@@ -674,11 +588,7 @@ class DataGrid extends NControl
 	}
 
 
-	/**
-	 * @param  bool $dataAsWell
-	 * @return void
-	 */
-	protected function deactivateInlineEditing($dataAsWell = TRUE)
+	protected function deactivateInlineEditing(bool $dataAsWell = TRUE): void
 	{
 		$this->refreshState();
 		$this->redraw($dataAsWell, TRUE, ['body']);
@@ -687,12 +597,7 @@ class DataGrid extends NControl
 
 	// === PAGINATION ======================================================
 
-	/**
-	 * @param  int $itemsPerPage
-	 * @param  callable $itemCounter
-	 * @return DataGrid
-	 */
-	public function setPagination($itemsPerPage, callable $itemCounter = NULL)
+	public function setPagination(int $itemsPerPage, callable $itemCounter = NULL): self
 	{
 		$this->itemsPerPage = max(0, $itemsPerPage);
 		$this->itemCounter = $itemCounter;
@@ -700,21 +605,13 @@ class DataGrid extends NControl
 	}
 
 
-	/**
-	 * @param  int $p
-	 * @return void
-	 */
-	public function handlePaginate($p)
+	public function handlePaginate(int $p): void
 	{
 		$this->paginate($p);
 	}
 
 
-	/**
-	 * @param  int $page
-	 * @return void
-	 */
-	protected function paginate($page)
+	protected function paginate(int $page): void
 	{
 		$this->setPage($page);
 		$this->refreshState();
@@ -722,11 +619,7 @@ class DataGrid extends NControl
 	}
 
 
-	/**
-	 * @param  int $page
-	 * @return DataGrid
-	 */
-	protected function setPage($page)
+	protected function setPage(int $page): self
 	{
 		if ($this->itemsPerPage !== NULL) {
 			$this->page = $page;
@@ -740,8 +633,7 @@ class DataGrid extends NControl
 	}
 
 
-	/** @return DataGrid */
-	protected function initPagination()
+	protected function initPagination(): self
 	{
 		if ($this->itemCount === NULL) {
 			if ($this->itemCounter === NULL) { // fallback - fetch data with empty filters
@@ -767,22 +659,19 @@ class DataGrid extends NControl
 	}
 
 
-	/** @return int|NULL */
-	public function getPageCount()
+	public function getPageCount(): ?int
 	{
 		return $this->pageCount;
 	}
 
 
-	/** @return int|NULL */
-	public function getItemCount()
+	public function getItemCount(): ?int
 	{
 		return $this->itemCount;
 	}
 
 
-	/** @return int|NULL */
-	public function getItemsPerPage()
+	public function getItemsPerPage(): ?int
 	{
 		return $this->itemsPerPage;
 	}
@@ -790,8 +679,7 @@ class DataGrid extends NControl
 
 	// === FORM BUILDING ======================================================
 
-	/** @return Form */
-	protected function createComponentForm()
+	protected function createComponentForm(): Form
 	{
 		$form = new Form($this->getRecordHandler());
 		$form->addProtection();
@@ -803,8 +691,7 @@ class DataGrid extends NControl
 	}
 
 
-	/** @return DataGrid */
-	public function addFilterCriteria()
+	public function addFilterCriteria(): self
 	{
 		if ($this->filterFactory !== NULL) {
 			$this->addFilterButtons();
@@ -815,8 +702,7 @@ class DataGrid extends NControl
 	}
 
 
-	/** @return DataGrid */
-	public function addFilterButtons()
+	public function addFilterButtons(): self
 	{
 		if ($this->filterFactory !== NULL) {
 			$this['form']->addFilterButtons(count($this->filters));
@@ -826,8 +712,7 @@ class DataGrid extends NControl
 	}
 
 
-	/** @return DataGrid */
-	public function addGroupActionCheckboxes()
+	public function addGroupActionCheckboxes(): self
 	{
 		if ($this->getGroupActions() !== NULL) {
 			$this->addGroupActionButtons();
@@ -838,8 +723,7 @@ class DataGrid extends NControl
 	}
 
 
-	/** @return DataGrid */
-	public function addGroupActionButtons()
+	public function addGroupActionButtons(): self
 	{
 		if ($this->getGroupActions() !== NULL) {
 			$this['form']->addGroupActionButtons($this->getGroupActions());
@@ -849,8 +733,7 @@ class DataGrid extends NControl
 	}
 
 
-	/** @return DataGrid */
-	public function addInlineEditControls()
+	public function addInlineEditControls(): self
 	{
 		if ($this->ieContainerFactory !== NULL) {
 			$this['form']->addInlineEditControls(
@@ -864,8 +747,7 @@ class DataGrid extends NControl
 	}
 
 
-	/** @return DataGrid */
-	public function addPaginationControls()
+	public function addPaginationControls(): self
 	{
 		if ($this->itemsPerPage !== NULL) {
 			$this->initPagination();
@@ -876,21 +758,13 @@ class DataGrid extends NControl
 	}
 
 
-	/**
-	 * @param  Form $form
-	 * @return void
-	 */
-	public function formSubmitted(Form $form)
+	public function formSubmitted(Form $form): void
 	{
 		$this->redraw(FALSE, FALSE, ['form-errors']);
 	}
 
 
-	/**
-	 * @param  Form $form
-	 * @return void
-	 */
-	public function processForm(Form $form)
+	public function processForm(Form $form): void
 	{
 		// detect submit button by lazy buttons appending (beginning with the most lazy ones)
 		$this->addFilterButtons();
@@ -971,30 +845,21 @@ class DataGrid extends NControl
 
 	// === RENDERING ======================================================
 
-	/**
-	 * @param  string $templateFile
-	 * @return DataGrid
-	 */
-	public function setTemplateFile($templateFile)
+	public function setTemplateFile(string $templateFile): self
 	{
 		$this->templateFile = $templateFile;
 		return $this;
 	}
 
 
-	/**
-	 * @param  string $name
-	 * @return DataGrid
-	 */
-	public function setRecordVariable($name)
+	public function setRecordVariable(string $name): self
 	{
 		$this->recordVariable = $name;
 		return $this;
 	}
 
 
-	/** @return void */
-	public function render()
+	public function render(): void
 	{
 		/** @var Template $template */
 		$template = $this->createTemplate();

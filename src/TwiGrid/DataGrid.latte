@@ -510,7 +510,7 @@
 						action => $action,
 						$recordVariable => $$recordVariable,
 						link => $grid->link('rowAction!', [
-							action => $name,
+							name => $name,
 							primary => $primaryString,
 							token => $action->isProtected() ? $csrfToken
 						]),

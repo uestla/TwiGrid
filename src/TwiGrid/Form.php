@@ -13,7 +13,6 @@ namespace TwiGrid;
 use Nette\Forms\Controls\Checkbox;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Application\UI\Form as NForm;
-use Nette\Utils\ArrayHash as NArrayHash;
 use Nette\Forms\Container as NContainer;
 
 
@@ -24,7 +23,6 @@ class Form extends NForm
 	private $recordHandler;
 
 
-	/** @param  RecordHandler $handler */
 	public function __construct(RecordHandler $handler)
 	{
 		parent::__construct();
@@ -32,12 +30,7 @@ class Form extends NForm
 	}
 
 
-	/**
-	 * @param  callable $factory
-	 * @param  array $defaults
-	 * @return Form
-	 */
-	public function addFilterCriteria(callable $factory, array $defaults)
+	public function addFilterCriteria(callable $factory, array $defaults): self
 	{
 		if ($this->lazyCreateContainer('filters', 'criteria', $criteria, $factory)) {
 			$criteria->setDefaults($defaults);
@@ -48,11 +41,7 @@ class Form extends NForm
 	}
 
 
-	/**
-	 * @param  bool $hasFilters
-	 * @return Form
-	 */
-	public function addFilterButtons($hasFilters)
+	public function addFilterButtons(bool $hasFilters): self
 	{
 		if ($this->lazyCreateContainer('filters', 'buttons', $buttons)) {
 			$buttons->addSubmit('filter', 'twigrid.filters.filter');
@@ -66,8 +55,7 @@ class Form extends NForm
 	}
 
 
-	/** @return array|NULL */
-	public function getFilterCriteria()
+	public function getFilterCriteria(): ?array
 	{
 		$this->validate();
 		if ($this->isValid()) {
@@ -78,8 +66,7 @@ class Form extends NForm
 	}
 
 
-	/** @return Form */
-	public function addGroupActionCheckboxes()
+	public function addGroupActionCheckboxes(): self
 	{
 		if ($this->lazyCreateContainer('actions', 'records', $records)) {
 			$i = 0;
@@ -101,11 +88,7 @@ class Form extends NForm
 	}
 
 
-	/**
-	 * @param  \ArrayIterator $actions
-	 * @return Form
-	 */
-	public function addGroupActionButtons(\ArrayIterator $actions)
+	public function addGroupActionButtons(\ArrayIterator $actions): self
 	{
 		if ($this->lazyCreateContainer('actions', 'buttons', $buttons)) {
 			foreach ($actions as $name => $action) {
@@ -117,8 +100,7 @@ class Form extends NForm
 	}
 
 
-	/** @return array|NULL */
-	public function getCheckedRecords()
+	public function getCheckedRecords(): ?array
 	{
 		$this->addGroupActionCheckboxes();
 
@@ -137,7 +119,7 @@ class Form extends NForm
 	 * @param  string|NULL $iePrimary
 	 * @return Form
 	 */
-	public function addInlineEditControls($data, callable $containerFactory, $iePrimary)
+	public function addInlineEditControls($data, callable $containerFactory, ?string $iePrimary): self
 	{
 		if ($this->lazyCreateContainer('inline', 'buttons', $buttons)) {
 			foreach ($data as $record) {
@@ -161,20 +143,14 @@ class Form extends NForm
 	}
 
 
-	/** @return NArrayHash|NULL */
-	public function getInlineValues()
+	public function getInlineValues(): ?array
 	{
 		$this->validate();
-		return $this->isValid() ? $this['inline']['values']->getValues() : NULL;
+		return $this->isValid() ? $this['inline']['values']->getValues(TRUE) : NULL;
 	}
 
 
-	/**
-	 * @param  int $current
-	 * @param  int $pageCount
-	 * @return Form
-	 */
-	public function addPaginationControls($current, $pageCount)
+	public function addPaginationControls(int $current, int $pageCount): self
 	{
 		if ($this->lazyCreateContainer('pagination', 'controls', $controls)) {
 			$controls->addText('page', 'Page')
@@ -193,21 +169,13 @@ class Form extends NForm
 	}
 
 
-	/** @return int */
-	public function getPage()
+	public function getPage(): int
 	{
 		return (int) $this['pagination']['controls']['page']->getValue();
 	}
 
 
-	/**
-	 * @param  string $parent
-	 * @param  string $name
-	 * @param  NContainer $container
-	 * @param  callable $factory
-	 * @return bool has the container been created?
-	 */
-	protected function lazyCreateContainer($parent, $name, NContainer & $container = NULL, callable $factory = NULL)
+	protected function lazyCreateContainer(string $parent, string $name, NContainer & $container = NULL, callable $factory = NULL): bool
 	{
 		if (!isset($this[$parent])) {
 			$this->addContainer($parent);
@@ -236,11 +204,7 @@ class Form extends NForm
 	}
 
 
-	/**
-	 * @param  Checkbox $checkbox
-	 * @return bool
-	 */
-	public static function validateCheckedCount(Checkbox $checkbox)
+	public static function validateCheckedCount(Checkbox $checkbox): bool
 	{
 		return $checkbox->getForm()->isSubmitted()->getParent()->lookupPath(NForm::class) !== 'actions-buttons'
 				|| in_array(TRUE, $checkbox->getParent()->getValues(TRUE), TRUE);

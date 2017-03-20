@@ -18,11 +18,7 @@ use Nette\Http\SessionSection as NSessionSection;
 abstract class Helpers
 {
 
-	/**
-	 * @param  array $array
-	 * @return void
-	 */
-	public static function recursiveKSort(array & $array)
+	public static function recursiveKSort(array & $array): void
 	{
 		if (count($array)) {
 			ksort($array);
@@ -36,11 +32,7 @@ abstract class Helpers
 	}
 
 
-	/**
-	 * @param  array $a
-	 * @return array
-	 */
-	public static function filterEmpty(array $a)
+	public static function filterEmpty(array $a): array
 	{
 		$ret = [];
 		foreach ($a as $k => $v) {
@@ -67,13 +59,7 @@ abstract class Helpers
 	const SORT_LINK_MULTI = 1;
 
 
-	/**
-	 * @param  DataGrid $grid
-	 * @param  Column $column
-	 * @param  int $mode
-	 * @return string
-	 */
-	public static function createSortLink(DataGrid $grid, Column $column, $mode = self::SORT_LINK_SINGLE)
+	public static function createSortLink(DataGrid $grid, Column $column, int $mode = self::SORT_LINK_SINGLE): string
 	{
 		$by = NULL;
 
@@ -107,12 +93,7 @@ abstract class Helpers
 
 	// === PAGINATION ======================================================
 
-	/**
-	 * @param  int $page
-	 * @param  int $pageCount
-	 * @return int
-	 */
-	public static function fixPage($page, $pageCount)
+	public static function fixPage(int $page, int $pageCount): int
 	{
 		return max(1, min($page, $pageCount));
 	}
@@ -120,11 +101,7 @@ abstract class Helpers
 
 	// === CSRF PROTECTION ======================================================
 
-	/**
-	 * @param  NSessionSection $session
-	 * @return string
-	 */
-	public static function getCsrfToken(NSessionSection $session)
+	public static function getCsrfToken(NSessionSection $session): string
 	{
 		if (!isset($session->token)) {
 			$session->token = NRandom::generate(10);
@@ -134,12 +111,7 @@ abstract class Helpers
 	}
 
 
-	/**
-	 * @param  NSessionSection $session
-	 * @param  string $token
-	 * @return bool
-	 */
-	public static function checkCsrfToken(NSessionSection $session, $token)
+	public static function checkCsrfToken(NSessionSection $session, string $token): bool
 	{
 		if (isset($session->token) && strcmp($session->token, $token) === 0) {
 			unset($session->token);

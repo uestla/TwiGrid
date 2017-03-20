@@ -34,8 +34,7 @@ class Column extends Component
 	const DESC = TRUE;
 
 
-	/** @param  string $label */
-	public function __construct($label)
+	public function __construct(string $label)
 	{
 		parent::__construct();
 
@@ -43,66 +42,51 @@ class Column extends Component
 	}
 
 
-	/** @return string */
-	public function getLabel()
+	public function getLabel(): string
 	{
 		return $this->translate($this->label);
 	}
 
 
-	/**
-	 * @param  bool $bool
-	 * @return Column
-	 */
-	public function setSortable($bool = TRUE)
+	public function setSortable(bool $bool = TRUE): self
 	{
-		$this->sortable = (bool) $bool;
+		$this->sortable = $bool;
 		return $this;
 	}
 
 
-	/** @return bool */
-	public function isSortable()
+	public function isSortable(): bool
 	{
 		return $this->sortable;
 	}
 
 
-	/**
-	 * @param  bool $bool
-	 * @param  bool $sortDir
-	 * @param  int $sortIndex
-	 * @return Column
-	 */
-	public function setSortedBy($bool = TRUE, $sortDir = self::ASC, $sortIndex = 0)
+	public function setSortedBy(bool $bool = TRUE, bool $sortDir = self::ASC, int $sortIndex = 0): self
 	{
 		if (!$this->sortable) {
 			throw new \RuntimeException("Column '{$this->getName()}' is not sortable.");
 		}
 
+		$this->sortedBy = $bool;
 		$this->sortIndex = $sortIndex;
-		$this->sortedBy = (bool) $bool;
 		$this->sortDir = $bool && $sortDir;
 		return $this;
 	}
 
 
-	/** @return bool */
-	public function isSortedBy()
+	public function isSortedBy(): bool
 	{
 		return $this->sortedBy;
 	}
 
 
-	/** @return bool */
-	public function getSortDir()
+	public function getSortDir(): bool
 	{
 		return $this->sortDir;
 	}
 
 
-	/** @return int */
-	public function getSortIndex()
+	public function getSortIndex(): int
 	{
 		return $this->sortIndex;
 	}

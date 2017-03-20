@@ -18,19 +18,14 @@ class RowAction extends Action
 	protected $protected = TRUE;
 
 
-	/**
-	 * @param  bool $bool
-	 * @return RowAction
-	 */
-	public function setProtected($bool = TRUE)
+	public function setProtected(bool $bool = TRUE): self
 	{
-		$this->protected = (bool) $bool;
+		$this->protected = $bool;
 		return $this;
 	}
 
 
-	/** @return bool */
-	public function isProtected()
+	public function isProtected(): bool
 	{
 		return $this->protected;
 	}

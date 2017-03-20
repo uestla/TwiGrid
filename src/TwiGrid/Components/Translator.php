@@ -31,11 +31,7 @@ class Translator implements NITranslator
 	];
 
 
-	/**
-	 * @param  array $dictionary
-	 * @return Translator
-	 */
-	public function addDictionary(array $dictionary)
+	public function addDictionary(array $dictionary): self
 	{
 		$this->dictionary = $dictionary + $this->dictionary;
 		return $this;
@@ -47,7 +43,7 @@ class Translator implements NITranslator
 	 * @param  int $count
 	 * @return string
 	 */
-	public function translate($message, $count = NULL)
+	public function translate($message, $count = NULL): string
 	{
 		if (isset($this->dictionary[$message])) {
 			$s = $this->dictionary[$message];

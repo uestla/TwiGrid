@@ -26,11 +26,7 @@ class Action extends Component
 	private $confirmation = NULL;
 
 
-	/**
-	 * @param  string $label
-	 * @param  callable $callback
-	 */
-	public function __construct($label, callable $callback)
+	public function __construct(string $label, callable $callback)
 	{
 		parent::__construct();
 
@@ -39,33 +35,26 @@ class Action extends Component
 	}
 
 
-	/** @return string */
-	public function getLabel()
+	public function getLabel(): string
 	{
 		return $this->translate($this->label);
 	}
 
 
-	/** @return callable */
-	public function getCallback()
+	public function getCallback(): callable
 	{
 		return $this->callback;
 	}
 
 
-	/**
-	 * @param  string $confirmation
-	 * @return Action
-	 */
-	public function setConfirmation($confirmation = NULL)
+	public function setConfirmation(string $confirmation = NULL): self
 	{
 		$this->confirmation = strlen($confirmation) ? (string) $confirmation : NULL;
 		return $this;
 	}
 
 
-	/** @return string|NULL */
-	public function getConfirmation()
+	public function getConfirmation(): ?string
 	{
 		if ($this->confirmation === NULL) {
 			return NULL;

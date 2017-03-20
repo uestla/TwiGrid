@@ -18,22 +18,14 @@ use Nette\ComponentModel\Component as NComponent;
 abstract class Component extends NComponent
 {
 
-	/**
-	 * @param  bool $need
-	 * @return DataGrid|IComponent
-	 *
-	 */
-	final public function getDataGrid($need = TRUE)
+	/** @return IComponent|DataGrid */
+	final public function getDataGrid(bool $need = TRUE)
 	{
 		return $this->lookup(DataGrid::class, $need);
 	}
 
 
-	/**
-	 * @param  string $s
-	 * @return string
-	 */
-	protected function translate($s)
+	protected function translate(string $s): string
 	{
 		return $this->getDataGrid()->translate($s);
 	}
