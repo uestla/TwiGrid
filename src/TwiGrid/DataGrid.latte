@@ -22,13 +22,12 @@
  * @param  int $columnCount total number of columns in grid table
  *}
 
+
 <div class="tw-cnt" data-refresh-signal="{link refresh!}" n:snippet="">
 	{include #flashes}
 	{include #datagrid}
 </div>
 
-
-{* === ... ============================================ *}
 
 {define flashes}
 
@@ -41,8 +40,6 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
 {define datagrid}
 
 	<form n:name="$form" class="form tw-ajax">
@@ -53,12 +50,10 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
 {define form-errors}
 
 	<div n:snippet="form-errors">
-		{if $errors = $form->errors}
+		{if $errors = $form->getErrors()}
 			<div class="alert alert-danger" n:foreach="$errors as $error">
 				{$error}
 			</div>
@@ -67,8 +62,6 @@
 
 {/define}
 
-
-{* === ... ============================================ *}
 
 {define container}
 
@@ -81,7 +74,7 @@
 {/define}
 
 
-{* === ... ============================================ *}
+{* === HEADER ============================================ *}
 
 {define header}
 
@@ -96,7 +89,7 @@
 {/define}
 
 
-{* === ... ============================================ *}
+{* === HEADER - SORTING ============================================ *}
 
 {define header-sort-row}
 
@@ -106,8 +99,6 @@
 
 {/define}
 
-
-{* === ... ============================================ *}
 
 {define header-sort-row-cells}
 
@@ -131,15 +122,12 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
 {define header-cell-group-checkbox}
 	<th rowspan="2" class="header-cell group-checkbox"></th>
 {/define}
 
 
-{* === ... ============================================ *}
-
+{** @param  TwiGrid\Components\Column $column *}
 {define header-cell}
 
 	<th n:class='
@@ -161,8 +149,7 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
+{** @param  TwiGrid\Components\Column $column *}
 {define sort-button}
 
 	<a href="{$column |sortLink}" n:class='sort, "sort-{$column->getName()}", tw-ajax'>
@@ -172,15 +159,13 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
+{** @param  TwiGrid\Components\Column $column *}
 {define column-label}
 	{$column->getLabel()}
 {/define}
 
 
-{* === ... ============================================ *}
-
+{** @param  TwiGrid\Components\Column $column *}
 {define sort-labels}
 
 	{if $column->isSortedBy()}
@@ -199,22 +184,17 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
 {define sort-icon-asc}
 	<span class="glyphicon glyphicon-chevron-up"></span>
 {/define}
 
-
-{* === ... ============================================ *}
 
 {define sort-icon-desc}
 	<span class="glyphicon glyphicon-chevron-down"></span>
 {/define}
 
 
-{* === ... ============================================ *}
-
+{** @param  TwiGrid\Components\Column $column *}
 {define multisort-labels}
 
 	<div class="multisort-labels">
@@ -230,15 +210,13 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
+{** @param  TwiGrid\Components\Column $column *}
 {define multisort-number}
 	<span class="badge">{$column->getSortIndex() + 1}</span>
 {/define}
 
 
-{* === ... ============================================ *}
-
+{** @param  TwiGrid\Components\Column $column *}
 {define multisort-button}
 
 	<a href="{$column |sortLink:TwiGrid\Helpers::SORT_LINK_MULTI}" class="btn btn-xs btn-default tw-ajax">
@@ -248,21 +226,17 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
 {define multisort-icon-plus}
 	<span class="glyphicon glyphicon-plus"></span>
 {/define}
 
-
-{* === ... ============================================ *}
 
 {define header-cell-buttons-empty}
 	<th class="header-cell">&nbsp;</th>
 {/define}
 
 
-{* === ... ============================================ *}
+{* === HEADER - FILTERING ============================================ *}
 
 {define header-filter-row}
 
@@ -275,16 +249,14 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
 {define header-filter-row-cells}
 
 	{foreach $columns as $name => $column}
 		{ifset #filter-cell-$name}
-			{include #"filter-cell-$name", column => $name}
+			{include #"filter-cell-$name", columnName => $name}
 
 		{else}
-			{include #filter-cell, column => $name}
+			{include #filter-cell, columnName => $name}
 		{/ifset}
 	{/foreach}
 
@@ -293,13 +265,17 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
+{** @param  string $columnName *}
 {define filter-cell}
 
-	<th n:class='filter-cell, ($hasControl = isset($form["filters-criteria-$column"])) && !($isControl = ($form["filters-criteria-$column"] instanceof Nette\Forms\IControl)) ? alert-warning'>
+	<th n:class='
+			filter-cell,
+			($hasControl = isset($form["filters-criteria-$columnName"]))
+				&& !($isControl = ($form["filters-criteria-$columnName"] instanceof Nette\Forms\IControl))
+				? alert-warning
+	'>
 		{if $hasControl && $isControl}
-			{input filters-criteria-$column, class => 'form-control'}
+			{input filters-criteria-$columnName, class => 'form-control'}
 		{else}
 			&nbsp;
 		{/if}
@@ -307,8 +283,6 @@
 
 {/define}
 
-
-{* === ... ============================================ *}
 
 {define header-cell-filter-buttons}
 
@@ -318,8 +292,6 @@
 
 {/define}
 
-
-{* === ... ============================================ *}
 
 {define filter-buttons}
 
@@ -332,19 +304,22 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
+{**
+ * @param  string $name
+ * @param  Nette\Forms\Controls\SubmitButton $button
+ *}
 {define filter-button}
 	<input n:name="$button" class="btn btn-default">
 {/define}
 
 
-{* === ... ============================================ *}
+{* === BODY ============================================ *}
 
 {define body}
 
 	<tbody class="body" n:snippet="body">
-		{if}{php $grid->addGroupActionCheckboxes(); $grid->addInlineEditControls() }
+		{if}
+			{php $grid->addGroupActionCheckboxes(); $grid->addInlineEditControls() }
 
 			{foreach $dataLoader() as $record}
 				{include #body-row,
@@ -362,23 +337,29 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
+{**
+ * @param  bool $isInlineEdited
+ * @param  string $primaryString
+ * @param  mixed $$recordVariable
+ *}
 {define body-row}
 
 	<tr n:class="$isInlineEdited ? success">
 		{include #body-row-cells,
-			$recordVariable => $$recordVariable,
-			primaryString => ($primaryString = ($record |primaryToString)),
-			isInlineEdited => $hasInlineEdit && $iePrimary === $primaryString
+			primaryString => $primaryString,
+			isInlineEdited => $isInlineEdited,
+			$recordVariable => $$recordVariable
 		}
 	</tr>
 
 {/define}
 
 
-{* === ... ============================================ *}
-
+{**
+ * @param  bool $isInlineEdited
+ * @param  string $primaryString
+ * @param  mixed $$recordVariable
+ *}
 {define body-row-cells}
 
 	{if $hasGroupActions}
@@ -387,9 +368,9 @@
 
 	{foreach $columns as $name => $column}
 		{var $params = [
-			column => $name,
-			$recordVariable => $$recordVariable,
+			columnName => $name,
 			isInlineEdited => $isInlineEdited,
+			$recordVariable => $$recordVariable
 		]}
 
 		{if $isInlineEdited}
@@ -421,8 +402,7 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
+{** @param  string $primaryString *}
 {define body-cell-group-checkbox}
 
 	<td class="body-cell group-checkbox">
@@ -432,50 +412,61 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
+{**
+ * @param  string $columnName
+ * @param  bool $isInlineEdited
+ * @param  mixed $$recordVariable
+ *}
 {define body-cell-inline}
 
-	{ifset $form["inline-values-$column"]}
-		<td n:class='body-inline-cell, "body-inline-cell-{$column}"'>
-			{input inline-values-$column, class => 'form-control'}
+	{ifset $form["inline-values-$columnName"]}
+		<td n:class='body-inline-cell, "body-inline-cell-{$columnName}"'>
+			{input inline-values-$columnName, class => 'form-control'}
 		</td>
 
-	{elseifset #body-cell-$column}
-		{include #"body-cell-$column", column => $column, $recordVariable => $$recordVariable}
+	{elseifset #body-cell-$columnName}
+		{include #"body-cell-$columnName", columnName => $columnName, $recordVariable => $$recordVariable}
 
 	{else}
-		{include #body-cell, column => $column, $recordVariable => $$recordVariable}
+		{include #body-cell, columnName => $columnName, $recordVariable => $$recordVariable}
 	{/ifset}
 
 {/define}
 
 
-{* === ... ============================================ *}
-
+{**
+ * @param  string $columnName
+ * @param  bool $isInlineEdited
+ * @param  mixed $$recordVariable
+ *}
 {define body-cell}
 
-	<td n:class='body-cell, "body-cell-{$column}"'>
-		{ifset #body-cell-$column-content}
-			{include #"body-cell-$column-content", $recordVariable => $$recordVariable, column => $column}
+	<td n:class='body-cell, "body-cell-{$columnName}"'>
+		{ifset #body-cell-$columnName-content}
+			{include #"body-cell-$columnName-content", $recordVariable => $$recordVariable, columnName => $columnName}
 
 		{else}
-			{include #body-cell-content, $recordVariable => $$recordVariable, column => $column}
+			{include #body-cell-content, $recordVariable => $$recordVariable, columnName => $columnName}
 		{/ifset}
 	</td>
 
 {/define}
 
 
-{* === ... ============================================ *}
-
+{**
+ * @param  string $columnName
+ * @param  mixed $$recordVariable
+ *}
 {define body-cell-content}
-	{$$recordVariable |getValue:$column:FALSE}
+	{$$recordVariable |getValue:$columnName:FALSE}
 {/define}
 
 
-{* === ... ============================================ *}
-
+{**
+ * @param  bool $isInlineEdited
+ * @param  string $primaryString
+ * @param  mixed $$recordVariable
+ *}
 {define body-cell-row-actions}
 
 	<td class="body-cell row-actions">
@@ -490,8 +481,11 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
+{**
+ * @param  bool $isInlineEdited
+ * @param  string $primaryString
+ * @param  mixed $$recordVariable
+ *}
 {define row-actions}
 
 	<div class="btn-group">
@@ -530,8 +524,6 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
 {define inline-buttons}
 
 	<input n:name="inline-buttons-edit" class="btn btn-sm btn-success">
@@ -540,8 +532,12 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
+{**
+ * @param  string $name
+ * @param  string $link
+ * @param  mixed $$recordVariable
+ * @param  TwiGrid\Components\RowAction $action
+ *}
 {define row-action}
 
 	<a href="{$link}" class="btn btn-primary btn-sm tw-ajax" n:attr="data-tw-confirm => $action->getConfirmation()">
@@ -551,14 +547,11 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
+{* backwards compatibility *}
 {define body-no-data}
-	{include #body-no-data-row} {* backwards compatibility *}
+	{include #body-no-data-row}
 {/define}
 
-
-{* === ... ============================================ *}
 
 {define body-no-data-row}
 
@@ -569,8 +562,6 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
 {define body-no-data-cell}
 
 	<td class="body-cell no-data" colspan="{$columnCount}">
@@ -580,14 +571,12 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
 {define body-no-data-content}
 	{_'twigrid.data.no_data'}
 {/define}
 
 
-{* === ... ============================================ *}
+{* === FOOTER ============================================ *}
 
 {define footer}
 
@@ -602,8 +591,6 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
 {define footer-info}
 
 	<div n:class="!$hasGroupActions && $grid->getPageCount() <= 1 ? col-md-12 : col-md-4, text-right" n:if="$isPaginated">
@@ -614,8 +601,7 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
+{** @param  string $footerInfo *}
 {define footer-row}
 
 	<tr>
@@ -637,8 +623,6 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
 {define group-action-buttons}
 
 	{php $grid->addGroupActionButtons() }
@@ -656,21 +640,19 @@
 {/define}
 
 
-{* === ... ============================================ *}
-
 {define group-action-buttons-label}
 	<label class="action-buttons-label">{_'twigrid.group_actions.checked'}</label>
 {/define}
 
 
-{* === ... ============================================ *}
-
+{**
+ * @param  string $name
+ * @param  TwiGrid\Components\Action $action
+ *}
 {define group-action-button}
 	<input n:name="'actions-buttons-' . $name" class="btn btn-default" n:attr="data-tw-confirm => $action->getConfirmation()">
 {/define}
 
-
-{* === ... ============================================ *}
 
 {define pagination}
 
