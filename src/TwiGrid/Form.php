@@ -30,9 +30,10 @@ class Form extends NForm
 	}
 
 
-	public function addFilterCriteria(callable $factory, array $defaults): self
+	public function addFilterCriteria(callable $containerSetupCb, array $defaults): self
 	{
-		if ($this->lazyCreateContainer('filters', 'criteria', $criteria, $factory)) {
+		if ($this->lazyCreateContainer('filters', 'criteria', $criteria)) {
+			$containerSetupCb($criteria);
 			$criteria->setDefaults($defaults);
 		}
 
@@ -69,13 +70,14 @@ class Form extends NForm
 	public function addGroupActionCheckboxes(): self
 	{
 		if ($this->lazyCreateContainer('actions', 'records', $records)) {
-			$i = 0;
+			$first = TRUE;
 			foreach ($this->getParent()->getData() as $record) {
 				$hash = $this->recordHandler->getPrimaryHash($record);
 				$records[$hash] = $checkbox = new Checkbox;
 
-				if ($i++ === 0) {
+				if ($first) {
 					$checkbox->addRule(__CLASS__ . '::validateCheckedCount', 'twigrid.group_actions.checked_count_message');
+					$first = FALSE;
 				}
 			}
 		}
@@ -115,16 +117,17 @@ class Form extends NForm
 
 	/**
 	 * @param  array|\Traversable $data
-	 * @param  callable $containerFactory
+	 * @param  callable $containerSetupCb
 	 * @param  string|NULL $iePrimary
 	 * @return Form
 	 */
-	public function addInlineEditControls($data, callable $containerFactory, ?string $iePrimary): self
+	public function addInlineEditControls($data, callable $containerSetupCb, ?string $iePrimary): self
 	{
 		if ($this->lazyCreateContainer('inline', 'buttons', $buttons)) {
 			foreach ($data as $record) {
 				if ($this->recordHandler->is($record, $iePrimary)) {
-					$this['inline']['values'] = $containerFactory($record);
+					$containerSetupCb($this['inline']->addContainer('values'), $record);
+
 					$buttons->addSubmit('edit', 'twigrid.inline.edit_confirm')
 							->setValidationScope([$this['inline']['values']]);
 
@@ -175,27 +178,14 @@ class Form extends NForm
 	}
 
 
-	protected function lazyCreateContainer(string $parent, string $name, NContainer & $container = NULL, callable $factory = NULL): bool
+	protected function lazyCreateContainer(string $parent, string $name, NContainer & $container = NULL): bool
 	{
 		if (!isset($this[$parent])) {
 			$this->addContainer($parent);
 		}
 
 		if (!isset($this[$parent][$name])) {
-			if ($factory !== NULL) {
-				$subcontainer = $factory();
-
-				if (!$subcontainer instanceof NContainer) {
-					throw new \RuntimeException('Container factory is expected to return ' . NContainer::class . ", '"
-							. (is_object($subcontainer) ? get_class($subcontainer) : gettype($subcontainer)) . "' given.");
-				}
-
-				$this[$parent][$name] = $subcontainer;
-
-			} else {
-				$this[$parent]->addContainer($name);
-			}
-
+			$this[$parent]->addContainer($name);
 			$created = TRUE;
 		}
 

@@ -91,11 +91,9 @@ class FeaturesTest extends TestCase
 
 	private function addFiltering(DataGrid $grid): void
 	{
-		$grid->setFilterFactory(function () {
-			$c = new Container;
+		$grid->setFilterFactory(function (Container $c) {
 			$c->addText('firstname');
 			$c->addText('lastname');
-			return $c;
 		});
 	}
 
@@ -116,12 +114,10 @@ class FeaturesTest extends TestCase
 
 	private function addInlineEditing(DataGrid $grid): void
 	{
-		$grid->setInlineEditing(function (\stdClass $person) {
-			$c = new Container;
+		$grid->setInlineEditing(function (Container $c, \stdClass $person) {
 			$c->addText('firstname')->setRequired();
 			$c->addText('lastname')->setRequired();
 			$c->setDefaults((array) $person);
-			return $c;
 
 		}, function (\stdClass $person) {});
 	}

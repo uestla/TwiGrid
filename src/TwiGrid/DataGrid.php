@@ -73,7 +73,7 @@ class DataGrid extends NControl
 	public $iePrimary = NULL;
 
 	/** @var callable|NULL */
-	private $ieContainerFactory = NULL;
+	private $ieContainerSetupCallback = NULL;
 
 	/** @var callable|NULL */
 	private $ieProcessCallback = NULL;
@@ -232,7 +232,7 @@ class DataGrid extends NControl
 			throw new \RuntimeException('Record primary key must be set using DataGrid::setPrimaryKey($key).');
 		}
 
-		if ($this->iePrimary !== NULL && $this->ieContainerFactory === NULL) {
+		if ($this->iePrimary !== NULL && $this->ieContainerSetupCallback === NULL) {
 			$this->iePrimary = NULL;
 		}
 	}
@@ -572,10 +572,10 @@ class DataGrid extends NControl
 
 	// === INLINE EDITING ======================================================
 
-	public function setInlineEditing(callable $containerCb, callable $processCb): self
+	public function setInlineEditing(callable $containerSetupCb, callable $processCb): self
 	{
 		$this->ieProcessCallback = $processCb;
-		$this->ieContainerFactory = $containerCb;
+		$this->ieContainerSetupCallback = $containerSetupCb;
 		return $this;
 	}
 
@@ -735,10 +735,10 @@ class DataGrid extends NControl
 
 	public function addInlineEditControls(): self
 	{
-		if ($this->ieContainerFactory !== NULL) {
+		if ($this->ieContainerSetupCallback !== NULL) {
 			$this['form']->addInlineEditControls(
 				$this->getData(),
-				$this->ieContainerFactory,
+				$this->ieContainerSetupCallback,
 				$this->iePrimary
 			);
 		}
@@ -768,6 +768,7 @@ class DataGrid extends NControl
 	{
 		// detect submit button by lazy buttons appending (beginning with the most lazy ones)
 		$this->addFilterButtons();
+
 		if (($button = $form->isSubmitted()) === TRUE) {
 			$this->addGroupActionButtons();
 
@@ -907,7 +908,7 @@ class DataGrid extends NControl
 		$template->groupActions = $this->getGroupActions();
 		$template->hasGroupActions = $template->groupActions !== NULL;
 
-		$template->hasInlineEdit = $this->ieContainerFactory !== NULL;
+		$template->hasInlineEdit = $this->ieContainerSetupCallback !== NULL;
 		$template->iePrimary = $this->iePrimary;
 
 		$template->isPaginated = $this->itemsPerPage !== NULL;
