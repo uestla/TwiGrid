@@ -44,7 +44,7 @@ class GridPresenter extends NPresenter
 
 		$this->addComponent($grid, 'grid');
 
-		$this->saveGlobalState(); // intentionally due to private $globalParams "instantiation" (array needed)
+		$this->saveGlobalState(); // intentionally due to private $globalParams "initialization" (array needed)
 	}
 
 }
