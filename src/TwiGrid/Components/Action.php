@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the TwiGrid component
@@ -61,6 +61,12 @@ class Action extends Component
 		}
 
 		return $this->translate($this->confirmation);
+	}
+
+
+	public function hasConfirmation(): bool
+	{
+		return $this->confirmation !== NULL;
 	}
 
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the TwiGrid component
@@ -543,7 +543,7 @@ class DataGrid extends NControl
 
 	public function hasData(): bool
 	{
-		return count($this->getData());
+		return (bool) count($this->getData());
 	}
 
 
@@ -708,7 +708,7 @@ class DataGrid extends NControl
 	public function addFilterButtons(): self
 	{
 		if ($this->filterFactory !== NULL) {
-			$this['form']->addFilterButtons(count($this->filters));
+			$this['form']->addFilterButtons((bool) count($this->filters));
 		}
 
 		return $this;
