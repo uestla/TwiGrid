@@ -358,7 +358,7 @@
 			{/foreach}
 
 		{else}
-			{include #body-no-data}
+			{include #body-no-data-row}
 		{/if $iterations}
 	</tbody>
 
@@ -572,12 +572,6 @@
 		{$action->getLabel()}
 	</a>
 
-{/define}
-
-
-{* backwards compatibility *}
-{define body-no-data}
-	{include #body-no-data-row}
 {/define}
 
 
