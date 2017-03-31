@@ -133,7 +133,7 @@
 	<th n:class='
 			header-cell,
 			"header-cell-{$column->getName()}",
-			$grid->hasMultiSort() ? multisort,
+			$grid->hasMultiSort() && $column->isSortable() ? multisort,
 			$grid->hasMultiSort() && $column->isSortedBy() && count($grid->orderBy) > 1 ? multisorted-by
 	'>
 		{ifset #header-cell-{$column->getName()}-content}
