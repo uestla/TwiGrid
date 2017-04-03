@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace TwiGrid\Components;
 
@@ -24,6 +24,7 @@ class Translator implements NITranslator
 		'twigrid.pagination.previous' => 'Previous',
 		'twigrid.pagination.next' => 'Next',
 		'twigrid.pagination.total' => '%d items',
+		'twigrid.pagination.page' => 'Page',
 		'twigrid.pagination.page_required' => 'Please select a page to go to.',
 		'twigrid.pagination.page_integer' => 'Page number must be an integer.',
 		'twigrid.pagination.page_range' => 'Page number must be greater than 1 and lower or equal to number of pages.',

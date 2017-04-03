@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the TwiGrid component
@@ -156,7 +156,7 @@ class Form extends NForm
 	public function addPaginationControls(int $current, int $pageCount): self
 	{
 		if ($this->lazyCreateContainer('pagination', 'controls', $controls)) {
-			$controls->addText('page', 'Page')
+			$controls->addText('page', 'twigrid.pagination.page')
 				->setRequired('twigrid.pagination.page_required')
 				->addRule(Form::INTEGER, 'twigrid.pagination.page_integer')
 				->addRule(Form::RANGE, 'twigrid.pagination.page_range', [1, $pageCount])

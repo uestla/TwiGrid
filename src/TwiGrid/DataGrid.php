@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the TwiGrid component
@@ -543,7 +543,7 @@ class DataGrid extends NControl
 
 	public function hasData(): bool
 	{
-		return count($this->getData());
+		return (bool) count($this->getData());
 	}
 
 
@@ -635,6 +635,23 @@ class DataGrid extends NControl
 
 	protected function initPagination(): self
 	{
+		if ($this->pageCount === NULL) {
+			$this->pageCount = (int) ceil($this->getItemCount() / $this->itemsPerPage);
+			$this->page = Helpers::fixPage($this->page, $this->pageCount);
+		}
+
+		return $this;
+	}
+
+
+	public function getItemsPerPage(): ?int
+	{
+		return $this->itemsPerPage;
+	}
+
+
+	public function getItemCount(): ?int
+	{
 		if ($this->itemCount === NULL) {
 			if ($this->itemCounter === NULL) { // fallback - fetch data with empty filters
 				$data = NCallback::invoke($this->dataLoader, $this->filters, [], NULL, 0);
@@ -651,29 +668,15 @@ class DataGrid extends NControl
 			}
 
 			$this->itemCount = max(0, (int) $count);
-			$this->pageCount = (int) ceil($this->itemCount / $this->itemsPerPage);
-			$this->page = Helpers::fixPage($this->page, $this->pageCount);
 		}
 
-		return $this;
+		return $this->itemCount;
 	}
 
 
 	public function getPageCount(): ?int
 	{
 		return $this->pageCount;
-	}
-
-
-	public function getItemCount(): ?int
-	{
-		return $this->itemCount;
-	}
-
-
-	public function getItemsPerPage(): ?int
-	{
-		return $this->itemsPerPage;
 	}
 
 
@@ -705,7 +708,7 @@ class DataGrid extends NControl
 	public function addFilterButtons(): self
 	{
 		if ($this->filterFactory !== NULL) {
-			$this['form']->addFilterButtons(count($this->filters));
+			$this['form']->addFilterButtons((bool) count($this->filters));
 		}
 
 		return $this;
