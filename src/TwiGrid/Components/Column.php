@@ -10,11 +10,13 @@
 
 namespace TwiGrid\Components;
 
+use Nette\Utils\Html;
+
 
 class Column extends Component
 {
 
-	/** @var string */
+	/** @var string|Html */
 	private $label;
 
 	/** @var bool */
@@ -34,7 +36,8 @@ class Column extends Component
 	const DESC = TRUE;
 
 
-	public function __construct(string $label)
+	/** @param  string|Html $label */
+	public function __construct($label)
 	{
 		parent::__construct();
 
@@ -42,9 +45,14 @@ class Column extends Component
 	}
 
 
-	public function getLabel(): string
+	public function getLabel(): Html
 	{
-		return $this->translate($this->label);
+		if ($this->label instanceof Html) {
+			return $this->label;
+		}
+		else {
+			return Html::el()->addText($this->translate($this->label));
+		}
 	}
 
 
