@@ -189,6 +189,12 @@ class DataGrid extends NControl
 				$this->polluted = TRUE;
 			}
 		}
+    
+		foreach ($this->filters AS $fKey => $fValue) {
+			if (isset($fValue['date']) && isset($fValue['timezone_type']) && isset($fValue['timezone'])) {
+				$this->filters[$fKey] = new \DateTime($fValue['date'], new \DateTimeZone($fValue['timezone']));
+			}
+		}
 
 		$i = 0;
 		foreach ($this->orderBy as $column => $dir) {
