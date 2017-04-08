@@ -130,6 +130,11 @@ class DataGrid extends NControl
 
 	// === RENDERING ===========
 
+	/**
+	 * @var Template
+	 */
+	private $template;
+
 	/** @var string|NULL */
 	private $templateFile = NULL;
 
@@ -983,6 +988,13 @@ class DataGrid extends NControl
 
 
 	/**
+	 * @return void
+	 */
+	protected function prepareTemplateVariables() {
+	}
+
+
+	/**
 	 * @param  string $name
 	 * @return DataGrid
 	 */
@@ -997,14 +1009,16 @@ class DataGrid extends NControl
 	public function render()
 	{
 		/** @var Template $template */
-		$template = $this->createTemplate();
+		$this->template = $this->createTemplate();
 
-		$template->grid = $this;
-		$template->defaultTemplate = __DIR__ . '/DataGrid.latte';
-		$template->setFile($this->templateFile === NULL ? $template->defaultTemplate : $this->templateFile);
-		$template->csrfToken = Helpers::getCsrfToken($this->session);
+		$this->prepareTemplateVariables();
+    
+		$this->template->grid = $this;
+		$this->template->defaultTemplate = __DIR__ . '/DataGrid.latte';
+		$this->template->setFile($this->templateFile === NULL ? $this->template->defaultTemplate : $this->templateFile);
+		$this->template->csrfToken = Helpers::getCsrfToken($this->session);
 
-		$latte = $template->getLatte();
+		$latte = $this->template->getLatte();
 		$latte->addFilter('translate', [$this, 'translate']);
 		$latte->addFilter('primaryToString', [$this->getRecordHandler(), 'getPrimaryHash']);
 		$latte->addFilter('getValue', [$this->getRecordHandler(), 'getValue']);
@@ -1016,7 +1030,7 @@ class DataGrid extends NControl
 			$this->redraw(FALSE, FALSE, ['flashes']);
 		}
 
-		$template->form = $form = $this['form'];
+		$this->template->form = $form = $this['form'];
 
 		if ($this->presenter->isAjax()) {
 			$this->payload->id = $this->getSnippetId();
@@ -1030,28 +1044,28 @@ class DataGrid extends NControl
 			$latte->addProvider('formsStack', [$form]);
 		}
 
-		$template->columns = $this->getColumns();
-		$template->dataLoader = [$this, 'getData'];
-		$template->recordVariable = $this->recordVariable;
+		$this->template->columns = $this->getColumns();
+		$this->template->dataLoader = [$this, 'getData'];
+		$this->template->recordVariable = $this->recordVariable;
 
-		$template->hasFilters = $this->filterFactory !== NULL;
+		$this->template->hasFilters = $this->filterFactory !== NULL;
 
-		$template->rowActions = $this->getRowActions();
-		$template->hasRowActions = $template->rowActions !== NULL;
+		$this->template->rowActions = $this->getRowActions();
+		$this->template->hasRowActions = $this->template->rowActions !== NULL;
 
-		$template->groupActions = $this->getGroupActions();
-		$template->hasGroupActions = $template->groupActions !== NULL;
+		$this->template->groupActions = $this->getGroupActions();
+		$this->template->hasGroupActions = $this->template->groupActions !== NULL;
 
-		$template->hasInlineEdit = $this->ieContainerFactory !== NULL;
-		$template->iePrimary = $this->iePrimary;
+		$this->template->hasInlineEdit = $this->ieContainerFactory !== NULL;
+		$this->template->iePrimary = $this->iePrimary;
 
-		$template->isPaginated = $this->itemsPerPage !== NULL;
+		$this->template->isPaginated = $this->itemsPerPage !== NULL;
 
-		$template->columnCount = count($template->columns)
-				+ ($template->hasGroupActions ? 1 : 0)
-				+ ($template->hasFilters || $template->hasRowActions || $template->hasInlineEdit ? 1 : 0);
+		$this->template->columnCount = count($this->template->columns)
+				+ ($this->template->hasGroupActions ? 1 : 0)
+				+ ($this->template->hasFilters || $this->template->hasRowActions || $this->template->hasInlineEdit ? 1 : 0);
 
-		$template->render();
+		$this->template->render();
 	}
 
 }
