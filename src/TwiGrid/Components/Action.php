@@ -13,6 +13,12 @@ namespace TwiGrid\Components;
 use Nette\Utils\Callback as NCallback;
 
 
+/**
+ * Class Action
+ * @package TwiGrid\Components
+ * @property string $label
+ * @property string $confirmation
+ */
 class Action extends Component
 {
 
