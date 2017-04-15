@@ -46,7 +46,7 @@ class DataGrid extends NControl
 	private $defaultOrderBy = NULL;
 
 	/** @var bool */
-	private $multiSort = TRUE;
+	protected $multiSort = TRUE;
 
 
 	// === FILTERING ===========
@@ -553,6 +553,13 @@ class DataGrid extends NControl
 		return $this;
 	}
 
+	/**
+	 * @return callable
+	 */
+	function getValueGetter()
+	{
+		return $this->getRecord()->getValueGetter();
+	}
 
 	protected function redraw(bool $reloadData = TRUE, bool $reloadForm = FALSE, array $snippets = [NULL]): void
 	{
