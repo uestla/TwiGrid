@@ -7,8 +7,8 @@
   ],
   "description": "Assets needed for Twigrid\\Datagrid library",
   "main": [
-	  "assets/twigrid.datagrid.js",
-	  "assets/twigrid.datagrid.css"
+    "assets/twigrid.datagrid.js",
+    "assets/twigrid.datagrid.css"
   ],
   "keywords": [
     "twigrid",
@@ -16,14 +16,16 @@
   ],
   "license": "MIT",
   "ignore": [
-	"/src",
-    "**/.*",
-	"composer.*"
+  "/src",
+  "/tests",
+  "**/.*",
+  "composer.*",
+  "phpstan.neon"
   ],
   "dependencies": {
-	  "jquery": ">=2.2",
-	  "bootstrap": "^3.3",
-	  "nette-forms": "^2.3",
-	  "nette.ajax.js": "^2.3"
+    "jquery": ">=2.2",
+    "bootstrap": "^3.3",
+    "nette-forms": "^2.3",
+    "nette.ajax.js": "^2.3"
   }
 }
