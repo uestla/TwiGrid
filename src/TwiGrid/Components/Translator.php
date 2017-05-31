@@ -32,6 +32,12 @@ class Translator implements NITranslator
 	];
 
 
+	public function __construct(array $dictionary = [])
+	{
+		$this->addDictionary($dictionary);
+	}
+
+
 	public function addDictionary(array $dictionary): self
 	{
 		$this->dictionary = $dictionary + $this->dictionary;
