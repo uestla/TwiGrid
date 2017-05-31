@@ -141,12 +141,10 @@ $.nette.ext({
 	},
 
 	complete: function (jqXHR, status, settings) {
-		if (this.focusedGrid) {
-			this.focusedGrid.removeClass(this.loadingClass);
+		$(this.gridSelector).removeClass(this.loadingClass);
 
-			if (settings.nette && settings.nette.el) {
-				$(settings.nette.el, this.focusedGrid).attr('disabled', null).removeClass('disabled');
-			}
+		if (settings.nette && settings.nette.el) {
+			$(settings.nette.el, this.gridSelector).attr('disabled', null).removeClass('disabled');
 		}
 	},
 
