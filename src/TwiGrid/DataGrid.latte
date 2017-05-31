@@ -499,7 +499,7 @@
 
 	<td class="body-cell row-actions">
 		{if $hasRowActions || $hasInlineEdit}
-			{include #row-actions, $recordVariable => $record, isInlineEdited => $isInlineEdited, primaryString => $primaryString}
+			{include #row-actions, $recordVariable => $$recordVariable, isInlineEdited => $isInlineEdited, primaryString => $primaryString}
 
 		{else}
 			&nbsp;
