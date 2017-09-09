@@ -154,11 +154,6 @@ class DataGrid extends NControl
 			$this->build();
 			parent::attached($presenter);
 			$this->session = $presenter->getSession(__CLASS__ . '-' . $this->getName());
-
-			if (!isset($presenter->payload->twiGrid)) {
-				$this->payload = $presenter->payload->twiGrid = new \stdClass;
-				$this->payload->forms = [];
-			}
 		}
 	}
 
@@ -888,10 +883,12 @@ class DataGrid extends NControl
 		$template->form = $form = $this['form'];
 
 		if ($this->presenter->isAjax()) {
+			$this->payload = $this->presenter->payload->twiGrid = new \stdClass;
 			$this->payload->id = $this->getSnippetId();
 			$this->payload->url = $this->link('this');
 			$this->payload->refreshing = $this->refreshing;
 			$this->payload->refreshSignal = $this->link('refresh!');
+			$this->payload->forms = [];
 			$this->payload->forms[$form->getElementPrototype()->id] = (string) $form->getAction();
 		}
 
