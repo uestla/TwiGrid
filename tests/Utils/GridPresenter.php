@@ -22,7 +22,7 @@ class GridPresenter extends NPresenter
 		parent::__construct();
 
 		$httpResponse = new Response;
-		$httpRequest = new Request(new UrlScript('http://twigrid.1991.cz'));
+		$httpRequest = new Request(new UrlScript('http://kesspess.cz/twigrid/'));
 
 		$this->injectPrimary(
 			NULL,

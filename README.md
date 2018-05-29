@@ -5,7 +5,7 @@ TwiGrid
 
 [![Buy me a Coffee](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=5UZMKSVARNKJL)
 
-**Demo**: http://twigrid.1991.cz
+**Demo**: http://kesspess.cz/twigrid/
 
 **Demo sources**: https://github.com/uestla/twigrid-demo
 
@@ -200,4 +200,4 @@ Let's see how many steps do we have to make to create our first datagrid.
 More
 ----
 
-To see more examples, please visit the [demo page](http://twigrid.1991.cz/). Enjoy!
+To see more examples, please visit the [demo page](http://kesspess.cz/twigrid/). Enjoy!
