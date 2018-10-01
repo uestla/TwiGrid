@@ -815,7 +815,7 @@ class DataGrid extends NControl
 				if ($checked !== NULL) {
 					$records = [];
 					foreach ($checked as $primaryString) {
-						$record = $this->getRecordHandler()->findIn((string) $primaryString, $this->getData());
+						$record = $this->getRecordHandler()->findIn($primaryString, $this->getData());
 
 						if ($record !== NULL) {
 							$records[] = $record;
