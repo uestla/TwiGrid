@@ -108,7 +108,7 @@ class Form extends NForm
 
 		$this->validate();
 		if ($this->isValid()) {
-			return array_keys(array_filter($this['actions']['records']->getValues(TRUE)));
+			return array_map('strval', array_keys(array_filter($this['actions']['records']->getValues(TRUE))));
 		}
 
 		return NULL;
