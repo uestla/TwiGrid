@@ -10,3 +10,4 @@ parameters:
 		- '#Class Nette\\Database\\Table\\Selection not found#'
 		- '#Call to method count\(\) on an unknown class Nette\\Database\\Table\\Selection#'
 		- '#Nette\\ComponentModel\\IContainer::(lookupPath|getData|getValues)\(\)#'
+		- '#^Cannot access offset .+ on Nette\\ComponentModel\\IComponent\.\z#'

@@ -12,6 +12,8 @@ declare(strict_types = 1);
 
 namespace TwiGrid;
 
+use Nette\Forms\Container;
+use Nette\Forms\Controls\Button;
 use Nette\Forms\Controls\Checkbox;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Application\UI\Form as NForm;
@@ -128,7 +130,10 @@ class Form extends NForm
 		if ($this->lazyCreateContainer('inline', 'buttons', $buttons)) {
 			foreach ($data as $record) {
 				if ($this->recordHandler->is($record, $iePrimary)) {
-					$containerSetupCb($this['inline']->addContainer('values'), $record);
+					/** @var Container $inline */
+					$inline = $this['inline'];
+
+					$containerSetupCb($inline->addContainer('values'), $record);
 
 					$buttons->addSubmit('edit', 'twigrid.inline.edit_confirm')
 							->setValidationScope([$this['inline']['values']]);
@@ -187,7 +192,10 @@ class Form extends NForm
 		}
 
 		if (!isset($this[$parent][$name])) {
-			$this[$parent]->addContainer($name);
+			/** @var Container $parentContainer */
+			$parentContainer = $this[$parent];
+
+			$parentContainer->addContainer($name);
 			$created = true;
 		}
 
@@ -198,7 +206,10 @@ class Form extends NForm
 
 	public static function validateCheckedCount(Checkbox $checkbox): bool
 	{
-		return $checkbox->getForm()->isSubmitted()->getParent()->lookupPath(NForm::class) !== 'actions-buttons'
+		/** @var Button $button */
+		$button = $checkbox->getForm()->isSubmitted();
+
+		return $button->getParent()->lookupPath(NForm::class) !== 'actions-buttons'
 				|| in_array(true, $checkbox->getParent()->getValues(true), true);
 	}
 

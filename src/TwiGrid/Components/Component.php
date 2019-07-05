@@ -13,17 +13,18 @@ declare(strict_types = 1);
 namespace TwiGrid\Components;
 
 use TwiGrid\DataGrid;
-use Nette\ComponentModel\IComponent;
 use Nette\ComponentModel\Component as NComponent;
 
 
 abstract class Component extends NComponent
 {
 
-	/** @return IComponent|DataGrid */
-	final public function getDataGrid(bool $need = true)
+	final public function getDataGrid(bool $need = true): DataGrid
 	{
-		return $this->lookup(DataGrid::class, $need);
+		/** @var DataGrid $datagrid */
+		$datagrid = $this->lookup(DataGrid::class, $need);
+
+		return $datagrid;
 	}
 
 
