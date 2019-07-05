@@ -143,7 +143,7 @@ class DataGrid extends NControl
 
 	// === AJAX PAYLOAD ===========
 
-	/** @var \stdClass */
+	/** @var \stdClass|null */
 	private $payload;
 
 
@@ -158,9 +158,12 @@ class DataGrid extends NControl
 			$this->session = $presenter->getSession(sprintf('%s-%s', __CLASS__, $this->getName()));
 
 			if (!isset($presenter->payload->twiGrid)) {
-				$this->payload = $presenter->payload->twiGrid = new \stdClass;
-				$this->payload->forms = [];
+				$presenter->payload->twiGrid = (object) [
+					'forms' => [],
+				];
 			}
+
+			$this->payload = $presenter->payload->twiGrid;
 		}
 	}
 
@@ -895,9 +898,7 @@ class DataGrid extends NControl
 			$this->payload->refreshing = $this->refreshing;
 			$this->payload->refreshSignal = $this->link('refresh!');
 			$this->payload->forms[$form->getElementPrototype()->id] = (string) $form->getAction();
-		}
 
-		if ($this->presenter->isAjax()) {
 			$latte->addProvider('formsStack', [$form]);
 		}
 
