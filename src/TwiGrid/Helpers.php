@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types = 1);
 
 /**
  * This file is part of the TwiGrid component
@@ -61,7 +63,7 @@ abstract class Helpers
 
 	public static function createSortLink(DataGrid $grid, Column $column, int $mode = self::SORT_LINK_SINGLE): string
 	{
-		$by = NULL;
+		$by = null;
 
 		if ($mode === self::SORT_LINK_SINGLE) {
 			$by = [];
@@ -115,10 +117,10 @@ abstract class Helpers
 	{
 		if (isset($session->token) && strcmp($session->token, $token) === 0) {
 			unset($session->token);
-			return TRUE;
+			return true;
 		}
 
-		return FALSE;
+		return false;
 	}
 
 }

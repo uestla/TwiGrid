@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types = 1);
 
 namespace TwiGrid\Components;
 
@@ -50,7 +52,7 @@ class Translator implements NITranslator
 	 * @param  int $count
 	 * @return string
 	 */
-	public function translate($message, $count = NULL): string
+	public function translate($message, $count = null): string
 	{
 		if (isset($this->dictionary[$message])) {
 			$s = $this->dictionary[$message];

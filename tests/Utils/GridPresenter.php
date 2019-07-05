@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types = 1);
 
 namespace Tests\Utils;
 
@@ -25,13 +27,13 @@ class GridPresenter extends NPresenter
 		$httpRequest = new Request(new UrlScript('http://kesspess.cz/twigrid/'));
 
 		$this->injectPrimary(
-			NULL,
-			NULL,
-			new SimpleRouter(),
+			null,
+			null,
+			new SimpleRouter,
 			$httpRequest,
 			$httpResponse,
 			new Session($httpRequest, $httpResponse),
-			NULL,
+			null,
 			new TemplateFactory(new class implements ILatteFactory {
 
 				public function create()

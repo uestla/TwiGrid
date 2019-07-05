@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types = 1);
 
 /**
  * This file is part of the TwiGrid component
@@ -60,24 +62,24 @@ class Form extends NForm
 	{
 		$this->validate();
 		if ($this->isValid()) {
-			return Helpers::filterEmpty($this['filters']['criteria']->getValues(TRUE));
+			return Helpers::filterEmpty($this['filters']['criteria']->getValues(true));
 		}
 
-		return NULL;
+		return null;
 	}
 
 
 	public function addGroupActionCheckboxes(): self
 	{
 		if ($this->lazyCreateContainer('actions', 'records', $records)) {
-			$first = TRUE;
+			$first = true;
 			foreach ($this->getParent()->getData() as $record) {
 				$hash = $this->recordHandler->getPrimaryHash($record);
 				$records[$hash] = $checkbox = new Checkbox;
 
 				if ($first) {
 					$checkbox->addRule(__CLASS__ . '::validateCheckedCount', 'twigrid.group_actions.checked_count_message');
-					$first = FALSE;
+					$first = false;
 				}
 			}
 		}
@@ -108,17 +110,17 @@ class Form extends NForm
 
 		$this->validate();
 		if ($this->isValid()) {
-			return array_map('strval', array_keys(array_filter($this['actions']['records']->getValues(TRUE))));
+			return array_map('strval', array_keys(array_filter($this['actions']['records']->getValues(true))));
 		}
 
-		return NULL;
+		return null;
 	}
 
 
 	/**
 	 * @param  array|\Traversable $data
 	 * @param  callable $containerSetupCb
-	 * @param  string|NULL $iePrimary
+	 * @param  string|null $iePrimary
 	 * @return Form
 	 */
 	public function addInlineEditControls($data, callable $containerSetupCb, ?string $iePrimary): self
@@ -149,7 +151,7 @@ class Form extends NForm
 	public function getInlineValues(): ?array
 	{
 		$this->validate();
-		return $this->isValid() ? $this['inline']['values']->getValues(TRUE) : NULL;
+		return $this->isValid() ? $this['inline']['values']->getValues(true) : null;
 	}
 
 
@@ -178,7 +180,7 @@ class Form extends NForm
 	}
 
 
-	protected function lazyCreateContainer(string $parent, string $name, NContainer & $container = NULL): bool
+	protected function lazyCreateContainer(string $parent, string $name, NContainer & $container = null): bool
 	{
 		if (!isset($this[$parent])) {
 			$this->addContainer($parent);
@@ -186,7 +188,7 @@ class Form extends NForm
 
 		if (!isset($this[$parent][$name])) {
 			$this[$parent]->addContainer($name);
-			$created = TRUE;
+			$created = true;
 		}
 
 		$container = $this[$parent][$name];
@@ -197,7 +199,7 @@ class Form extends NForm
 	public static function validateCheckedCount(Checkbox $checkbox): bool
 	{
 		return $checkbox->getForm()->isSubmitted()->getParent()->lookupPath(NForm::class) !== 'actions-buttons'
-				|| in_array(TRUE, $checkbox->getParent()->getValues(TRUE), TRUE);
+				|| in_array(true, $checkbox->getParent()->getValues(true), true);
 	}
 
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types = 1);
 
 /**
  * This file is part of the TwiGrid component
@@ -31,7 +33,7 @@ class DataGrid extends NControl
 	 * @var bool
 	 * @persistent
 	 */
-	public $polluted = FALSE;
+	public $polluted = false;
 
 
 	// === SORTING ===========
@@ -42,11 +44,11 @@ class DataGrid extends NControl
 	 */
 	public $orderBy = [];
 
-	/** @var array|NULL */
-	private $defaultOrderBy = NULL;
+	/** @var array|null */
+	private $defaultOrderBy;
 
 	/** @var bool */
-	private $multiSort = TRUE;
+	private $multiSort = true;
 
 
 	// === FILTERING ===========
@@ -57,26 +59,26 @@ class DataGrid extends NControl
 	 */
 	public $filters = [];
 
-	/** @var array|NULL */
-	private $defaultFilters = NULL;
+	/** @var array|null */
+	private $defaultFilters;
 
-	/** @var callable|NULL */
-	private $filterFactory = NULL;
+	/** @var callable|null */
+	private $filterFactory;
 
 
 	// === INLINE EDITING ===========
 
 	/**
-	 * @var string|NULL
+	 * @var string|null
 	 * @persistent
 	 */
-	public $iePrimary = NULL;
+	public $iePrimary;
 
-	/** @var callable|NULL */
-	private $ieContainerSetupCallback = NULL;
+	/** @var callable|null */
+	private $ieContainerSetupCallback;
 
-	/** @var callable|NULL */
-	private $ieProcessCallback = NULL;
+	/** @var callable|null */
+	private $ieProcessCallback;
 
 
 	// === PAGINATION ===========
@@ -87,35 +89,35 @@ class DataGrid extends NControl
 	 */
 	public $page = 1;
 
-	/** @var int|NULL */
-	private $itemsPerPage = NULL;
+	/** @var int|null */
+	private $itemsPerPage;
 
-	/** @var callable|NULL */
-	private $itemCounter = NULL;
+	/** @var callable|null */
+	private $itemCounter;
 
-	/** @var int|NULL */
-	private $itemCount = NULL;
+	/** @var int|null */
+	private $itemCount;
 
-	/** @var int|NULL */
-	private $pageCount = NULL;
+	/** @var int|null */
+	private $pageCount;
 
 
 	// === REFRESH ===========
 
 	/** @var bool */
-	private $refreshing = FALSE;
+	private $refreshing = false;
 
 
 	// === DATA ===========
 
-	/** @var RecordHandler|NULL */
-	private $recordHandler = NULL;
+	/** @var RecordHandler|null */
+	private $recordHandler;
 
-	/** @var callable|NULL */
-	private $dataLoader = NULL;
+	/** @var callable|null */
+	private $dataLoader;
 
-	/** @var array|\Traversable|NULL */
-	private $data = NULL;
+	/** @var array|\Traversable|null */
+	private $data;
 
 
 	// === SESSION ===========
@@ -126,14 +128,14 @@ class DataGrid extends NControl
 
 	// === LOCALIZATION ===========
 
-	/** @var NITranslator|NULL */
-	private $translator = NULL;
+	/** @var NITranslator|null */
+	private $translator;
 
 
 	// === RENDERING ===========
 
-	/** @var string|NULL */
-	private $templateFile = NULL;
+	/** @var string|null */
+	private $templateFile;
 
 	/** @var string */
 	private $recordVariable = 'record';
@@ -153,7 +155,7 @@ class DataGrid extends NControl
 		if ($presenter instanceof NPresenter) {
 			$this->build();
 			parent::attached($presenter);
-			$this->session = $presenter->getSession(__CLASS__ . '-' . $this->getName());
+			$this->session = $presenter->getSession(sprintf('%s-%s', __CLASS__, $this->getName()));
 
 			if (!isset($presenter->payload->twiGrid)) {
 				$this->payload = $presenter->payload->twiGrid = new \stdClass;
@@ -163,7 +165,7 @@ class DataGrid extends NControl
 	}
 
 
-	protected function build()
+	protected function build(): void
 	{}
 
 
@@ -173,25 +175,25 @@ class DataGrid extends NControl
 		parent::loadState(static::processParams($params));
 
 		if (!$this->polluted && !$this->isInDefaultState()) {
-			$this->polluted = TRUE;
+			$this->polluted = true;
 		}
 
 		if (!$this->polluted) {
-			if ($this->defaultOrderBy !== NULL) {
+			if ($this->defaultOrderBy !== null) {
 				$this->orderBy = array_merge($this->defaultOrderBy, $this->orderBy);
-				$this->polluted = TRUE;
+				$this->polluted = true;
 			}
 
-			if ($this->defaultFilters !== NULL) {
+			if ($this->defaultFilters !== null) {
 				$this->setFilters($this->defaultFilters);
-				$this->polluted = TRUE;
+				$this->polluted = true;
 			}
 		}
 
 		$i = 0;
 		foreach ($this->orderBy as $column => $dir) {
 			try {
-				$this['columns']->getComponent($column)->setSortedBy(TRUE, $dir, $i++);
+				$this['columns']->getComponent($column)->setSortedBy(true, $dir, $i++);
 
 			} catch (\RuntimeException $e) {
 				unset($this->orderBy[$column]);
@@ -220,20 +222,20 @@ class DataGrid extends NControl
 
 	protected function validateState(): void
 	{
-		if ($this->getColumns() === NULL) {
+		if ($this->getColumns() === null) {
 			throw new \RuntimeException('At least one column must be added using DataGrid::addColumn($name, $label).');
 		}
 
-		if ($this->dataLoader === NULL) {
+		if ($this->dataLoader === null) {
 			throw new \RuntimeException('Data loader callback must be set using DataGrid::setDataLoader($callback).');
 		}
 
-		if ($this->getRecordHandler()->getPrimaryKey() === NULL) {
+		if ($this->getRecordHandler()->getPrimaryKey() === null) {
 			throw new \RuntimeException('Record primary key must be set using DataGrid::setPrimaryKey($key).');
 		}
 
-		if ($this->iePrimary !== NULL && $this->ieContainerSetupCallback === NULL) {
-			$this->iePrimary = NULL;
+		if ($this->iePrimary !== null && $this->ieContainerSetupCallback === null) {
+			$this->iePrimary = null;
 		}
 	}
 
@@ -242,18 +244,18 @@ class DataGrid extends NControl
 	{
 		foreach (static::getReflection()->getPersistentParams() as $name => $meta) {
 			if ($this->$name !== $meta['def']) {
-				return FALSE;
+				return false;
 			}
 		}
 
-		return TRUE;
+		return true;
 	}
 
 
-	protected function refreshState(bool $resetInlineEdit = TRUE): self
+	protected function refreshState(bool $resetInlineEdit = true): self
 	{
 		if ($resetInlineEdit) {
-			$this->iePrimary = NULL;
+			$this->iePrimary = null;
 		}
 
 		if (!$this->presenter->isAjax()) {
@@ -268,7 +270,7 @@ class DataGrid extends NControl
 
 	public function getTranslator(): NITranslator
 	{
-		if ($this->translator === NULL) {
+		if ($this->translator === null) {
 			$this->translator = new Components\Translator;
 		}
 
@@ -283,7 +285,7 @@ class DataGrid extends NControl
 	}
 
 
-	public function translate(string $s, int $count = NULL): string
+	public function translate(string $s, int $count = null): string
 	{
 		return $this->getTranslator()->translate($s, $count);
 	}
@@ -291,42 +293,42 @@ class DataGrid extends NControl
 
 	// === COLUMNS ======================================================
 
-	public function addColumn(string $name, string $label = NULL): Column
+	public function addColumn(string $name, string $label = null): Column
 	{
 		if (!isset($this['columns'])) {
 			$this['columns'] = new NContainer;
 		}
 
-		$column = new Components\Column($label === NULL ? $name : $label);
+		$column = new Components\Column($label === null ? $name : $label);
 		$this['columns']->addComponent($column, $name);
 
 		return $column;
 	}
 
 
-	/** @return \ArrayIterator|Column[]|NULL */
+	/** @return \ArrayIterator|Column[]|null */
 	public function getColumns(): ?\ArrayIterator
 	{
-		return isset($this['columns']) ? $this['columns']->getComponents() : NULL;
+		return isset($this['columns']) ? $this['columns']->getComponents() : null;
 	}
 
 
 	public function hasManySortableColumns(): bool
 	{
-		$hasMany = FALSE;
+		$hasMany = false;
 
 		foreach ($this->getColumns() as $column) {
 			if ($column->isSortable()) {
 				if ($hasMany) { // 2nd sortable -> has many
-					return TRUE;
+					return true;
 
 				} else {
-					$hasMany = TRUE;
+					$hasMany = true;
 				}
 			}
 		}
 
-		return FALSE;
+		return false;
 	}
 
 
@@ -345,21 +347,21 @@ class DataGrid extends NControl
 	}
 
 
-	/** @return \ArrayIterator|RowAction[]|NULL */
+	/** @return \ArrayIterator|RowAction[]|null */
 	public function getRowActions(): ?\ArrayIterator
 	{
-		return isset($this['rowActions']) ? $this['rowActions']->getComponents() : NULL;
+		return isset($this['rowActions']) ? $this['rowActions']->getComponents() : null;
 	}
 
 
-	public function handleRowAction(string $name, string $primary, string $token = NULL): void
+	public function handleRowAction(string $name, string $primary, string $token = null): void
 	{
 		$action = $this['rowActions']->getComponent($name);
 
 		if (!$action->isProtected() || Helpers::checkCsrfToken($this->session, $token)) {
 			$action->invoke($this->getRecordHandler()->findIn($primary, $this->getData()));
 			$this->refreshState();
-			$this->redraw(TRUE, TRUE, ['body', 'footer']);
+			$this->redraw(true, true, ['body', 'footer']);
 
 		} else {
 			$this->flashMessage('Security token does not match. Please try again.', 'error');
@@ -389,10 +391,10 @@ class DataGrid extends NControl
 	}
 
 
-	/** @return \ArrayIterator|Action[]|NULL */
+	/** @return \ArrayIterator|Action[]|null */
 	public function getGroupActions(): ?\ArrayIterator
 	{
-		return isset($this['groupActions']) ? $this['groupActions']->getComponents() : NULL;
+		return isset($this['groupActions']) ? $this['groupActions']->getComponents() : null;
 	}
 
 
@@ -401,7 +403,7 @@ class DataGrid extends NControl
 	public function handleSort(array $orderBy): void
 	{
 		$this->refreshState();
-		$this->redraw(TRUE, TRUE, ['header-sort', 'body', 'footer']);
+		$this->redraw(true, true, ['header-sort', 'body', 'footer']);
 	}
 
 
@@ -425,7 +427,7 @@ class DataGrid extends NControl
 	}
 
 
-	public function setMultiSort(bool $bool = TRUE): self
+	public function setMultiSort(bool $bool = true): self
 	{
 		$this->multiSort = $bool;
 		return $this;
@@ -449,7 +451,7 @@ class DataGrid extends NControl
 
 	public function setDefaultFilters(array $filters): self
 	{
-		if ($this->filterFactory === NULL) {
+		if ($this->filterFactory === null) {
 			throw new \RuntimeException('Filter factory must be set using DataGrid::setFilterFactory($callback).');
 		}
 
@@ -463,7 +465,7 @@ class DataGrid extends NControl
 		Helpers::recursiveKSort($filters);
 		$this->filters = $filters;
 
-		$this->redraw(TRUE, TRUE, ['header-sort', 'filter-controls', 'body', 'footer']);
+		$this->redraw(true, true, ['header-sort', 'filter-controls', 'body', 'footer']);
 		$this->setPage(1);
 
 		return $this;
@@ -474,9 +476,9 @@ class DataGrid extends NControl
 
 	public function handleRefresh(): void
 	{
-		$this->refreshing = TRUE;
-		$this->redraw(TRUE, TRUE);
-		$this->refreshState(FALSE);
+		$this->refreshing = true;
+		$this->redraw(true, true);
+		$this->refreshState(false);
 	}
 
 
@@ -484,7 +486,7 @@ class DataGrid extends NControl
 
 	private function getRecordHandler(): RecordHandler
 	{
-		if ($this->recordHandler === NULL) {
+		if ($this->recordHandler === null) {
 			$this->recordHandler = new RecordHandler;
 		}
 
@@ -513,7 +515,7 @@ class DataGrid extends NControl
 	/** @return array|\Traversable */
 	public function getData()
 	{
-		if ($this->data === NULL) {
+		if ($this->data === null) {
 			$order = $this->orderBy;
 			$primaryDir = count($order) ? end($order) : Components\Column::ASC;
 
@@ -528,7 +530,7 @@ class DataGrid extends NControl
 				$order,
 			];
 
-			if ($this->itemsPerPage !== NULL) { // validate page & append limit & offset
+			if ($this->itemsPerPage !== null) { // validate page & append limit & offset
 				$this->initPagination();
 				$args[] = $this->itemsPerPage;
 				$args[] = ($this->page - 1) * $this->itemsPerPage;
@@ -547,17 +549,17 @@ class DataGrid extends NControl
 	}
 
 
-	public function setValueGetter(callable $callback = NULL): self
+	public function setValueGetter(callable $callback = null): self
 	{
 		$this->getRecordHandler()->setValueGetter($callback);
 		return $this;
 	}
 
 
-	protected function redraw(bool $reloadData = TRUE, bool $reloadForm = FALSE, array $snippets = [NULL]): void
+	protected function redraw(bool $reloadData = true, bool $reloadForm = false, array $snippets = [null]): void
 	{
 		if ($reloadData) {
-			$this->data = NULL;
+			$this->data = null;
 		}
 
 		if ($reloadForm) {
@@ -583,21 +585,21 @@ class DataGrid extends NControl
 	protected function activateInlineEditing(string $primary): void
 	{
 		$this->iePrimary = $primary;
-		$this->refreshState(FALSE);
-		$this->redraw(FALSE, TRUE, ['body']);
+		$this->refreshState(false);
+		$this->redraw(false, true, ['body']);
 	}
 
 
-	protected function deactivateInlineEditing(bool $dataAsWell = TRUE): void
+	protected function deactivateInlineEditing(bool $dataAsWell = true): void
 	{
 		$this->refreshState();
-		$this->redraw($dataAsWell, TRUE, ['body']);
+		$this->redraw($dataAsWell, true, ['body']);
 	}
 
 
 	// === PAGINATION ======================================================
 
-	public function setPagination(int $itemsPerPage, callable $itemCounter = NULL): self
+	public function setPagination(int $itemsPerPage, callable $itemCounter = null): self
 	{
 		$this->itemsPerPage = max(0, $itemsPerPage);
 		$this->itemCounter = $itemCounter;
@@ -615,15 +617,15 @@ class DataGrid extends NControl
 	{
 		$this->setPage($page);
 		$this->refreshState();
-		$this->redraw(TRUE, FALSE, ['body', 'footer']);
+		$this->redraw(true, false, ['body', 'footer']);
 	}
 
 
 	protected function setPage(int $page): self
 	{
-		if ($this->itemsPerPage !== NULL) {
+		if ($this->itemsPerPage !== null) {
 			$this->page = $page;
-			$this->itemCount = NULL;
+			$this->itemCount = null;
 
 		} else {
 			$this->page = 1;
@@ -635,7 +637,7 @@ class DataGrid extends NControl
 
 	protected function initPagination(): self
 	{
-		if ($this->pageCount === NULL) {
+		if ($this->pageCount === null) {
 			$this->pageCount = (int) ceil($this->getItemCount() / $this->itemsPerPage);
 			$this->page = Helpers::fixPage($this->page, $this->pageCount);
 		}
@@ -652,9 +654,9 @@ class DataGrid extends NControl
 
 	public function getItemCount(): ?int
 	{
-		if ($this->itemCount === NULL) {
-			if ($this->itemCounter === NULL) { // fallback - fetch data with empty filters
-				$data = NCallback::invoke($this->dataLoader, $this->filters, [], NULL, 0);
+		if ($this->itemCount === null) {
+			if ($this->itemCounter === null) { // fallback - fetch data with empty filters
+				$data = NCallback::invoke($this->dataLoader, $this->filters, [], null, 0);
 
 				if ($data instanceof NSelection) {
 					$count = $data->count('*');
@@ -696,7 +698,7 @@ class DataGrid extends NControl
 
 	public function addFilterCriteria(): self
 	{
-		if ($this->filterFactory !== NULL) {
+		if ($this->filterFactory !== null) {
 			$this->addFilterButtons();
 			$this['form']->addFilterCriteria($this->filterFactory, $this->filters);
 		}
@@ -707,7 +709,7 @@ class DataGrid extends NControl
 
 	public function addFilterButtons(): self
 	{
-		if ($this->filterFactory !== NULL) {
+		if ($this->filterFactory !== null) {
 			$this['form']->addFilterButtons((bool) count($this->filters));
 		}
 
@@ -717,7 +719,7 @@ class DataGrid extends NControl
 
 	public function addGroupActionCheckboxes(): self
 	{
-		if ($this->getGroupActions() !== NULL) {
+		if ($this->getGroupActions() !== null) {
 			$this->addGroupActionButtons();
 			$this['form']->addGroupActionCheckboxes();
 		}
@@ -728,7 +730,7 @@ class DataGrid extends NControl
 
 	public function addGroupActionButtons(): self
 	{
-		if ($this->getGroupActions() !== NULL) {
+		if ($this->getGroupActions() !== null) {
 			$this['form']->addGroupActionButtons($this->getGroupActions());
 		}
 
@@ -738,7 +740,7 @@ class DataGrid extends NControl
 
 	public function addInlineEditControls(): self
 	{
-		if ($this->ieContainerSetupCallback !== NULL) {
+		if ($this->ieContainerSetupCallback !== null) {
 			$this['form']->addInlineEditControls(
 				$this->getData(),
 				$this->ieContainerSetupCallback,
@@ -752,7 +754,7 @@ class DataGrid extends NControl
 
 	public function addPaginationControls(): self
 	{
-		if ($this->itemsPerPage !== NULL) {
+		if ($this->itemsPerPage !== null) {
 			$this->initPagination();
 			$this['form']->addPaginationControls($this->page, $this->pageCount);
 		}
@@ -763,7 +765,7 @@ class DataGrid extends NControl
 
 	public function formSubmitted(Form $form): void
 	{
-		$this->redraw(FALSE, FALSE, ['form-errors']);
+		$this->redraw(false, false, ['form-errors']);
 	}
 
 
@@ -772,13 +774,13 @@ class DataGrid extends NControl
 		// detect submit button by lazy buttons appending (beginning with the most lazy ones)
 		$this->addFilterButtons();
 
-		if (($button = $form->isSubmitted()) === TRUE) {
+		if (($button = $form->isSubmitted()) === true) {
 			$this->addGroupActionButtons();
 
-			if (($button = $form->isSubmitted()) === TRUE) {
+			if (($button = $form->isSubmitted()) === true) {
 				$this->addPaginationControls();
 
-				if (($button = $form->isSubmitted()) === TRUE) {
+				if (($button = $form->isSubmitted()) === true) {
 					$this->addInlineEditControls();
 					$button = $form->isSubmitted();
 				}
@@ -793,7 +795,7 @@ class DataGrid extends NControl
 				$this->addFilterCriteria();
 				$criteria = $form->getFilterCriteria();
 
-				if ($criteria !== NULL) {
+				if ($criteria !== null) {
 					$this->setFilters($criteria);
 					$this->refreshState();
 				}
@@ -802,8 +804,8 @@ class DataGrid extends NControl
 				$this->setFilters([]);
 				$this->refreshState();
 
-				if ($this->defaultFilters !== NULL) {
-					$this->polluted = TRUE;
+				if ($this->defaultFilters !== null) {
+					$this->polluted = true;
 				}
 
 			} elseif ("$path-$name" === 'pagination-buttons-change') {
@@ -812,32 +814,32 @@ class DataGrid extends NControl
 			} elseif ($path === 'actions-buttons') {
 				$checked = $form->getCheckedRecords();
 
-				if ($checked !== NULL) {
+				if ($checked !== null) {
 					$records = [];
 					foreach ($checked as $primaryString) {
 						$record = $this->getRecordHandler()->findIn($primaryString, $this->getData());
 
-						if ($record !== NULL) {
+						if ($record !== null) {
 							$records[] = $record;
 						}
 					}
 
 					$this['groupActions']->getComponent($name)->invoke($records);
 					$this->refreshState();
-					$this->redraw(TRUE, TRUE, ['body', 'footer']);
+					$this->redraw(true, true, ['body', 'footer']);
 				}
 
 			} elseif ($path === 'inline-buttons') {
 				if ($name === 'edit') {
 					$values = $form->getInlineValues();
 
-					if ($values !== NULL) {
+					if ($values !== null) {
 						NCallback::invoke($this->ieProcessCallback, $this->getRecordHandler()->findIn($this->iePrimary, $this->getData()), $values);
 						$this->deactivateInlineEditing();
 					}
 
 				} elseif ($name === 'cancel') {
-					$this->deactivateInlineEditing(FALSE);
+					$this->deactivateInlineEditing(false);
 
 				} else {
 					$this->activateInlineEditing($button->getName());
@@ -870,7 +872,7 @@ class DataGrid extends NControl
 
 		$template->grid = $this;
 		$template->defaultTemplate = __DIR__ . '/DataGrid.latte';
-		$template->setFile($this->templateFile === NULL ? $template->defaultTemplate : $this->templateFile);
+		$template->setFile($this->templateFile === null ? $template->defaultTemplate : $this->templateFile);
 		$template->csrfToken = Helpers::getCsrfToken($this->session);
 
 		$latte = $template->getLatte();
@@ -882,7 +884,7 @@ class DataGrid extends NControl
 		});
 
 		if ($this->isControlInvalid()) {
-			$this->redraw(FALSE, FALSE, ['flashes']);
+			$this->redraw(false, false, ['flashes']);
 		}
 
 		$template->form = $form = $this['form'];
@@ -903,18 +905,18 @@ class DataGrid extends NControl
 		$template->dataLoader = [$this, 'getData'];
 		$template->recordVariable = $this->recordVariable;
 
-		$template->hasFilters = $this->filterFactory !== NULL;
+		$template->hasFilters = $this->filterFactory !== null;
 
 		$template->rowActions = $this->getRowActions();
-		$template->hasRowActions = $template->rowActions !== NULL;
+		$template->hasRowActions = $template->rowActions !== null;
 
 		$template->groupActions = $this->getGroupActions();
-		$template->hasGroupActions = $template->groupActions !== NULL;
+		$template->hasGroupActions = $template->groupActions !== null;
 
-		$template->hasInlineEdit = $this->ieContainerSetupCallback !== NULL;
+		$template->hasInlineEdit = $this->ieContainerSetupCallback !== null;
 		$template->iePrimary = $this->iePrimary;
 
-		$template->isPaginated = $this->itemsPerPage !== NULL;
+		$template->isPaginated = $this->itemsPerPage !== null;
 
 		$template->columnCount = count($template->columns)
 				+ ($template->hasGroupActions ? 1 : 0)

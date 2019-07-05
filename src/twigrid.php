@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 require_once __DIR__ . '/TwiGrid/DataGrid.php';
 require_once __DIR__ . '/TwiGrid/Components/Component.php';
 require_once __DIR__ . '/TwiGrid/Components/Column.php';

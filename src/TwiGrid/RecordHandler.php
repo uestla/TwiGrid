@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types = 1);
 
 /**
  * This file is part of the TwiGrid component
@@ -15,11 +17,11 @@ namespace TwiGrid;
 class RecordHandler
 {
 
-	/** @var array|NULL */
-	private $primaryKey = NULL;
+	/** @var array|null */
+	private $primaryKey;
 
-	/** @var callable|NULL */
-	private $valueGetter = NULL;
+	/** @var callable|null */
+	private $valueGetter;
 
 
 	const PRIMARY_SEPARATOR = '|';
@@ -47,7 +49,7 @@ class RecordHandler
 
 	public function getValueGetter(): callable
 	{
-		if ($this->valueGetter === NULL) {
+		if ($this->valueGetter === null) {
 			$this->valueGetter = function ($record, $column, $need) {
 				if (!isset($record->$column)) {
 					if ($need) {
@@ -55,7 +57,7 @@ class RecordHandler
 							. (is_object($record) ? get_class($record) : gettype($record)) . ".");
 					}
 
-					return NULL;
+					return null;
 				}
 
 				return $record->$column;
@@ -72,7 +74,7 @@ class RecordHandler
 	 * @param  bool $need
 	 * @return mixed
 	 */
-	public function getValue($record, string $column, bool $need = TRUE)
+	public function getValue($record, string $column, bool $need = true)
 	{
 		$getter = $this->getValueGetter();
 		return $getter($record, $column, $need);
@@ -107,7 +109,7 @@ class RecordHandler
 	/**
 	 * @param  string $primary
 	 * @param  array|\Traversable $data
-	 * @return mixed|NULL
+	 * @return mixed|null
 	 */
 	public function findIn(string $primary, $data)
 	{
@@ -117,13 +119,13 @@ class RecordHandler
 			}
 		}
 
-		return NULL;
+		return null;
 	}
 
 
 	/**
 	 * @param  mixed $record
-	 * @param  string|NULL $primary
+	 * @param  string|null $primary
 	 * @return bool
 	 */
 	public function is($record, ?string $primary): bool

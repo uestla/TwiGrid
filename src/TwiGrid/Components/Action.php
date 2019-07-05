@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types = 1);
 
 /**
  * This file is part of the TwiGrid component
@@ -22,8 +24,8 @@ class Action extends Component
 	/** @var callable */
 	private $callback;
 
-	/** @var string|NULL */
-	private $confirmation = NULL;
+	/** @var string|null */
+	private $confirmation;
 
 
 	public function __construct(string $label, callable $callback)
@@ -47,17 +49,17 @@ class Action extends Component
 	}
 
 
-	public function setConfirmation(string $confirmation = NULL): self
+	public function setConfirmation(string $confirmation = null): self
 	{
-		$this->confirmation = strlen($confirmation) ? (string) $confirmation : NULL;
+		$this->confirmation = strlen($confirmation) ? (string) $confirmation : null;
 		return $this;
 	}
 
 
 	public function getConfirmation(): ?string
 	{
-		if ($this->confirmation === NULL) {
-			return NULL;
+		if ($this->confirmation === null) {
+			return null;
 		}
 
 		return $this->translate($this->confirmation);
@@ -66,7 +68,7 @@ class Action extends Component
 
 	public function hasConfirmation(): bool
 	{
-		return $this->confirmation !== NULL;
+		return $this->confirmation !== null;
 	}
 
 

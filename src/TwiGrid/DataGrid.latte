@@ -11,13 +11,13 @@
  * @param  callable $dataLoader
  * @param  string $recordVariable
  * @param  string $csrfToken
- * @param  \ArrayIterator|NULL $rowActions
+ * @param  \ArrayIterator|null $rowActions
  * @param  bool $hasRowActions
- * @param  \ArrayIterator|NULL $groupActions
+ * @param  \ArrayIterator|null $groupActions
  * @param  bool $hasGroupActions
  * @param  bool $hasFilters
  * @param  bool $hasInlineEdit
- * @param  string|NULL $iePrimary
+ * @param  string|null $iePrimary
  * @param  bool $isPaginated
  * @param  int $columnCount total number of columns in grid table
  *}
@@ -486,7 +486,7 @@
  * @param  mixed $$recordVariable
  *}
 {define body-cell-content}
-	{$$recordVariable |getValue:$columnName:FALSE}
+	{$$recordVariable |getValue:$columnName:false}
 {/define}
 
 

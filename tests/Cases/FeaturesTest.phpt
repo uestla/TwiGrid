@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types = 1);
 
 namespace Tests\Cases;
 
@@ -54,7 +56,7 @@ class FeaturesTest extends TestCase
 		$grid->addColumn('lastname')->setSortable();
 
 		if ($hasData) {
-			$grid->setDataLoader(function () {
+			$grid->setDataLoader(static function () {
 				return [
 					(object) [
 						'id' => 1,
@@ -65,7 +67,7 @@ class FeaturesTest extends TestCase
 			});
 
 		} else {
-			$grid->setDataLoader(function () {
+			$grid->setDataLoader(static function () {
 				return [];
 			});
 		}
@@ -79,7 +81,7 @@ class FeaturesTest extends TestCase
 	{
 		new GridPresenter($grid);
 
-		ob_start(function () {});
+		ob_start(static function () {});
 		$grid->render();
 		$s = ob_get_clean();
 
@@ -91,7 +93,7 @@ class FeaturesTest extends TestCase
 
 	private function addFiltering(DataGrid $grid): void
 	{
-		$grid->setFilterFactory(function (Container $c) {
+		$grid->setFilterFactory(static function (Container $c) {
 			$c->addText('firstname');
 			$c->addText('lastname');
 		});
@@ -100,26 +102,26 @@ class FeaturesTest extends TestCase
 
 	private function addRowActions(DataGrid $grid): void
 	{
-		$grid->addRowAction('edit', 'Edit', function (\stdClass $person) {});
-		$grid->addRowAction('delete', 'Delete', function (\stdClass $person) {})->setConfirmation('Are you sure?');
+		$grid->addRowAction('edit', 'Edit', static function (\stdClass $person) {});
+		$grid->addRowAction('delete', 'Delete', static function (\stdClass $person) {})->setConfirmation('Are you sure?');
 	}
 
 
 	private function addGroupActions(DataGrid $grid): void
 	{
-		$grid->addGroupAction('export', 'Export', function (array $persons) {});
-		$grid->addGroupAction('delete', 'Delete', function (array $persons) {})->setConfirmation('Are you sure?');
+		$grid->addGroupAction('export', 'Export', static function (array $persons) {});
+		$grid->addGroupAction('delete', 'Delete', static function (array $persons) {})->setConfirmation('Are you sure?');
 	}
 
 
 	private function addInlineEditing(DataGrid $grid): void
 	{
-		$grid->setInlineEditing(function (Container $c, \stdClass $person) {
+		$grid->setInlineEditing(static function (Container $c, \stdClass $person) {
 			$c->addText('firstname')->setRequired();
 			$c->addText('lastname')->setRequired();
 			$c->setDefaults((array) $person);
 
-		}, function (\stdClass $person) {});
+		}, static function (\stdClass $person) {});
 	}
 
 
@@ -131,4 +133,4 @@ class FeaturesTest extends TestCase
 }
 
 
-(new FeaturesTest())->run();
+(new FeaturesTest)->run();

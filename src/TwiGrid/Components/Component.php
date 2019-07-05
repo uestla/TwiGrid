@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types = 1);
 
 /**
  * This file is part of the TwiGrid component
@@ -19,7 +21,7 @@ abstract class Component extends NComponent
 {
 
 	/** @return IComponent|DataGrid */
-	final public function getDataGrid(bool $need = TRUE)
+	final public function getDataGrid(bool $need = true)
 	{
 		return $this->lookup(DataGrid::class, $need);
 	}

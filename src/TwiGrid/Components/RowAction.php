@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types = 1);
 
 /**
  * This file is part of the TwiGrid component
@@ -15,10 +17,10 @@ class RowAction extends Action
 {
 
 	/** @var bool */
-	protected $protected = TRUE;
+	protected $protected = true;
 
 
-	public function setProtected(bool $bool = TRUE): self
+	public function setProtected(bool $bool = true): self
 	{
 		$this->protected = $bool;
 		return $this;

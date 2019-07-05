@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types = 1);
 
 /**
  * This file is part of the TwiGrid component
@@ -18,10 +20,10 @@ class Column extends Component
 	private $label;
 
 	/** @var bool */
-	private $sortable = FALSE;
+	private $sortable = false;
 
 	/** @var bool */
-	private $sortedBy = FALSE;
+	private $sortedBy = false;
 
 	/** @var bool */
 	private $sortDir = self::ASC;
@@ -30,8 +32,8 @@ class Column extends Component
 	private $sortIndex;
 
 
-	const ASC = FALSE;
-	const DESC = TRUE;
+	const ASC = false;
+	const DESC = true;
 
 
 	public function __construct(string $label)
@@ -48,7 +50,7 @@ class Column extends Component
 	}
 
 
-	public function setSortable(bool $bool = TRUE): self
+	public function setSortable(bool $bool = true): self
 	{
 		$this->sortable = $bool;
 		return $this;
@@ -61,7 +63,7 @@ class Column extends Component
 	}
 
 
-	public function setSortedBy(bool $bool = TRUE, bool $sortDir = self::ASC, int $sortIndex = 0): self
+	public function setSortedBy(bool $bool = true, bool $sortDir = self::ASC, int $sortIndex = 0): self
 	{
 		if (!$this->sortable) {
 			throw new \RuntimeException("Column '{$this->getName()}' is not sortable.");
