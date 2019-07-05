@@ -1,8 +1,8 @@
-includes:
-	- vendor/phpstan/phpstan-nette/extension.neon
-	- vendor/phpstan/phpstan-nette/rules.neon
-
 parameters:
+	level: max
+	paths:
+		- src/
+		- tests/
 	autoload_directories:
 		- tests
 
