@@ -15,6 +15,7 @@ namespace TwiGrid;
 use TwiGrid\Components\Action;
 use TwiGrid\Components\Column;
 use TwiGrid\Components\RowAction;
+use Nette\ComponentModel\IContainer;
 use Nette\Utils\Callback as NCallback;
 use Nette\Bridges\ApplicationLatte\Template;
 use Nette\Application\UI\Control as NControl;
@@ -143,7 +144,7 @@ class DataGrid extends NControl
 
 	// === AJAX PAYLOAD ===========
 
-	/** @var \stdClass|null */
+	/** @var \stdClass */
 	private $payload;
 
 
@@ -318,9 +319,15 @@ class DataGrid extends NControl
 
 	public function hasManySortableColumns(): bool
 	{
+		$columns = $this->getColumns();
+
+		if (!$columns) {
+			return false;
+		}
+
 		$hasMany = false;
 
-		foreach ($this->getColumns() as $column) {
+		foreach ($columns as $column) {
 			if ($column->isSortable()) {
 				if ($hasMany) { // 2nd sortable -> has many
 					return true;
@@ -361,7 +368,7 @@ class DataGrid extends NControl
 	{
 		$action = $this['rowActions']->getComponent($name);
 
-		if (!$action->isProtected() || Helpers::checkCsrfToken($this->session, $token)) {
+		if (!$action->isProtected() || ($token && Helpers::checkCsrfToken($this->session, $token))) {
 			$action->invoke($this->getRecordHandler()->findIn($primary, $this->getData()));
 			$this->refreshState();
 			$this->redraw(true, true, ['body', 'footer']);
@@ -518,13 +525,20 @@ class DataGrid extends NControl
 	/** @return array|\Traversable */
 	public function getData()
 	{
+		if (!$this->dataLoader) {
+			throw new \LogicException('Data loader not set.');
+		}
+
 		if ($this->data === null) {
 			$order = $this->orderBy;
 			$primaryDir = count($order) ? end($order) : Components\Column::ASC;
+			$primaryKey = $this->getRecordHandler()->getPrimaryKey();
 
-			foreach ($this->getRecordHandler()->getPrimaryKey() as $column) {
-				if (!isset($order[$column])) {
-					$order[$column] = $primaryDir;
+			if ($primaryKey) {
+				foreach ($primaryKey as $column) {
+					if (!isset($order[$column])) {
+						$order[$column] = $primaryDir;
+					}
 				}
 			}
 
@@ -548,7 +562,8 @@ class DataGrid extends NControl
 
 	public function hasData(): bool
 	{
-		return (bool) count($this->getData());
+		$data = $this->getData();
+		return count(is_array($data) ? $data : iterator_to_array($data)) > 0;
 	}
 
 
@@ -659,6 +674,10 @@ class DataGrid extends NControl
 	{
 		if ($this->itemCount === null) {
 			if ($this->itemCounter === null) { // fallback - fetch data with empty filters
+				if (!$this->dataLoader) {
+					throw new \LogicException('Data loader not set.');
+				}
+
 				$data = NCallback::invoke($this->dataLoader, $this->filters, [], null, 0);
 
 				if ($data instanceof NSelection) {
@@ -692,8 +711,14 @@ class DataGrid extends NControl
 		$form = new Form($this->getRecordHandler());
 		$form->addProtection();
 		$form->setTranslator($this->getTranslator());
-		$form->onSuccess[] = [$this, 'processForm'];
-		$form->onSubmit[] = [$this, 'formSubmitted'];
+
+		$form->onSuccess[] = function (\Nette\Forms\Form $form): void {
+			$this->processForm($form);
+		};
+
+		$form->onSubmit[] = function (\Nette\Forms\Form $form): void {
+			$this->formSubmitted($form);
+		};
 
 		return $form;
 	}
@@ -759,21 +784,25 @@ class DataGrid extends NControl
 	{
 		if ($this->itemsPerPage !== null) {
 			$this->initPagination();
-			$this['form']->addPaginationControls($this->page, $this->pageCount);
+			$this['form']->addPaginationControls($this->page, (int) $this->pageCount);
 		}
 
 		return $this;
 	}
 
 
-	public function formSubmitted(Form $form): void
+	public function formSubmitted(\Nette\Forms\Form $form): void
 	{
 		$this->redraw(false, false, ['form-errors']);
 	}
 
 
-	public function processForm(Form $form): void
+	public function processForm(\Nette\Forms\Form $form): void
 	{
+		if (!$form instanceof Form) {
+			throw new \LogicException('Invalid form instance.');
+		}
+
 		// detect submit button by lazy buttons appending (beginning with the most lazy ones)
 		$this->addFilterButtons();
 
@@ -792,7 +821,11 @@ class DataGrid extends NControl
 
 		if ($button instanceof NSubmitButton) {
 			$name = $button->getName();
-			$path = $button->getParent()->lookupPath(Form::class);
+
+			/** @var IContainer $parent */
+			$parent = $button->getParent();
+
+			$path = $parent->lookupPath(Form::class);
 
 			if ("$path-$name" === 'filters-buttons-filter') {
 				$this->addFilterCriteria();
@@ -837,7 +870,14 @@ class DataGrid extends NControl
 					$values = $form->getInlineValues();
 
 					if ($values !== null) {
-						NCallback::invoke($this->ieProcessCallback, $this->getRecordHandler()->findIn($this->iePrimary, $this->getData()), $values);
+						if ($this->iePrimary !== null) {
+							if (!$this->ieProcessCallback) {
+								throw new \LogicException('Inline edit callback not set.');
+							}
+
+							NCallback::invoke($this->ieProcessCallback, $this->getRecordHandler()->findIn($this->iePrimary, $this->getData()), $values);
+						}
+
 						$this->deactivateInlineEditing();
 					}
 
@@ -845,7 +885,11 @@ class DataGrid extends NControl
 					$this->deactivateInlineEditing(false);
 
 				} else {
-					$this->activateInlineEditing($button->getName());
+					$primary = $button->getName();
+
+					if ($primary) {
+						$this->activateInlineEditing($primary);
+					}
 				}
 			}
 		}
@@ -902,7 +946,7 @@ class DataGrid extends NControl
 			$latte->addProvider('formsStack', [$form]);
 		}
 
-		$template->columns = $this->getColumns();
+		$template->columns = $columns = $this->getColumns();
 		$template->dataLoader = [$this, 'getData'];
 		$template->recordVariable = $this->recordVariable;
 
@@ -919,7 +963,7 @@ class DataGrid extends NControl
 
 		$template->isPaginated = $this->itemsPerPage !== null;
 
-		$template->columnCount = count($template->columns)
+		$template->columnCount = ($columns ? count($columns) : 0)
 				+ ($template->hasGroupActions ? 1 : 0)
 				+ ($template->hasFilters || $template->hasRowActions || $template->hasInlineEdit ? 1 : 0);
 

@@ -40,7 +40,7 @@ class RecordHandler
 	}
 
 
-	public function setValueGetter(callable $callback): self
+	public function setValueGetter(?callable $callback): self
 	{
 		$this->valueGetter = $callback;
 		return $this;
@@ -87,6 +87,10 @@ class RecordHandler
 	 */
 	public function getPrimary($record): array
 	{
+		if (!$this->primaryKey) {
+			throw new \LogicException('Primary key not set.');
+		}
+
 		$primaries = [];
 		foreach ($this->primaryKey as $column) {
 			$primaries[$column] = (string) $this->getValue($record, $column);

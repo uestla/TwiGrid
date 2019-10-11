@@ -51,7 +51,7 @@ class Action extends Component
 
 	public function setConfirmation(string $confirmation = null): self
 	{
-		$this->confirmation = strlen($confirmation) ? (string) $confirmation : null;
+		$this->confirmation = $confirmation === '' ? null : $confirmation;
 		return $this;
 	}
 

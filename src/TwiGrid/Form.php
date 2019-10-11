@@ -75,7 +75,11 @@ class Form extends NForm
 	{
 		if ($this->lazyCreateContainer('actions', 'records', $records)) {
 			$first = true;
-			foreach ($this->getParent()->getData() as $record) {
+
+			/** @var DataGrid $grid */
+			$grid = $this->getParent();
+
+			foreach ($grid->getData() as $record) {
 				$hash = $this->recordHandler->getPrimaryHash($record);
 				$records[$hash] = $checkbox = new Checkbox;
 
@@ -206,11 +210,20 @@ class Form extends NForm
 
 	public static function validateCheckedCount(Checkbox $checkbox): bool
 	{
-		/** @var Button $button */
-		$button = $checkbox->getForm()->isSubmitted();
+		/** @var Form $form */
+		$form = $checkbox->getForm();
 
-		return $button->getParent()->lookupPath(NForm::class) !== 'actions-buttons'
-				|| in_array(true, $checkbox->getParent()->getValues(true), true);
+		/** @var Button $button */
+		$button = $form->isSubmitted();
+
+		/** @var NContainer $buttonParent */
+		$buttonParent = $button->getParent();
+
+		/** @var NContainer $checkboxParent */
+		$checkboxParent = $checkbox->getParent();
+
+		return $buttonParent->lookupPath(NForm::class) !== 'actions-buttons'
+				|| in_array(true, (array) $checkboxParent->getValues('array'), true);
 	}
 
 }
