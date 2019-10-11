@@ -3,8 +3,6 @@ TwiGrid
 
 ... is a DataGrid for Nette Framework.
 
-[![Buy me a Coffee](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=5UZMKSVARNKJL)
-
 **Demo**: http://kesspess.cz/twigrid/
 
 **Demo sources**: https://github.com/uestla/twigrid-demo
@@ -73,20 +71,18 @@ Let's see how many steps do we have to make to create our first datagrid.
 	```php
 	// app/grids/UsersGrid.php
 
-	use Nette\Http\Session;
-	use Nette\Database\Context;
-
-	class UsersGrid extends TwiGrid\DataGrid
+	final class UsersGrid extends TwiGrid\DataGrid
 	{
 		private $database;
 
-		function __construct(Session $session, Context $database)
+		function __construct(Nette\Database\Context $database)
 		{
-			parent::__construct($session);
+			parent::__construct();
+
 			$this->database = $database;
 		}
 
-		protected function build()
+		protected function build(): void
 		{
 			// TODO
 		}
@@ -124,8 +120,7 @@ Let's see how many steps do we have to make to create our first datagrid.
 
 	interface IUsersGridFactory
 	{
-		/** @return UsersGrid */
-		function create();
+		function create(): UserGrid;
 	}
 	```
 
@@ -153,7 +148,7 @@ Let's see how many steps do we have to make to create our first datagrid.
 	```php
 	// app/presenters/HomepagePresenter.php
 
-	protected function createComponentUsersGrid()
+	protected function createComponentUsersGrid(): UserGrid
 	{
 		return $this->usersGridFactory->create();
 	}
