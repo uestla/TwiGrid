@@ -12,8 +12,6 @@ declare(strict_types = 1);
 
 namespace TwiGrid\Components;
 
-use Nette\Utils\Callback as NCallback;
-
 
 class Action extends Component
 {
@@ -30,8 +28,6 @@ class Action extends Component
 
 	public function __construct(string $label, callable $callback)
 	{
-		parent::__construct();
-
 		$this->label = $label;
 		$this->callback = $callback;
 	}
@@ -78,7 +74,7 @@ class Action extends Component
 	 */
 	public function invoke($record)
 	{
-		return NCallback::invoke($this->callback, $record);
+		return call_user_func($this->callback, $record);
 	}
 
 }

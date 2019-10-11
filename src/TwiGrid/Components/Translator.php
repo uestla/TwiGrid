@@ -47,12 +47,7 @@ class Translator implements NITranslator
 	}
 
 
-	/**
-	 * @param  string $message
-	 * @param  int $count
-	 * @return string
-	 */
-	public function translate($message, $count = null): string
+	public function translate($message, ...$parameters): string
 	{
 		if (isset($this->dictionary[$message])) {
 			$s = $this->dictionary[$message];
@@ -61,7 +56,7 @@ class Translator implements NITranslator
 			$s = $message;
 		}
 
-		return sprintf($s, $count);
+		return sprintf($s, ...$parameters);
 	}
 
 }

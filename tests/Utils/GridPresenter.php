@@ -23,8 +23,11 @@ class GridPresenter extends NPresenter
 	{
 		parent::__construct();
 
+		$this->setParent(null, 'grid');
+		$this->changeAction(self::DEFAULT_ACTION);
+
 		$httpResponse = new Response;
-		$httpRequest = new Request(new UrlScript('http://kesspess.cz/twigrid/'));
+		$httpRequest = new Request(new UrlScript('https://kesspess.cz/twigrid/'));
 
 		$this->injectPrimary(
 			null,
@@ -36,7 +39,7 @@ class GridPresenter extends NPresenter
 			null,
 			new TemplateFactory(new class implements ILatteFactory {
 
-				public function create()
+				public function create(): Engine
 				{
 					return new Engine;
 				}

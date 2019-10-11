@@ -14,11 +14,11 @@
 	],
 	"require" : {
 		"php": ">= 7.1.0",
-		"nette/http": "^2.4",
-		"nette/forms": "^2.4",
-		"nette/utils": "^2.4",
-		"latte/latte": "^2.4",
-		"nette/application": "^2.4"
+		"nette/http": "^3.0",
+		"nette/forms": "^3.0",
+		"nette/utils": "^3.0",
+		"latte/latte": "^2.5",
+		"nette/application": "^3.0"
 	},
 	"require-dev": {
 		"jakub-onderka/php-parallel-lint": "^1.0",

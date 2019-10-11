@@ -38,8 +38,6 @@ class Column extends Component
 
 	public function __construct(string $label)
 	{
-		parent::__construct();
-
 		$this->label = $label;
 	}
 

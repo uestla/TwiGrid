@@ -16,7 +16,6 @@ use TwiGrid\Components\Action;
 use TwiGrid\Components\Column;
 use TwiGrid\Components\RowAction;
 use Nette\ComponentModel\IContainer;
-use Nette\Utils\Callback as NCallback;
 use Nette\Bridges\ApplicationLatte\Template;
 use Nette\Application\UI\Control as NControl;
 use Nette\Application\UI\Presenter as NPresenter;
@@ -150,12 +149,11 @@ class DataGrid extends NControl
 
 	// === LIFE CYCLE ======================================================
 
-	/** @param  NPresenter $presenter */
-	protected function attached($presenter): void
+	public function __construct()
 	{
-		if ($presenter instanceof NPresenter) {
+		$this->monitor(NPresenter::class, function (NPresenter $presenter) {
 			$this->build();
-			parent::attached($presenter);
+
 			$this->session = $presenter->getSession(sprintf('%s-%s', __CLASS__, $this->getName()));
 
 			if (!isset($presenter->payload->twiGrid)) {
@@ -165,7 +163,7 @@ class DataGrid extends NControl
 			}
 
 			$this->payload = $presenter->payload->twiGrid;
-		}
+		});
 	}
 
 
@@ -553,7 +551,7 @@ class DataGrid extends NControl
 				$args[] = ($this->page - 1) * $this->itemsPerPage;
 			}
 
-			$this->data = NCallback::invokeArgs($this->dataLoader, $args);
+			$this->data = call_user_func_array($this->dataLoader, $args);
 		}
 
 		return $this->data;
@@ -678,7 +676,7 @@ class DataGrid extends NControl
 					throw new \LogicException('Data loader not set.');
 				}
 
-				$data = NCallback::invoke($this->dataLoader, $this->filters, [], null, 0);
+				$data = call_user_func($this->dataLoader, $this->filters, [], null, 0);
 
 				if ($data instanceof NSelection) {
 					$count = $data->count('*');
@@ -688,7 +686,7 @@ class DataGrid extends NControl
 				}
 
 			} else {
-				$count = NCallback::invoke($this->itemCounter, $this->filters);
+				$count = call_user_func($this->itemCounter, $this->filters);
 			}
 
 			$this->itemCount = max(0, (int) $count);
@@ -875,7 +873,7 @@ class DataGrid extends NControl
 								throw new \LogicException('Inline edit callback not set.');
 							}
 
-							NCallback::invoke($this->ieProcessCallback, $this->getRecordHandler()->findIn($this->iePrimary, $this->getData()), $values);
+							call_user_func($this->ieProcessCallback, $this->getRecordHandler()->findIn($this->iePrimary, $this->getData()), $values);
 						}
 
 						$this->deactivateInlineEditing();
@@ -937,7 +935,7 @@ class DataGrid extends NControl
 		$template->form = $form = $this['form'];
 
 		if ($this->presenter->isAjax()) {
-			$this->payload->id = $this->getSnippetId();
+			$this->payload->id = $this->getSnippetId((string) $this->getName());
 			$this->payload->url = $this->link('this');
 			$this->payload->refreshing = $this->refreshing;
 			$this->payload->refreshSignal = $this->link('refresh!');

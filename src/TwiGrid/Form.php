@@ -12,7 +12,6 @@ declare(strict_types = 1);
 
 namespace TwiGrid;
 
-use Nette\Forms\Container;
 use Nette\Forms\Controls\Button;
 use Nette\Forms\Controls\Checkbox;
 use Nette\Forms\Controls\SubmitButton;
@@ -134,7 +133,7 @@ class Form extends NForm
 		if ($this->lazyCreateContainer('inline', 'buttons', $buttons)) {
 			foreach ($data as $record) {
 				if ($this->recordHandler->is($record, $iePrimary)) {
-					/** @var Container $inline */
+					/** @var NContainer $inline */
 					$inline = $this['inline'];
 
 					$containerSetupCb($inline->addContainer('values'), $record);
@@ -196,7 +195,7 @@ class Form extends NForm
 		}
 
 		if (!isset($this[$parent][$name])) {
-			/** @var Container $parentContainer */
+			/** @var NContainer $parentContainer */
 			$parentContainer = $this[$parent];
 
 			$parentContainer->addContainer($name);
