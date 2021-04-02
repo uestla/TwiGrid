@@ -61,10 +61,12 @@ class Form extends NForm
 
 	public function getFilterCriteria(): ?array
 	{
-		$this->validate();
-		if ($this->isValid()) {
-			return Helpers::filterEmpty($this['filters']['criteria']->getValues(true));
-		}
+		try {
+			/** @var array $values */
+			$values = $this->getValues('array');
+			return Helpers::filterEmpty($values['filters']['criteria']);
+
+		} catch (\Throwable $e) {} // form may not be valid
 
 		return null;
 	}
@@ -113,10 +115,12 @@ class Form extends NForm
 	{
 		$this->addGroupActionCheckboxes();
 
-		$this->validate();
-		if ($this->isValid()) {
-			return array_map('strval', array_keys(array_filter($this['actions']['records']->getValues(true))));
-		}
+		try {
+			/** @var array $values */
+			$values = $this->getValues('array');
+			return array_map('strval', array_keys(array_filter($values['actions']['records'])));
+
+		} catch (\Throwable $e) {} // form may not be valid
 
 		return null;
 	}
@@ -158,8 +162,14 @@ class Form extends NForm
 
 	public function getInlineValues(): ?array
 	{
-		$this->validate();
-		return $this->isValid() ? $this['inline']['values']->getValues(true) : null;
+		try {
+			/** @var array $values */
+			$values = $this->getValues('array');
+			return $values['inline']['values'];
+
+		} catch (\Throwable $e) {} // form may not be valid
+
+		return null;
 	}
 
 
