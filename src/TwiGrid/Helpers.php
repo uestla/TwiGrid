@@ -46,7 +46,7 @@ abstract class Helpers
 			} elseif (is_object($v)) {
 				$ret[$k] = $v;
 
-			} elseif (strlen((string) $v)) {
+			} elseif ((string) $v !== '') {
 				$ret[$k] = $v;
 			}
 		}
