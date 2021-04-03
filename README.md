@@ -3,8 +3,9 @@ TwiGrid
 
 ... is a DataGrid for Nette Framework.
 
-**Demo**: http://kesspess.cz/twigrid/
+[![Buy me a Coffee](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=5UZMKSVARNKJL)
 
+**Demo**: https://kesspess.cz/twigrid/  
 **Demo sources**: https://github.com/uestla/twigrid-demo
 
 It's based on another (and great) datagrid written by @hrach - https://github.com/nextras/datagrid. My datagrid is hugely inspired by this component and its programming ideas and therefore I would like to give this man a maximum credit and respect :-)
@@ -17,65 +18,59 @@ Let's see how many steps do we have to make to create our first datagrid.
 
 1. We'll start by creating an empty Nette Framework project:
 
-	```composer create-project nette/sandbox twigrid-quickstart```
+	```bash
+	composer create-project nette/web-project twigrid-quickstart
+	```
 
 2. Now we'll install TwiGrid into our project:
 
-	```composer require uestla/twigrid:*```
-
-	We need client-side javascripts and stylesheets, so we'll copy these files:
-
-	```
-	- vendor/uestla/twigrid/assets/twigrid.datagrid.js
-	- vendor/uestla/twigrid/assets/twigrid.datagrid.css
+	```bash
+	cd twigrid-quickstart
+	composer require uestla/twigrid
 	```
 
-	And paste them in
+	Next we will install client-side assets using yarn.
 
+	```bash
+	yarn add twigrid-datagrid --modules-folder www/vendor
 	```
-	- www/js/twigrid.datagrid.js
-	- www/css/twigrid.datagrid.css
-	```
 
-	To load them, we'll update **app/templates/@layout.latte**
+	> If you're not using yarn, you can install assets manually by looking into `package.json` and see required dependencies there.
 
-	*stylesheets belong to the `<head>` section:*
+	We'll then update `app/Presenters/templates/@layout.latte` to load downloaded assets:
+
 	```html
-	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-	<link rel="stylesheet" href="{$basePath}/css/twigrid.datagrid.css">
+	<!-- inside <head /> -->
+	<link rel="stylesheet" href="{$basePath}/vendor/bootstrap/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="{$basePath}/vendor/twigrid-datagrid/assets/twigrid.datagrid.css">
+
+	<!-- before </body> -->
+	<script src="{$basePath}/vendor/jquery/dist/jquery.min.js"></script>
+	<script src="{$basePath}/vendor/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script src="{$basePath}/vendor/nette-forms/src/assets/netteForms.min.js"></script>
+	<script src="{$basePath}/vendor/nette.ajax.js/nette.ajax.js"></script>
+	<script src="{$basePath}/vendor/twigrid-datagrid/assets/twigrid.datagrid.js"></script>
 	```
 
-	*and javascripts to the bottom of the page:*
-	```html
-	<script src="{$basePath}/js/jquery.js"></script>
-	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-	<script src="//cdn.rawgit.com/nette/forms/master/src/assets/netteForms.js"></script>
-	<script src="//cdn.rawgit.com/vojtech-dobes/nette.ajax.js/master/nette.ajax.js"></script>
-	<script src="{$basePath}/js/twigrid.datagrid.js"></script>
+3. Instead of manually creating database, we'll [use the SQLite3 file](https://github.com/uestla/twigrid-demo/raw/455d55d2e2a34bae9aaa64658bf8a4b6ddfca4a0/app/users.s3db) from the demo application and place it in `app/Model/users.s3db`.
+
+	To tell Nette Framework that we want to use this database, we'll update `config/local.neon` file:
+
+	```neon
+	database:
+		dsn: 'sqlite:%appDir%/Model/users.s3db'
 	```
 
-	Please note that we're loading Twitter Bootstrap client scripts as well.
-
-3. Instead of manually creating database, we'll [download the SQLite3 file](https://github.com/uestla/twigrid-demo/raw/455d55d2e2a34bae9aaa64658bf8a4b6ddfca4a0/app/users.s3db) from the demo application and place it in **app/model/users.s3db**.
-
-4. To tell Nette Framework that we want to use this database, we'll update **app/config/config.local.neon** file:
-
-	```
-	nette:
-		database:
-			dsn: 'sqlite:%appDir%/model/users.s3db'
-	```
-
-5. Now it's finally time to create our first datagrid - let's create an **app/grids/UsersGrid.php** file. We'll need database connection for data loading, so we inject it properly through constructor.
+4. Now it's finally time to create our first datagrid - let's create an `app/Grids/UsersGrid.php` file. We'll need database connection for data loading, so we inject it properly via constructor.
 
 	```php
-	// app/grids/UsersGrid.php
+	// app/Grids/UsersGrid.php
 
 	final class UsersGrid extends TwiGrid\DataGrid
 	{
 		private $database;
 
-		function __construct(Nette\Database\Context $database)
+		public function __construct(Nette\Database\Explorer $database)
 		{
 			parent::__construct();
 
@@ -89,7 +84,7 @@ Let's see how many steps do we have to make to create our first datagrid.
 	}
 	```
 
-	We'll define the datagrid body inside custom `build()` method. Although the table `user` has many columns, we'll have just some of them in our grid just to make it easy.
+	We'll define the datagrid body inside the `build()` method. Although the table `user` has many columns, we'll have just some of them in our grid just to make it easy.
 
 	```php
 	$this->addColumn('firstname', 'Firstname');
@@ -113,32 +108,32 @@ Let's see how many steps do we have to make to create our first datagrid.
 	});
 	```
 
-6. To properly inject our grid into presenters, we'll need to create a factory interface:
+5. To properly inject our grid into presenters, we'll need to create a factory interface:
 
 	```php
-	// app/grids/IUsersGridFactory.php
+	// app/Grids/UsersGridFactory.php
 
-	interface IUsersGridFactory
+	interface UsersGridFactory
 	{
-		function create(): UserGrid;
+		public function create(): UsersGrid;
 	}
 	```
 
-	This interface will now be used for automatic factory generation, which is handy - we simply add this definition to **app/config/config.neon**:
+	This interface will now be used for automatic factory generation, which is handy - we simply add this definition to `config/common.neon`:
 
-	```
+	```neon
 	services:
-		- implement: IUsersGridFactory
+		- implement: UsersGridFactory
 	```
 
-7. Having all of this done, we can now simply inject our grid factory into `HomepagePresenter`.
+6. Having all of this done, we can now simply inject our grid factory into `HomepagePresenter`.
 
 	```php
-	// app/presenters/HomepagePresenter.php
+	// app/Presenters/HomepagePresenter.php
 
 	class HomepagePresenter extends BasePresenter
 	{
-		/** @var \IUsersGridFactory @inject */
+		/** @var \UsersGridFactory @inject */
 		public $usersGridFactory;
 	}
 	```
@@ -146,17 +141,17 @@ Let's see how many steps do we have to make to create our first datagrid.
 	Now we'll add the control factory itself:
 
 	```php
-	// app/presenters/HomepagePresenter.php
+	// app/Presenters/HomepagePresenter.php
 
-	protected function createComponentUsersGrid(): UserGrid
+	protected function createComponentUsersGrid(): \UsersGrid
 	{
 		return $this->usersGridFactory->create();
 	}
 	```
 
-8. We're nearly done! Just open **app/templates/Homepage/default.latte**, delete the whole content and replace it with
+7. We're nearly done! Just open `app/Presenters/templates/Homepage/default.latte`, delete the whole content and replace it with
 
-	```
+	```latte
 	{block content}
 		{control usersGrid}
 	{/block}
@@ -166,14 +161,14 @@ Let's see how many steps do we have to make to create our first datagrid.
 
 	Now when you'll open the page, you might see something like this:
 
-	![Result screenshot](http://i.imgur.com/RHzFX1V.png)
+	![Result screenshot](https://i.imgur.com/dlyGbyo.png)
 
-9. Final improvement
+8. Final improvement
 
 	Maybe showing the country code isn't that sexy - we'd like to have the whole country name in "Country" column. To achieve that, we'll create custom grid template:
 
-	```html
-	{* app/grids/UsersGrid.latte *}
+	```latte
+	{* app/Grids/UsersGrid.latte *}
 
 	{extends $defaultTemplate}
 
@@ -185,7 +180,7 @@ Let's see how many steps do we have to make to create our first datagrid.
 	And tell TwiGrid to use this template:
 
 	```php
-	// app/grids/UsersGrid.php:build()
+	// app/Grids/UsersGrid.php::build()
 
 	$this->setTemplateFile(__DIR__ . '/UsersGrid.latte');
 	```
@@ -195,4 +190,4 @@ Let's see how many steps do we have to make to create our first datagrid.
 More
 ----
 
-To see more examples, please visit the [demo page](http://kesspess.cz/twigrid/). Enjoy!
+To see more examples, please visit the [demo page](https://kesspess.cz/twigrid/). Enjoy!
