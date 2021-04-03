@@ -10,7 +10,7 @@ use Nette\Localization\ITranslator as NITranslator;
 class Translator implements NITranslator
 {
 
-	/** @var array */
+	/** @var array<string, string> */
 	private $dictionary = [
 		'twigrid.filters.filter' => 'Filter',
 		'twigrid.filters.cancel' => 'Cancel',
@@ -34,12 +34,14 @@ class Translator implements NITranslator
 	];
 
 
+	/** @param  array<string, string> $dictionary */
 	public function __construct(array $dictionary = [])
 	{
 		$this->addDictionary($dictionary);
 	}
 
 
+	/** @param  array<string, string> $dictionary */
 	public function addDictionary(array $dictionary): self
 	{
 		$this->dictionary = $dictionary + $this->dictionary;

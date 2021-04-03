@@ -20,6 +20,7 @@ use Nette\Http\SessionSection as NSessionSection;
 abstract class Helpers
 {
 
+	/** @param  mixed[] $array */
 	public static function recursiveKSort(array & $array): void
 	{
 		if (count($array)) {
@@ -34,6 +35,10 @@ abstract class Helpers
 	}
 
 
+	/**
+	 * @param  mixed[] $a
+	 * @return mixed[]
+	 */
 	public static function filterEmpty(array $a): array
 	{
 		$ret = [];
@@ -57,8 +62,8 @@ abstract class Helpers
 
 	// === SORTING ======================================================
 
-	const SORT_LINK_SINGLE = 0;
-	const SORT_LINK_MULTI = 1;
+	public const SORT_LINK_SINGLE = 0;
+	public const SORT_LINK_MULTI = 1;
 
 
 	public static function createSortLink(DataGrid $grid, Column $column, int $mode = self::SORT_LINK_SINGLE): string

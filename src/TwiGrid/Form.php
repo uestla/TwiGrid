@@ -12,6 +12,7 @@ declare(strict_types = 1);
 
 namespace TwiGrid;
 
+use TwiGrid\Components\Action;
 use Nette\Forms\Controls\Button;
 use Nette\Forms\Controls\Checkbox;
 use Nette\Forms\Controls\SubmitButton;
@@ -33,6 +34,7 @@ class Form extends NForm
 	}
 
 
+	/** @param  array<string, mixed> $defaults */
 	public function addFilterCriteria(callable $containerSetupCb, array $defaults): self
 	{
 		if ($this->lazyCreateContainer('filters', 'criteria', $criteria)) {
@@ -59,10 +61,11 @@ class Form extends NForm
 	}
 
 
+	/** @return array<string, mixed> */
 	public function getFilterCriteria(): ?array
 	{
 		try {
-			/** @var array $values */
+			/** @var array<string, mixed> $values */
 			$values = $this->getValues('array');
 			return Helpers::filterEmpty($values['filters']['criteria']);
 
@@ -99,6 +102,7 @@ class Form extends NForm
 	}
 
 
+	/** @param  \ArrayIterator<string, Action> $actions */
 	public function addGroupActionButtons(\ArrayIterator $actions): self
 	{
 		if ($this->lazyCreateContainer('actions', 'buttons', $buttons)) {
@@ -111,12 +115,13 @@ class Form extends NForm
 	}
 
 
+	/** @return string[]|null */
 	public function getCheckedRecords(): ?array
 	{
 		$this->addGroupActionCheckboxes();
 
 		try {
-			/** @var array $values */
+			/** @var array<string, mixed> $values */
 			$values = $this->getValues('array');
 			return array_map('strval', array_keys(array_filter($values['actions']['records'])));
 
@@ -127,10 +132,8 @@ class Form extends NForm
 
 
 	/**
-	 * @param  array|\Traversable $data
+	 * @param  mixed[]|\Traversable $data
 	 * @param  callable $containerSetupCb
-	 * @param  string|null $iePrimary
-	 * @return Form
 	 */
 	public function addInlineEditControls($data, callable $containerSetupCb, ?string $iePrimary): self
 	{
@@ -160,10 +163,11 @@ class Form extends NForm
 	}
 
 
+	/** @return array<string, mixed>|null */
 	public function getInlineValues(): ?array
 	{
 		try {
-			/** @var array $values */
+			/** @var array<string, mixed> $values */
 			$values = $this->getValues('array');
 			return $values['inline']['values'];
 

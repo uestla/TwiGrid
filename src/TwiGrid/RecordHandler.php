@@ -17,7 +17,7 @@ namespace TwiGrid;
 class RecordHandler
 {
 
-	/** @var array|null */
+	/** @var string[]|null */
 	private $primaryKey;
 
 	/** @var callable|null */
@@ -27,6 +27,7 @@ class RecordHandler
 	const PRIMARY_SEPARATOR = '|';
 
 
+	/** @param  string[] $keys */
 	public function setPrimaryKey(array $keys): self
 	{
 		$this->primaryKey = $keys;
@@ -34,6 +35,7 @@ class RecordHandler
 	}
 
 
+	/** @return string[]|null */
 	public function getPrimaryKey(): ?array
 	{
 		return $this->primaryKey;
@@ -50,7 +52,7 @@ class RecordHandler
 	public function getValueGetter(): callable
 	{
 		if ($this->valueGetter === null) {
-			$this->valueGetter = function ($record, $column, $need) {
+			$this->valueGetter = static function ($record, $column, $need) {
 				if (!isset($record->$column)) {
 					if ($need) {
 						throw new \InvalidArgumentException("Field '$column' not found in record of type "
@@ -70,8 +72,6 @@ class RecordHandler
 
 	/**
 	 * @param  mixed $record
-	 * @param  string $column
-	 * @param  bool $need
 	 * @return mixed
 	 */
 	public function getValue($record, string $column, bool $need = true)
@@ -83,7 +83,7 @@ class RecordHandler
 
 	/**
 	 * @param  mixed $record
-	 * @return array
+	 * @return array<string, string>
 	 */
 	public function getPrimary($record): array
 	{
@@ -100,10 +100,7 @@ class RecordHandler
 	}
 
 
-	/**
-	 * @param  mixed $record
-	 * @return string
-	 */
+	/** @param  mixed $record */
 	public function getPrimaryHash($record): string
 	{
 		return substr(sha1(implode(static::PRIMARY_SEPARATOR, $this->getPrimary($record))), 0, 8);
@@ -111,8 +108,7 @@ class RecordHandler
 
 
 	/**
-	 * @param  string $primary
-	 * @param  array|\Traversable $data
+	 * @param  mixed[]|\Traversable $data
 	 * @return mixed|null
 	 */
 	public function findIn(string $primary, $data)
@@ -127,11 +123,7 @@ class RecordHandler
 	}
 
 
-	/**
-	 * @param  mixed $record
-	 * @param  string|null $primary
-	 * @return bool
-	 */
+	/** @param  mixed $record */
 	public function is($record, ?string $primary): bool
 	{
 		return $this->getPrimaryHash($record) === $primary;

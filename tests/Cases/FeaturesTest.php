@@ -85,7 +85,7 @@ class FeaturesTest extends TestCase
 		$grid->render();
 		$s = ob_get_clean();
 
-		Assert::contains('"tw-cnt"', $s);
+		Assert::contains('"tw-cnt"', (string) $s);
 	}
 
 

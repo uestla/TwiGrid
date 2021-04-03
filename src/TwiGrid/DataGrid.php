@@ -15,7 +15,6 @@ namespace TwiGrid;
 use TwiGrid\Components\Action;
 use TwiGrid\Components\Column;
 use TwiGrid\Components\RowAction;
-use Nette\ComponentModel\IContainer;
 use Nette\Bridges\ApplicationLatte\Template;
 use Nette\Application\UI\Control as NControl;
 use Nette\Application\UI\Presenter as NPresenter;
@@ -39,12 +38,12 @@ class DataGrid extends NControl
 	// === SORTING ===========
 
 	/**
-	 * @var array
+	 * @var array<string, bool>
 	 * @persistent
 	 */
 	public $orderBy = [];
 
-	/** @var array|null */
+	/** @var array<string, bool>|null */
 	private $defaultOrderBy;
 
 	/** @var bool */
@@ -54,12 +53,12 @@ class DataGrid extends NControl
 	// === FILTERING ===========
 
 	/**
-	 * @var array
+	 * @var array<string, mixed>
 	 * @persistent
 	 */
 	public $filters = [];
 
-	/** @var array|null */
+	/** @var array<string, mixed>|null */
 	private $defaultFilters;
 
 	/** @var callable|null */
@@ -116,7 +115,7 @@ class DataGrid extends NControl
 	/** @var callable|null */
 	private $dataLoader;
 
-	/** @var array|\Traversable|null */
+	/** @var mixed[]|\Traversable|null */
 	private $data;
 
 
@@ -171,7 +170,7 @@ class DataGrid extends NControl
 	{}
 
 
-	/** @inheritdoc */
+	/** @param  array<string, mixed> $params */
 	public function loadState(array $params): void
 	{
 		parent::loadState(static::processParams($params));
@@ -210,6 +209,10 @@ class DataGrid extends NControl
 	}
 
 
+	/**
+	 * @param  array<string, mixed> $params
+	 * @return array<string, mixed>
+	 */
 	protected static function processParams(array $params): array
 	{
 		if (isset($params['orderBy'])) {
@@ -308,7 +311,7 @@ class DataGrid extends NControl
 	}
 
 
-	/** @return \ArrayIterator|Column[]|null */
+	/** @return \ArrayIterator<string, Column>|null */
 	public function getColumns(): ?\ArrayIterator
 	{
 		return isset($this['columns']) ? $this['columns']->getComponents() : null;
@@ -355,7 +358,7 @@ class DataGrid extends NControl
 	}
 
 
-	/** @return \ArrayIterator|RowAction[]|null */
+	/** @return \ArrayIterator<string, RowAction>|null */
 	public function getRowActions(): ?\ArrayIterator
 	{
 		return isset($this['rowActions']) ? $this['rowActions']->getComponents() : null;
@@ -380,12 +383,6 @@ class DataGrid extends NControl
 
 	// === GROUP ACTIONS ======================================================
 
-	/**
-	 * @param  string $name
-	 * @param  string $label
-	 * @param  callable $callback
-	 * @return Components\Action
-	 */
 	public function addGroupAction(string $name, string $label, callable $callback): Action
 	{
 		if (!isset($this['groupActions'])) {
@@ -399,7 +396,7 @@ class DataGrid extends NControl
 	}
 
 
-	/** @return \ArrayIterator|Action[]|null */
+	/** @return \ArrayIterator<string, Action>|null */
 	public function getGroupActions(): ?\ArrayIterator
 	{
 		return isset($this['groupActions']) ? $this['groupActions']->getComponents() : null;
@@ -408,6 +405,7 @@ class DataGrid extends NControl
 
 	// === SORTING ======================================================
 
+	/** @param  array<string, bool> $orderBy */
 	public function handleSort(array $orderBy): void
 	{
 		$this->refreshState();
@@ -415,11 +413,7 @@ class DataGrid extends NControl
 	}
 
 
-	/**
-	 * @param  string|array $column
-	 * @param  bool $dir
-	 * @return DataGrid
-	 */
+	/** @param  string|array<string, bool> $column */
 	public function setDefaultOrderBy($column, bool $dir = Components\Column::ASC): self
 	{
 		if (is_array($column)) {
@@ -457,6 +451,7 @@ class DataGrid extends NControl
 	}
 
 
+	/** @param  array<string, mixed> $filters */
 	public function setDefaultFilters(array $filters): self
 	{
 		if ($this->filterFactory === null) {
@@ -468,6 +463,7 @@ class DataGrid extends NControl
 	}
 
 
+	/** @param  array<string, mixed> $filters */
 	protected function setFilters(array $filters): self
 	{
 		Helpers::recursiveKSort($filters);
@@ -502,10 +498,7 @@ class DataGrid extends NControl
 	}
 
 
-	/**
-	 * @param  string|array $primaryKey
-	 * @return DataGrid
-	 */
+	/** @param  string|string[] $primaryKey */
 	public function setPrimaryKey($primaryKey): self
 	{
 		$this->getRecordHandler()->setPrimaryKey(is_array($primaryKey) ? $primaryKey : func_get_args());
@@ -520,7 +513,7 @@ class DataGrid extends NControl
 	}
 
 
-	/** @return array|\Traversable */
+	/** @return mixed[]|\Traversable */
 	public function getData()
 	{
 		if (!$this->dataLoader) {
@@ -561,7 +554,7 @@ class DataGrid extends NControl
 	public function hasData(): bool
 	{
 		$data = $this->getData();
-		return count(is_array($data) ? $data : iterator_to_array($data)) > 0;
+		return count(is_countable($data) ? $data : iterator_to_array($data)) > 0;
 	}
 
 
@@ -572,6 +565,7 @@ class DataGrid extends NControl
 	}
 
 
+	/** @param  array<int, string|null> $snippets */
 	protected function redraw(bool $reloadData = true, bool $reloadForm = false, array $snippets = [null]): void
 	{
 		if ($reloadData) {
@@ -820,7 +814,7 @@ class DataGrid extends NControl
 		if ($button instanceof NSubmitButton) {
 			$name = $button->getName();
 
-			/** @var IContainer $parent */
+			/** @var NContainer $parent */
 			$parent = $button->getParent();
 
 			$path = $parent->lookupPath(Form::class);
