@@ -1,0 +1,21 @@
+{
+  "name": "twigrid-datagrid",
+  "version": "12.0.3",
+  "description": "Assets needed for TwiGrid\\DataGrid library",
+  "keywords": ["twigrid", "datagrid"],
+  "license": "MIT",
+  "homepage": "https://github.com/uestla/TwiGrid",
+  "author": "Petr Kessler (https://kesspess.cz)",
+  "main": "assets/twigrid.datagrid.js",
+  "files": ["assets/"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uestla/TwiGrid.git"
+  },
+  "dependencies": {
+    "bootstrap": "^3.3.0",
+    "jquery": ">=2.2.0",
+    "nette-forms": "^2.2.0 || ^3.2.0",
+    "nette.ajax.js": "^2.3.0"
+  }
+}
