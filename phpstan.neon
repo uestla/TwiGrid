@@ -3,10 +3,6 @@ parameters:
 	paths:
 		- src/
 		- tests/
-	autoload_directories:
-		- tests
 
 	ignoreErrors:
-		- '#Class Nette\\Database\\Table\\Selection not found#'
-		- '#Call to method count\(\) on an unknown class Nette\\Database\\Table\\Selection#'
 		- '#^Cannot access offset .+ on Nette\\ComponentModel\\IComponent\.$#D'
