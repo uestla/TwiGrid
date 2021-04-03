@@ -7,7 +7,7 @@ declare(strict_types = 1);
  *
  * @license  MIT
  * @author   Petr Kessler (https://kesspess.cz)
- * @link     https://github.com/uestla/twigrid
+ * @link     https://github.com/uestla/TwiGrid
  */
 
 namespace TwiGrid;

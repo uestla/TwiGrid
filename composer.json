@@ -3,7 +3,7 @@
 	"type": "library",
 	"description": "Experimental DataGrid for Nette Framework",
 	"keywords": ["nette", "addon", "datagrid"],
-	"homepage": "http://github.com/uestla/twigrid",
+	"homepage": "https://github.com/uestla/TwiGrid",
 	"license": "MIT",
 	"authors": [
 		{
