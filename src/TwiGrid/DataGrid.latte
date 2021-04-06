@@ -303,7 +303,8 @@
 				? alert-warning
 	'>
 		{if $hasControl && $isControl}
-			{input filters-criteria-$columnName, class => 'form-control'}
+			{php $form["filters-criteria-$columnName"]->getControlPrototype()->addAttributes(['class' => 'form-control'])}
+			{input filters-criteria-$columnName}
 		{else}
 			&nbsp;
 		{/if}
@@ -449,7 +450,8 @@
 
 	{ifset $form["inline-values-$columnName"]}
 		<td n:class='body-inline-cell, "body-inline-cell-{$columnName}"'>
-			{input inline-values-$columnName, class => 'form-control'}
+			{php $form["inline-values-$columnName"]->getControlPrototype()->addAttributes(['class' => 'form-control'])}
+			{input inline-values-$columnName}
 		</td>
 
 	{elseifset #body-cell-$columnName}
