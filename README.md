@@ -1,5 +1,4 @@
-TwiGrid
-=======
+# TwiGrid
 
 ... is a DataGrid for Nette Framework.
 
@@ -11,27 +10,21 @@ TwiGrid
 It's based on another (and great) datagrid written by @hrach - https://github.com/nextras/datagrid. My datagrid is hugely inspired by this component and its programming ideas and therefore I would like to give this man a maximum credit and respect :-)
 
 
-Quickstart
-----------
+# Quickstart
 
 Let's see how many steps do we have to make to create our first datagrid.
 
-1. We'll start by creating an empty Nette Framework project:
+1. ### Create new project
 
 	```bash
 	composer create-project nette/web-project twigrid-quickstart
 	```
 
-2. Now we'll install TwiGrid into our project:
+2. ### Install TwiGrid & client-side assets
 
 	```bash
 	cd twigrid-quickstart
 	composer require uestla/twigrid
-	```
-
-	Next we will install client-side assets using yarn.
-
-	```bash
 	yarn add twigrid-datagrid --modules-folder www/vendor
 	```
 
@@ -40,11 +33,11 @@ Let's see how many steps do we have to make to create our first datagrid.
 	We'll then update `app/Presenters/templates/@layout.latte` to load downloaded assets:
 
 	```html
-	<!-- inside <head /> -->
+	<!-- app/Presenters/templates/@layout.latte -->
+
 	<link rel="stylesheet" href="{$basePath}/vendor/bootstrap/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="{$basePath}/vendor/twigrid-datagrid/assets/twigrid.datagrid.css">
-
-	<!-- before </body> -->
+	<!-- ... -->
 	<script src="{$basePath}/vendor/jquery/dist/jquery.min.js"></script>
 	<script src="{$basePath}/vendor/bootstrap/dist/js/bootstrap.min.js"></script>
 	<script src="{$basePath}/vendor/nette-forms/src/assets/netteForms.min.js"></script>
@@ -52,16 +45,21 @@ Let's see how many steps do we have to make to create our first datagrid.
 	<script src="{$basePath}/vendor/twigrid-datagrid/assets/twigrid.datagrid.js"></script>
 	```
 
-3. Instead of manually creating database, we'll [use the SQLite3 file](https://github.com/uestla/twigrid-demo/raw/455d55d2e2a34bae9aaa64658bf8a4b6ddfca4a0/app/users.s3db) from the demo application and place it in `app/Model/users.s3db`.
+3. ### Database
 
-	To tell Nette Framework that we want to use this database, we'll update `config/local.neon` file:
+	Download [the SQLite3 file](https://github.com/uestla/twigrid-demo/raw/455d55d2e2a34bae9aaa64658bf8a4b6ddfca4a0/app/users.s3db) from the demo application and place it in `app/Model/users.s3db`.
+
+	And we'll configure this database to be used by the application:
 
 	```neon
+	# config/local.neon
 	database:
 		dsn: 'sqlite:%appDir%/Model/users.s3db'
 	```
 
-4. Now it's finally time to create our first datagrid - let's create an `app/Grids/UsersGrid.php` file. We'll need database connection for data loading, so we inject it properly via constructor.
+4. ### Create datagrid
+
+	Now it's finally time to create our first datagrid - let's create an `app/Grids/UsersGrid.php` file. We'll need database connection for data loading, so we inject it properly via constructor.
 
 	```php
 	// app/Grids/UsersGrid.php
@@ -87,11 +85,21 @@ Let's see how many steps do we have to make to create our first datagrid.
 	We'll define the datagrid body inside the `build()` method. Although the table `user` has many columns, we'll have just some of them in our grid just to make it easy.
 
 	```php
-	$this->addColumn('firstname', 'Firstname');
-	$this->addColumn('surname', 'Surname');
-	$this->addColumn('streetaddress', 'Street address');
-	$this->addColumn('city', 'City');
-	$this->addColumn('country_code', 'Country');
+	// app/Grids/UsersGrid.php
+
+	final class UsersGrid extends TwiGrid\DataGrid
+	{
+		// ...
+
+		protected function build(): void
+		{
+			$this->addColumn('firstname', 'Firstname');
+			$this->addColumn('surname', 'Surname');
+			$this->addColumn('streetaddress', 'Street address');
+			$this->addColumn('city', 'City');
+			$this->addColumn('country_code', 'Country');
+		}
+	}
 	```
 
 	TwiGrid also needs to know what column(s) it should consider as a primary key:
