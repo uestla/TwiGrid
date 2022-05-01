@@ -107,7 +107,7 @@
 	{/if}
 
 	{foreach $columns as $name => $column}
-		{ifset #header-cell-$name}
+		{ifset #"header-cell-$name"}
 			{include #"header-cell-$name", column => $column}
 
 		{else}
@@ -280,7 +280,7 @@
 {define header-filter-row-cells}
 
 	{foreach $columns as $name => $column}
-		{ifset #filter-cell-$name}
+		{ifset #"filter-cell-$name"}
 			{include #"filter-cell-$name", columnName => $name}
 
 		{else}
@@ -303,7 +303,7 @@
 				? alert-warning
 	'>
 		{if $hasControl && $isControl}
-			{input filters-criteria-$columnName, class => 'form-control'}
+			{input "filters-criteria-$columnName", class => 'form-control'}
 		{else}
 			&nbsp;
 		{/if}
@@ -402,7 +402,7 @@
 		]}
 
 		{if $isInlineEdited}
-			{ifset #body-cell-$name-inline}
+			{ifset #"body-cell-$name-inline"}
 				{include #"body-cell-$name-inline", (expand) $params}
 
 			{else}
@@ -410,7 +410,7 @@
 			{/ifset}
 
 		{else}
-			{ifset #body-cell-$name}
+			{ifset #"body-cell-$name"}
 				{include #"body-cell-$name", (expand) $params}
 
 			{else}
@@ -449,10 +449,10 @@
 
 	{ifset $form["inline-values-$columnName"]}
 		<td n:class='body-inline-cell, "body-inline-cell-{$columnName}"'>
-			{input inline-values-$columnName, class => 'form-control'}
+			{input "inline-values-$columnName", class => 'form-control'}
 		</td>
 
-	{elseifset #body-cell-$columnName}
+	{elseifset #"body-cell-$columnName"}
 		{include #"body-cell-$columnName", columnName => $columnName, $recordVariable => $$recordVariable}
 
 	{else}
@@ -470,7 +470,7 @@
 {define body-cell}
 
 	<td n:class='body-cell, "body-cell-{$columnName}"'>
-		{ifset #body-cell-$columnName-content}
+		{ifset #"body-cell-$columnName-content"}
 			{include #"body-cell-$columnName-content", $recordVariable => $$recordVariable, columnName => $columnName}
 
 		{else}
@@ -538,7 +538,7 @@
 						]),
 					]}
 
-					{ifset #row-action-$name}
+					{ifset #"row-action-$name"}
 						{include #"row-action-$name", (expand) $params}
 
 					{else}
