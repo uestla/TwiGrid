@@ -12,15 +12,14 @@ declare(strict_types = 1);
 
 namespace TwiGrid;
 
+use Nette\Forms\Container;
 use TwiGrid\Components\Action;
 use Nette\Forms\Controls\Button;
 use Nette\Forms\Controls\Checkbox;
 use Nette\Forms\Controls\SubmitButton;
-use Nette\Application\UI\Form as NForm;
-use Nette\Forms\Container as NContainer;
 
 
-class Form extends NForm
+class Form extends \Nette\Application\UI\Form
 {
 
 	/** @var RecordHandler */
@@ -65,7 +64,7 @@ class Form extends NForm
 	public function getFilterCriteria(): ?array
 	{
 		try {
-			/** @var array<string, mixed> $values */
+			/** @var array{filters: array{criteria: array<string, string>}} $values */
 			$values = $this->getValues('array');
 			return Helpers::filterEmpty($values['filters']['criteria']);
 
@@ -121,7 +120,7 @@ class Form extends NForm
 		$this->addGroupActionCheckboxes();
 
 		try {
-			/** @var array<string, mixed> $values */
+			/** @var array{actions: array{records: array<string, string>}} $values */
 			$values = $this->getValues('array');
 			return array_map('strval', array_keys(array_filter($values['actions']['records'])));
 
@@ -132,7 +131,7 @@ class Form extends NForm
 
 
 	/**
-	 * @param  mixed[]|\Traversable $data
+	 * @param  iterable<int|string, mixed> $data
 	 * @param  callable $containerSetupCb
 	 */
 	public function addInlineEditControls($data, callable $containerSetupCb, ?string $iePrimary): self
@@ -140,7 +139,7 @@ class Form extends NForm
 		if ($this->lazyCreateContainer('inline', 'buttons', $buttons)) {
 			foreach ($data as $record) {
 				if ($this->recordHandler->is($record, $iePrimary)) {
-					/** @var NContainer $inline */
+					/** @var Container $inline */
 					$inline = $this['inline'];
 
 					$containerSetupCb($inline->addContainer('values'), $record);
@@ -167,7 +166,7 @@ class Form extends NForm
 	public function getInlineValues(): ?array
 	{
 		try {
-			/** @var array<string, mixed> $values */
+			/** @var array{inline: array{values: array<string, string>}} $values */
 			$values = $this->getValues('array');
 			return $values['inline']['values'];
 
@@ -202,14 +201,14 @@ class Form extends NForm
 	}
 
 
-	protected function lazyCreateContainer(string $parent, string $name, NContainer & $container = null): bool
+	protected function lazyCreateContainer(string $parent, string $name, Container & $container = null): bool
 	{
 		if (!isset($this[$parent])) {
 			$this->addContainer($parent);
 		}
 
 		if (!isset($this[$parent][$name])) {
-			/** @var NContainer $parentContainer */
+			/** @var Container $parentContainer */
 			$parentContainer = $this[$parent];
 
 			$parentContainer->addContainer($name);
@@ -229,13 +228,13 @@ class Form extends NForm
 		/** @var Button $button */
 		$button = $form->isSubmitted();
 
-		/** @var NContainer $buttonParent */
+		/** @var Container $buttonParent */
 		$buttonParent = $button->getParent();
 
-		/** @var NContainer $checkboxParent */
+		/** @var Container $checkboxParent */
 		$checkboxParent = $checkbox->getParent();
 
-		return $buttonParent->lookupPath(NForm::class) !== 'actions-buttons'
+		return $buttonParent->lookupPath(\Nette\Application\UI\Form::class) !== 'actions-buttons'
 				|| in_array(true, (array) $checkboxParent->getValues('array'), true);
 	}
 

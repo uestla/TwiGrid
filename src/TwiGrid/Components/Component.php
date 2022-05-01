@@ -13,10 +13,9 @@ declare(strict_types = 1);
 namespace TwiGrid\Components;
 
 use TwiGrid\DataGrid;
-use Nette\ComponentModel\Component as NComponent;
 
 
-abstract class Component extends NComponent
+abstract class Component extends \Nette\ComponentModel\Component
 {
 
 	final public function getDataGrid(bool $need = true): DataGrid

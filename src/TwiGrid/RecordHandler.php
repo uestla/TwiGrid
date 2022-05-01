@@ -83,7 +83,7 @@ class RecordHandler
 
 	/**
 	 * @param  mixed $record
-	 * @return array<string, string>
+	 * @return array<string, int|string>
 	 */
 	public function getPrimary($record): array
 	{
@@ -93,7 +93,10 @@ class RecordHandler
 
 		$primaries = [];
 		foreach ($this->primaryKey as $column) {
-			$primaries[$column] = (string) $this->getValue($record, $column);
+			$value = $this->getValue($record, $column);
+			assert(is_int($value) || is_string($value));
+
+			$primaries[$column] = $value;
 		}
 
 		return $primaries;
@@ -108,7 +111,7 @@ class RecordHandler
 
 
 	/**
-	 * @param  mixed[]|\Traversable $data
+	 * @param  iterable<int|string, mixed> $data
 	 * @return mixed|null
 	 */
 	public function findIn(string $primary, $data)

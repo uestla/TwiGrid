@@ -12,9 +12,9 @@ declare(strict_types = 1);
 
 namespace TwiGrid;
 
+use Nette\Utils\Random;
+use Nette\Http\SessionSection;
 use TwiGrid\Components\Column;
-use Nette\Utils\Random as NRandom;
-use Nette\Http\SessionSection as NSessionSection;
 
 
 abstract class Helpers
@@ -35,10 +35,6 @@ abstract class Helpers
 	}
 
 
-	/**
-	 * @param  mixed[] $a
-	 * @return mixed[]
-	 */
 	public static function filterEmpty(array $a): array
 	{
 		$ret = [];
@@ -75,7 +71,7 @@ abstract class Helpers
 			if (!$column->isSortedBy() || count($grid->orderBy) > 1) {
 				$by[$column->getName()] = Column::ASC;
 
-			} elseif ($column->isSortedBy() && $column->getSortDir() === Column::ASC) {
+			} elseif ($column->getSortDir() === Column::ASC) {
 				$by[$column->getName()] = Column::DESC;
 			}
 
@@ -108,21 +104,29 @@ abstract class Helpers
 
 	// === CSRF PROTECTION ======================================================
 
-	public static function getCsrfToken(NSessionSection $session): string
+	public static function getCsrfToken(SessionSection $session): string
 	{
 		if (!isset($session->token)) {
-			$session->token = NRandom::generate(10);
+			$session->token = Random::generate();
 		}
 
-		return $session->token;
+		$token = $session->token;
+		assert(is_string($token));
+
+		return $token;
 	}
 
 
-	public static function checkCsrfToken(NSessionSection $session, string $token): bool
+	public static function checkCsrfToken(SessionSection $session, string $token): bool
 	{
-		if (isset($session->token) && strcmp($session->token, $token) === 0) {
-			unset($session->token);
-			return true;
+		if (isset($session->token)) {
+			$sessionToken = $session->token;
+			assert(is_string($sessionToken));
+
+			if (strcmp($sessionToken, $token) === 0) {
+				unset($session->token);
+				return true;
+			}
 		}
 
 		return false;

@@ -12,20 +12,21 @@ declare(strict_types = 1);
 
 namespace TwiGrid;
 
+use Nette\Application\UI\Link;
+use Nette\Http\SessionSection;
 use TwiGrid\Components\Action;
 use TwiGrid\Components\Column;
+use Nette\Application\UI\Control;
 use TwiGrid\Components\RowAction;
+use Nette\Application\UI\Presenter;
+use Nette\ComponentModel\Container;
+use Nette\Database\Table\Selection;
+use Nette\Localization\ITranslator;
+use Nette\Forms\Controls\SubmitButton;
 use Nette\Bridges\ApplicationLatte\Template;
-use Nette\Application\UI\Control as NControl;
-use Nette\Application\UI\Presenter as NPresenter;
-use Nette\ComponentModel\Container as NContainer;
-use Nette\Database\Table\Selection as NSelection;
-use Nette\Http\SessionSection as NSessionSection;
-use Nette\Localization\ITranslator as NITranslator;
-use Nette\Forms\Controls\SubmitButton as NSubmitButton;
 
 
-class DataGrid extends NControl
+class DataGrid extends Control
 {
 
 	/**
@@ -91,7 +92,7 @@ class DataGrid extends NControl
 	/** @var int|null */
 	private $itemsPerPage;
 
-	/** @var callable|null */
+	/** @var callable(array<string, mixed> $filters): int|null */
 	private $itemCounter;
 
 	/** @var int|null */
@@ -115,19 +116,19 @@ class DataGrid extends NControl
 	/** @var callable|null */
 	private $dataLoader;
 
-	/** @var mixed[]|\Traversable|null */
+	/** @var iterable<int|string, mixed>|null */
 	private $data;
 
 
 	// === SESSION ===========
 
-	/** @var NSessionSection */
+	/** @var SessionSection */
 	private $session;
 
 
 	// === LOCALIZATION ===========
 
-	/** @var NITranslator|null */
+	/** @var ITranslator|null */
 	private $translator;
 
 
@@ -150,7 +151,7 @@ class DataGrid extends NControl
 
 	public function __construct()
 	{
-		$this->monitor(NPresenter::class, function (NPresenter $presenter) {
+		$this->monitor(Presenter::class, function (Presenter $presenter) {
 			$this->build();
 
 			$this->session = $presenter->getSession(sprintf('%s-%s', __CLASS__, $this->getName()));
@@ -170,7 +171,7 @@ class DataGrid extends NControl
 	{}
 
 
-	/** @param  array<string, mixed> $params */
+	/** @param  array{polluted?: string, orderBy?: array<string, string>, filters?: array<string, mixed>, iePrimary?: string, page?: int} $params */
 	public function loadState(array $params): void
 	{
 		parent::loadState(static::processParams($params));
@@ -210,7 +211,7 @@ class DataGrid extends NControl
 
 
 	/**
-	 * @param  array<string, mixed> $params
+	 * @param  array{polluted?: string, orderBy?: array<string, string>, filters?: array<string, mixed>, iePrimary?: string, page?: int} $params
 	 * @return array<string, mixed>
 	 */
 	protected static function processParams(array $params): array
@@ -273,7 +274,7 @@ class DataGrid extends NControl
 
 	// === LOCALIZATION ======================================================
 
-	public function getTranslator(): NITranslator
+	public function getTranslator(): ITranslator
 	{
 		if ($this->translator === null) {
 			$this->translator = new Components\Translator;
@@ -283,7 +284,7 @@ class DataGrid extends NControl
 	}
 
 
-	public function setTranslator(NITranslator $translator): self
+	public function setTranslator(ITranslator $translator): self
 	{
 		$this->translator = $translator;
 		return $this;
@@ -301,7 +302,7 @@ class DataGrid extends NControl
 	public function addColumn(string $name, string $label = null): Column
 	{
 		if (!isset($this['columns'])) {
-			$this['columns'] = new NContainer;
+			$this['columns'] = new Container;
 		}
 
 		$column = new Components\Column($label === null ? $name : $label);
@@ -348,7 +349,7 @@ class DataGrid extends NControl
 	public function addRowAction(string $name, string $label, callable $callback): RowAction
 	{
 		if (!isset($this['rowActions'])) {
-			$this['rowActions'] = new NContainer;
+			$this['rowActions'] = new Container;
 		}
 
 		$action = new Components\RowAction($label, $callback);
@@ -386,7 +387,7 @@ class DataGrid extends NControl
 	public function addGroupAction(string $name, string $label, callable $callback): Action
 	{
 		if (!isset($this['groupActions'])) {
-			$this['groupActions'] = new NContainer;
+			$this['groupActions'] = new Container;
 		}
 
 		$action = new Components\Action($label, $callback);
@@ -513,7 +514,7 @@ class DataGrid extends NControl
 	}
 
 
-	/** @return mixed[]|\Traversable */
+	/** @return iterable<int|string, mixed> */
 	public function getData()
 	{
 		if (!$this->dataLoader) {
@@ -544,7 +545,12 @@ class DataGrid extends NControl
 				$args[] = ($this->page - 1) * $this->itemsPerPage;
 			}
 
-			$this->data = call_user_func_array($this->dataLoader, $args);
+			/** @var iterable<int|string, mixed> $data */
+			$data = call_user_func_array($this->dataLoader, $args);
+
+			assert(is_array($data) || $data instanceof \Countable);
+
+			$this->data = $data;
 		}
 
 		return $this->data;
@@ -554,7 +560,7 @@ class DataGrid extends NControl
 	public function hasData(): bool
 	{
 		$data = $this->getData();
-		return count(is_countable($data) ? $data : iterator_to_array($data)) > 0;
+		return count(is_array($data) || $data instanceof \Countable ? $data : iterator_to_array($data)) > 0;
 	}
 
 
@@ -671,8 +677,9 @@ class DataGrid extends NControl
 				}
 
 				$data = call_user_func($this->dataLoader, $this->filters, [], null, 0);
+				assert(is_array($data) || $data instanceof \Countable);
 
-				if ($data instanceof NSelection) {
+				if ($data instanceof Selection) {
 					$count = $data->count('*');
 
 				} else {
@@ -683,7 +690,8 @@ class DataGrid extends NControl
 				$count = call_user_func($this->itemCounter, $this->filters);
 			}
 
-			$this->itemCount = max(0, (int) $count);
+			assert(is_int($count));
+			$this->itemCount = max(0, $count);
 		}
 
 		return $this->itemCount;
@@ -811,10 +819,10 @@ class DataGrid extends NControl
 			}
 		}
 
-		if ($button instanceof NSubmitButton) {
+		if ($button instanceof SubmitButton) {
 			$name = $button->getName();
 
-			/** @var NContainer $parent */
+			/** @var Container $parent */
 			$parent = $button->getParent();
 
 			$path = $parent->lookupPath(Form::class);
@@ -933,7 +941,11 @@ class DataGrid extends NControl
 			$this->payload->url = $this->link('this');
 			$this->payload->refreshing = $this->refreshing;
 			$this->payload->refreshSignal = $this->link('refresh!');
-			$this->payload->forms[$form->getElementPrototype()->id] = (string) $form->getAction();
+
+			$action = $form->getAction();
+			assert(is_string($action) || $action instanceof Link);
+
+			$this->payload->forms[$form->getElementPrototype()->id] = (string) $action;
 
 			$latte->addProvider('formsStack', [$form]);
 		}

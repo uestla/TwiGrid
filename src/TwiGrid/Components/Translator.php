@@ -4,10 +4,10 @@ declare(strict_types = 1);
 
 namespace TwiGrid\Components;
 
-use Nette\Localization\ITranslator as NITranslator;
+use Nette\Localization\ITranslator;
 
 
-class Translator implements NITranslator
+class Translator implements ITranslator
 {
 
 	/** @var array<string, string> */
@@ -49,14 +49,11 @@ class Translator implements NITranslator
 	}
 
 
+	/** @param  string ...$parameters */
 	public function translate($message, ...$parameters): string
 	{
-		if (isset($this->dictionary[$message])) {
-			$s = $this->dictionary[$message];
-
-		} else {
-			$s = $message;
-		}
+		assert(is_string($message));
+		$s = $this->dictionary[$message] ?? $message;
 
 		return sprintf($s, ...$parameters);
 	}

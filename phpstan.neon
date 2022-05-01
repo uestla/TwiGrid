@@ -5,4 +5,14 @@ parameters:
 		- tests/
 
 	ignoreErrors:
-		- '#^Cannot access offset .+ on Nette\\ComponentModel\\IComponent\.$#D'
+		-
+			message: '#^Cannot access offset .+ on Nette\\ComponentModel\\IComponent\.$#D'
+			path: src/TwiGrid/Form.php
+
+		# recursive template not supported yet - see https://github.com/phpstan/phpstan/issues/3006
+		-
+			message: '#^Method TwiGrid\\Helpers::filterEmpty\(\) has parameter \$a with no value type specified in iterable type array\.$#D'
+			path: src/TwiGrid/Helpers.php
+		-
+			message: '#^Method TwiGrid\\Helpers::filterEmpty\(\) return type has no value type specified in iterable type array\.$#D'
+			path: src/TwiGrid/Helpers.php
