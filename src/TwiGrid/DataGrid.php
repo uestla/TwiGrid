@@ -918,6 +918,7 @@ class DataGrid extends Control
 		$template = $this->createTemplate();
 
 		$template->grid = $this;
+		$template->setTranslator($this->translator);
 		$template->defaultTemplate = __DIR__ . '/DataGrid.latte';
 		$template->setFile($this->templateFile === null ? $template->defaultTemplate : $this->templateFile);
 		$template->csrfToken = Helpers::getCsrfToken($this->session);

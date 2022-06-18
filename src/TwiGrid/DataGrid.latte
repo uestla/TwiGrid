@@ -269,7 +269,8 @@
 {define header-filter-row}
 
 	<tr n:snippet="filter-controls">
-		{php $grid->addFilterCriteria(); $grid->addFilterButtons() }
+		{php $grid->addFilterCriteria()}
+		{php $grid->addFilterButtons()}
 
 		{include #header-filter-row-cells}
 	</tr>
@@ -346,20 +347,19 @@
 {define body}
 
 	<tbody class="body" n:snippet="body">
-		{if}
-			{php $grid->addGroupActionCheckboxes(); $grid->addInlineEditControls() }
+		{php $grid->addGroupActionCheckboxes()}
+		{php $grid->addInlineEditControls()}
 
-			{foreach $dataLoader() as $record}
-				{include #body-row,
-					$recordVariable => $record,
-					primaryString => ($primaryString = ($record |primaryToString)),
-					isInlineEdited => $hasInlineEdit && $iePrimary === $primaryString
-				}
-			{/foreach}
+		{foreach $dataLoader() as $record}
+			{include #body-row,
+				$recordVariable => $record,
+				primaryString => ($primaryString = ($record |primaryToString)),
+				isInlineEdited => $hasInlineEdit && $iePrimary === $primaryString
+			}
 
 		{else}
 			{include #body-no-data-row}
-		{/if $iterations}
+		{/foreach}
 	</tbody>
 
 {/define}
@@ -376,7 +376,7 @@
 		{include #body-row-cells,
 			primaryString => $primaryString,
 			isInlineEdited => $isInlineEdited,
-			$recordVariable => $$recordVariable
+			$recordVariable => ${$recordVariable}
 		}
 	</tr>
 
@@ -398,7 +398,7 @@
 		{var $params = [
 			columnName => $name,
 			isInlineEdited => $isInlineEdited,
-			$recordVariable => $$recordVariable
+			$recordVariable => ${$recordVariable}
 		]}
 
 		{if $isInlineEdited}
@@ -423,7 +423,7 @@
 		{include #body-cell-row-actions,
 			primaryString => $primaryString,
 			isInlineEdited => $isInlineEdited,
-			$recordVariable => $$recordVariable
+			$recordVariable => ${$recordVariable}
 		}
 	{/if}
 
@@ -453,10 +453,10 @@
 		</td>
 
 	{elseifset #"body-cell-$columnName"}
-		{include #"body-cell-$columnName", columnName => $columnName, $recordVariable => $$recordVariable}
+		{include #"body-cell-$columnName", columnName => $columnName, $recordVariable => ${$recordVariable}}
 
 	{else}
-		{include #body-cell, columnName => $columnName, $recordVariable => $$recordVariable}
+		{include #body-cell, columnName => $columnName, $recordVariable => ${$recordVariable}}
 	{/ifset}
 
 {/define}
@@ -471,10 +471,10 @@
 
 	<td n:class='body-cell, "body-cell-{$columnName}"'>
 		{ifset #"body-cell-$columnName-content"}
-			{include #"body-cell-$columnName-content", $recordVariable => $$recordVariable, columnName => $columnName}
+			{include #"body-cell-$columnName-content", $recordVariable => ${$recordVariable}, columnName => $columnName}
 
 		{else}
-			{include #body-cell-content, $recordVariable => $$recordVariable, columnName => $columnName}
+			{include #body-cell-content, $recordVariable => ${$recordVariable}, columnName => $columnName}
 		{/ifset}
 	</td>
 
@@ -486,7 +486,7 @@
  * @param  mixed $$recordVariable
  *}
 {define body-cell-content}
-	{$$recordVariable |getValue:$columnName, false}
+	{${$recordVariable} |getValue:$columnName, false}
 {/define}
 
 
@@ -499,7 +499,7 @@
 
 	<td class="body-cell row-actions">
 		{if $hasRowActions || $hasInlineEdit}
-			{include #row-actions, $recordVariable => $$recordVariable, isInlineEdited => $isInlineEdited, primaryString => $primaryString}
+			{include #row-actions, $recordVariable => ${$recordVariable}, isInlineEdited => $isInlineEdited, primaryString => $primaryString}
 
 		{else}
 			&nbsp;
@@ -530,7 +530,7 @@
 					{var $params = [
 						name => $name,
 						action => $action,
-						$recordVariable => $$recordVariable,
+						$recordVariable => ${$recordVariable},
 						link => $grid->link('rowAction!', [
 							name => $name,
 							primary => $primaryString,
@@ -647,7 +647,7 @@
 
 {define group-action-buttons}
 
-	{php $grid->addGroupActionButtons() }
+	{php $grid->addGroupActionButtons()}
 
 	<div n:class="$isPaginated ? ($grid->getPageCount() <= 1 ? col-md-8 : col-md-4) : col-md-12">
 		{include #group-action-buttons-label}
@@ -678,7 +678,7 @@
 
 {define pagination}
 
-	{php $grid->addPaginationControls() }
+	{php $grid->addPaginationControls()}
 
 	<div class="col-md-4" n:if="!$hasGroupActions"></div>
 
