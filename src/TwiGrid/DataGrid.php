@@ -938,7 +938,7 @@ class DataGrid extends Control
 		$template->form = $form = $this['form'];
 
 		if ($this->presenter->isAjax()) {
-			$this->payload->id = $this->getSnippetId((string) $this->getName());
+			$this->payload->id = $this->getSnippetId('');
 			$this->payload->url = $this->link('this');
 			$this->payload->refreshing = $this->refreshing;
 			$this->payload->refreshSignal = $this->link('refresh!');
