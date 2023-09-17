@@ -49,7 +49,10 @@ class Translator implements ITranslator
 	}
 
 
-	/** @param  string ...$parameters */
+	/**
+	 * @param  string $message
+	 * @param  string ...$parameters
+	 */
 	public function translate($message, ...$parameters): string
 	{
 		assert(is_string($message));

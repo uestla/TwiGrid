@@ -12,6 +12,7 @@ declare(strict_types = 1);
 
 namespace TwiGrid;
 
+use Nette\Utils\Arrays;
 use Nette\Application\UI\Link;
 use Nette\Http\SessionSection;
 use TwiGrid\Components\Action;
@@ -293,7 +294,7 @@ class DataGrid extends Control
 
 	public function translate(string $s, int $count = null): string
 	{
-		return $this->getTranslator()->translate($s, $count);
+		return (string) $this->getTranslator()->translate($s, $count);
 	}
 
 
@@ -502,7 +503,20 @@ class DataGrid extends Control
 	/** @param  string|string[] $primaryKey */
 	public function setPrimaryKey($primaryKey): self
 	{
-		$this->getRecordHandler()->setPrimaryKey(is_array($primaryKey) ? $primaryKey : func_get_args());
+		if (is_array($primaryKey)) {
+			$keys = $primaryKey;
+
+		} else {
+			/** @var string[] $keys */
+			$keys = func_get_args();
+
+			assert(Arrays::every($keys, function ($s): bool {
+				return is_string($s);
+
+			}), 'Primary keys must be an array of strings.');
+		}
+
+		$this->getRecordHandler()->setPrimaryKey($keys);
 		return $this;
 	}
 
