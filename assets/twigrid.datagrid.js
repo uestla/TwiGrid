@@ -312,13 +312,14 @@ $.nette.ext({
 			});
 
 		$('.header-cell', header)
+			.first()
 			.off('click.tw-allrowcheck')
 			.on('click.tw-allrowcheck', function (event) {
 				if (!self.isClickable(event.target) && self.noMetaKeysPressed(event)) {
 					groupCheckbox.twgToggleChecked();
 				}
 			})
-			.first().html(groupCheckbox);
+			.html(groupCheckbox);
 
 		checkboxes.each(function (k, val) {
 			var checkbox = $(val);
