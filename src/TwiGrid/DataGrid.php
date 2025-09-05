@@ -313,8 +313,8 @@ class DataGrid extends Control
 	}
 
 
-	/** @return \ArrayIterator<string, Column>|null */
-	public function getColumns(): ?\ArrayIterator
+	/** @return iterable<string, Column>|null */
+	public function getColumns(): ?iterable
 	{
 		return isset($this['columns']) ? $this['columns']->getComponents() : null;
 	}
@@ -360,8 +360,8 @@ class DataGrid extends Control
 	}
 
 
-	/** @return \ArrayIterator<string, RowAction>|null */
-	public function getRowActions(): ?\ArrayIterator
+	/** @return iterable<string, RowAction>|null */
+	public function getRowActions(): ?iterable
 	{
 		return isset($this['rowActions']) ? $this['rowActions']->getComponents() : null;
 	}
@@ -398,8 +398,8 @@ class DataGrid extends Control
 	}
 
 
-	/** @return \ArrayIterator<string, Action>|null */
-	public function getGroupActions(): ?\ArrayIterator
+	/** @return iterable<string, Action>|null */
+	public function getGroupActions(): ?iterable
 	{
 		return isset($this['groupActions']) ? $this['groupActions']->getComponents() : null;
 	}
@@ -982,7 +982,7 @@ class DataGrid extends Control
 
 		$template->isPaginated = $this->itemsPerPage !== null;
 
-		$template->columnCount = ($columns ? count($columns) : 0)
+		$template->columnCount = ($columns === null ? 0 : count((array) $columns))
 				+ ($template->hasGroupActions ? 1 : 0)
 				+ ($template->hasFilters || $template->hasRowActions || $template->hasInlineEdit ? 1 : 0);
 

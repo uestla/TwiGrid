@@ -101,8 +101,8 @@ class Form extends \Nette\Application\UI\Form
 	}
 
 
-	/** @param  \ArrayIterator<string, Action> $actions */
-	public function addGroupActionButtons(\ArrayIterator $actions): self
+	/** @param  iterable<string, Action> $actions */
+	public function addGroupActionButtons(iterable $actions): self
 	{
 		if ($this->lazyCreateContainer('actions', 'buttons', $buttons)) {
 			foreach ($actions as $name => $action) {
