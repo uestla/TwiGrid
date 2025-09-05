@@ -606,7 +606,7 @@
 	<tfoot class="footer" n:snippet="footer">
 		{capture $footerInfo}{include #footer-info}{/capture}
 
-		{if $grid->hasData() && (trim($footerInfo) !== '' || $hasGroupActions || $grid->getPageCount() > 1)}
+		{if $grid->hasData() && (trim((string) $footerInfo) !== '' || $hasGroupActions || $grid->getPageCount() > 1)}
 			{include #footer-row, footerInfo => $footerInfo}
 		{/if}
 	</tfoot>

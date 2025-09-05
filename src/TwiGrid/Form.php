@@ -224,7 +224,7 @@ class Form extends \Nette\Application\UI\Form
 	}
 
 
-	protected function lazyCreateContainer(string $parent, string $name, Container & $container = null): bool
+	protected function lazyCreateContainer(string $parent, string $name, ?Container & $container = null): bool
 	{
 		if (!$this->hasContainer([$parent])) {
 			$this->addContainer($parent);

@@ -295,7 +295,7 @@ class DataGrid extends Control
 	}
 
 
-	public function translate(string $s, int $count = null): string
+	public function translate(string $s, ?int $count = null): string
 	{
 		return (string) $this->getTranslator()->translate($s, $count);
 	}
@@ -304,7 +304,7 @@ class DataGrid extends Control
 	// === COLUMNS ======================================================
 
 	/** @return Column<T> */
-	public function addColumn(string $name, string $label = null): Column
+	public function addColumn(string $name, ?string $label = null): Column
 	{
 		if (!isset($this['columns'])) {
 			$this['columns'] = new Container;
@@ -375,7 +375,7 @@ class DataGrid extends Control
 	}
 
 
-	public function handleRowAction(string $name, string $primary, string $token = null): void
+	public function handleRowAction(string $name, string $primary, ?string $token = null): void
 	{
 		/** @var RowAction<T> $action */
 		$action = $this['rowActions']->getComponent($name);
@@ -623,7 +623,7 @@ class DataGrid extends Control
 	 * @param  callable(T, string, bool): mixed|null $callback
 	 * @return self<T>
 	 */
-	public function setValueGetter(callable $callback = null): self
+	public function setValueGetter(?callable $callback = null): self
 	{
 		$this->getRecordHandler()->setValueGetter($callback);
 		return $this;
@@ -683,7 +683,7 @@ class DataGrid extends Control
 	 * @param  callable(array<string, mixed>): int|null $itemCounter
 	 * @return self<T>
 	 */
-	public function setPagination(int $itemsPerPage, callable $itemCounter = null): self
+	public function setPagination(int $itemsPerPage, ?callable $itemCounter = null): self
 	{
 		$this->itemsPerPage = max(0, $itemsPerPage);
 		$this->itemCounter = $itemCounter;

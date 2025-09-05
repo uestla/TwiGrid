@@ -52,7 +52,7 @@ class Action extends Component
 
 
 	/** @return self<T> */
-	public function setConfirmation(string $confirmation = null): self
+	public function setConfirmation(?string $confirmation = null): self
 	{
 		$this->confirmation = $confirmation === '' ? null : $confirmation;
 		return $this;
