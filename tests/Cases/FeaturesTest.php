@@ -8,7 +8,7 @@ use Tester\Assert;
 use Tester\TestCase;
 use TwiGrid\DataGrid;
 use Nette\Forms\Container;
-use Tests\Utils\GridPresenter;
+use Tests\UI\GridPresenter;
 
 require_once __DIR__ . '/../bootstrap.php';
 
