@@ -13,6 +13,10 @@ declare(strict_types = 1);
 namespace TwiGrid\Components;
 
 
+/**
+ * @template T
+ * @extends Component<T>
+ */
 class Column extends Component
 {
 
@@ -48,6 +52,7 @@ class Column extends Component
 	}
 
 
+	/** @return self<T> */
 	public function setSortable(bool $bool = true): self
 	{
 		$this->sortable = $bool;
@@ -61,6 +66,7 @@ class Column extends Component
 	}
 
 
+	/** @return self<T> */
 	public function setSortedBy(bool $bool = true, bool $sortDir = self::ASC, int $sortIndex = 0): self
 	{
 		if (!$this->sortable) {

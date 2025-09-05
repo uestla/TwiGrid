@@ -27,6 +27,7 @@ use Nette\Forms\Controls\SubmitButton;
 use Nette\Bridges\ApplicationLatte\Template;
 
 
+/** @template T */
 class DataGrid extends Control
 {
 
@@ -63,7 +64,7 @@ class DataGrid extends Control
 	/** @var array<string, mixed>|null */
 	private $defaultFilters;
 
-	/** @var callable|null */
+	/** @var callable(\Nette\Forms\Container): void|null */
 	private $filterFactory;
 
 
@@ -75,10 +76,10 @@ class DataGrid extends Control
 	 */
 	public $iePrimary;
 
-	/** @var callable|null */
+	/** @var callable(\Nette\Forms\Container, T): void|null */
 	private $ieContainerSetupCallback;
 
-	/** @var callable|null */
+	/** @var callable(mixed, array<string, T>): void|null */
 	private $ieProcessCallback;
 
 
@@ -111,13 +112,13 @@ class DataGrid extends Control
 
 	// === DATA ===========
 
-	/** @var RecordHandler|null */
+	/** @var RecordHandler<T>|null */
 	private $recordHandler;
 
-	/** @var callable|null */
+	/** @var callable(array<string, mixed>, array<string, bool>, int, int): iterable<T>|null */
 	private $dataLoader;
 
-	/** @var iterable<int|string, mixed>|null */
+	/** @var iterable<T>|null */
 	private $data;
 
 
@@ -259,6 +260,7 @@ class DataGrid extends Control
 	}
 
 
+	/** @return self<T> */
 	protected function refreshState(bool $resetInlineEdit = true): self
 	{
 		if ($resetInlineEdit) {
@@ -285,6 +287,7 @@ class DataGrid extends Control
 	}
 
 
+	/** @return self<T> */
 	public function setTranslator(ITranslator $translator): self
 	{
 		$this->translator = $translator;
@@ -300,6 +303,7 @@ class DataGrid extends Control
 
 	// === COLUMNS ======================================================
 
+	/** @return Column<T> */
 	public function addColumn(string $name, string $label = null): Column
 	{
 		if (!isset($this['columns'])) {
@@ -313,7 +317,7 @@ class DataGrid extends Control
 	}
 
 
-	/** @return iterable<string, Column>|null */
+	/** @return iterable<string, Column<T>>|null */
 	public function getColumns(): ?iterable
 	{
 		return isset($this['columns']) ? $this['columns']->getComponents() : null;
@@ -324,7 +328,7 @@ class DataGrid extends Control
 	{
 		$columns = $this->getColumns();
 
-		if (!$columns) {
+		if ($columns === null) {
 			return false;
 		}
 
@@ -347,6 +351,10 @@ class DataGrid extends Control
 
 	// === ROW ACTIONS ======================================================
 
+	/**
+	 * @param  callable(T): void $callback
+	 * @return RowAction<T>
+	 */
 	public function addRowAction(string $name, string $label, callable $callback): RowAction
 	{
 		if (!isset($this['rowActions'])) {
@@ -360,7 +368,7 @@ class DataGrid extends Control
 	}
 
 
-	/** @return iterable<string, RowAction>|null */
+	/** @return iterable<string, RowAction<T>>|null */
 	public function getRowActions(): ?iterable
 	{
 		return isset($this['rowActions']) ? $this['rowActions']->getComponents() : null;
@@ -369,10 +377,16 @@ class DataGrid extends Control
 
 	public function handleRowAction(string $name, string $primary, string $token = null): void
 	{
+		/** @var RowAction<T> $action */
 		$action = $this['rowActions']->getComponent($name);
 
-		if (!$action->isProtected() || ($token && Helpers::checkCsrfToken($this->session, $token))) {
-			$action->invoke($this->getRecordHandler()->findIn($primary, $this->getData()));
+		if (!$action->isProtected() || ($token !== null && Helpers::checkCsrfToken($this->session, $token))) {
+			$record = $this->getRecordHandler()->findIn($primary, $this->getData());
+
+			if ($record !== null) {
+				$action->invoke($record);
+			}
+
 			$this->refreshState();
 			$this->redraw(true, true, ['body', 'footer']);
 
@@ -385,12 +399,17 @@ class DataGrid extends Control
 
 	// === GROUP ACTIONS ======================================================
 
+	/**
+	 * @param  callable(T[]): void $callback
+	 * @return Action<T>
+	 */
 	public function addGroupAction(string $name, string $label, callable $callback): Action
 	{
 		if (!isset($this['groupActions'])) {
 			$this['groupActions'] = new Container;
 		}
 
+		/** @var Action<T> $action */
 		$action = new Components\Action($label, $callback);
 		$this['groupActions']->addComponent($action, $name);
 
@@ -398,7 +417,7 @@ class DataGrid extends Control
 	}
 
 
-	/** @return iterable<string, Action>|null */
+	/** @return iterable<string, Action<T>>|null */
 	public function getGroupActions(): ?iterable
 	{
 		return isset($this['groupActions']) ? $this['groupActions']->getComponents() : null;
@@ -415,7 +434,10 @@ class DataGrid extends Control
 	}
 
 
-	/** @param  string|array<string, bool> $column */
+	/**
+	 * @param  string|array<string, bool> $column
+	 * @return self<T>
+	 */
 	public function setDefaultOrderBy($column, bool $dir = Components\Column::ASC): self
 	{
 		if (is_array($column)) {
@@ -423,7 +445,7 @@ class DataGrid extends Control
 
 		} else {
 			$this->defaultOrderBy = [
-				(string) $column => $dir,
+				$column => $dir,
 			];
 		}
 
@@ -431,6 +453,7 @@ class DataGrid extends Control
 	}
 
 
+	/** @return self<T> */
 	public function setMultiSort(bool $bool = true): self
 	{
 		$this->multiSort = $bool;
@@ -446,6 +469,10 @@ class DataGrid extends Control
 
 	// === FILTERING ======================================================
 
+	/**
+	 * @param  callable(\Nette\Forms\Container): void $factory
+	 * @return self<T>
+	 */
 	public function setFilterFactory(callable $factory): self
 	{
 		$this->filterFactory = $factory;
@@ -453,7 +480,10 @@ class DataGrid extends Control
 	}
 
 
-	/** @param  array<string, mixed> $filters */
+	/**
+	 * @param  array<string, mixed> $filters
+	 * @return self<T>
+	 */
 	public function setDefaultFilters(array $filters): self
 	{
 		if ($this->filterFactory === null) {
@@ -465,7 +495,10 @@ class DataGrid extends Control
 	}
 
 
-	/** @param  array<string, mixed> $filters */
+	/**
+	 * @param  array<string, mixed> $filters
+	 * @return self<T>
+	 */
 	protected function setFilters(array $filters): self
 	{
 		Helpers::recursiveKSort($filters);
@@ -490,6 +523,7 @@ class DataGrid extends Control
 
 	// === DATA LOADING ======================================================
 
+	/** @return RecordHandler<T> */
 	private function getRecordHandler(): RecordHandler
 	{
 		if ($this->recordHandler === null) {
@@ -500,20 +534,25 @@ class DataGrid extends Control
 	}
 
 
-	/** @param  string|string[] $primaryKey */
+	/**
+	 * @param  string|string[] $primaryKey
+	 * @return self<T>
+	 */
 	public function setPrimaryKey($primaryKey): self
 	{
 		if (is_array($primaryKey)) {
 			$keys = $primaryKey;
 
 		} else {
-			/** @var string[] $keys */
+			/** @var mixed[] $keys */
 			$keys = func_get_args();
 
 			assert(Arrays::every($keys, function ($s): bool {
 				return is_string($s);
 
 			}), 'Primary keys must be an array of strings.');
+
+			/** @var string[] $keys */
 		}
 
 		$this->getRecordHandler()->setPrimaryKey($keys);
@@ -521,6 +560,10 @@ class DataGrid extends Control
 	}
 
 
+	/**
+	 * @param  callable(array<string, mixed>, array<string, bool>, int, int): iterable<T> $loader
+	 * @return self<T>
+	 */
 	public function setDataLoader(callable $loader): self
 	{
 		$this->dataLoader = $loader;
@@ -528,19 +571,19 @@ class DataGrid extends Control
 	}
 
 
-	/** @return iterable<int|string, mixed> */
+	/** @return iterable<T> */
 	public function getData()
 	{
-		if (!$this->dataLoader) {
+		if ($this->dataLoader === null) {
 			throw new \LogicException('Data loader not set.');
 		}
 
 		if ($this->data === null) {
 			$order = $this->orderBy;
-			$primaryDir = count($order) ? end($order) : Components\Column::ASC;
+			$primaryDir = $order === [] ? Components\Column::ASC : end($order);
 			$primaryKey = $this->getRecordHandler()->getPrimaryKey();
 
-			if ($primaryKey) {
+			if ($primaryKey !== null) {
 				foreach ($primaryKey as $column) {
 					if (!isset($order[$column])) {
 						$order[$column] = $primaryDir;
@@ -559,10 +602,8 @@ class DataGrid extends Control
 				$args[] = ($this->page - 1) * $this->itemsPerPage;
 			}
 
-			/** @var iterable<int|string, mixed> $data */
+			/** @var iterable<T> $data */
 			$data = call_user_func_array($this->dataLoader, $args);
-
-			assert(is_array($data) || $data instanceof \Countable);
 
 			$this->data = $data;
 		}
@@ -578,6 +619,10 @@ class DataGrid extends Control
 	}
 
 
+	/**
+	 * @param  callable(T, string, bool): mixed|null $callback
+	 * @return self<T>
+	 */
 	public function setValueGetter(callable $callback = null): self
 	{
 		$this->getRecordHandler()->setValueGetter($callback);
@@ -604,6 +649,11 @@ class DataGrid extends Control
 
 	// === INLINE EDITING ======================================================
 
+	/**
+	 * @param  callable(\Nette\Forms\Container, T): void $containerSetupCb
+	 * @param  callable(T, array<string, mixed>): void $processCb
+	 * @return self<T>
+	 */
 	public function setInlineEditing(callable $containerSetupCb, callable $processCb): self
 	{
 		$this->ieProcessCallback = $processCb;
@@ -629,6 +679,10 @@ class DataGrid extends Control
 
 	// === PAGINATION ======================================================
 
+	/**
+	 * @param  callable(array<string, mixed>): int|null $itemCounter
+	 * @return self<T>
+	 */
 	public function setPagination(int $itemsPerPage, callable $itemCounter = null): self
 	{
 		$this->itemsPerPage = max(0, $itemsPerPage);
@@ -651,6 +705,7 @@ class DataGrid extends Control
 	}
 
 
+	/** @return self<T> */
 	protected function setPage(int $page): self
 	{
 		if ($this->itemsPerPage !== null) {
@@ -665,8 +720,11 @@ class DataGrid extends Control
 	}
 
 
+	/** @return self<T> */
 	protected function initPagination(): self
 	{
+		assert($this->itemsPerPage !== null);
+
 		if ($this->pageCount === null) {
 			$this->pageCount = (int) ceil($this->getItemCount() / $this->itemsPerPage);
 			$this->page = Helpers::fixPage($this->page, $this->pageCount);
@@ -682,29 +740,28 @@ class DataGrid extends Control
 	}
 
 
-	public function getItemCount(): ?int
+	public function getItemCount(): int
 	{
 		if ($this->itemCount === null) {
 			if ($this->itemCounter === null) { // fallback - fetch data with empty filters
-				if (!$this->dataLoader) {
+				if ($this->dataLoader === null) {
 					throw new \LogicException('Data loader not set.');
 				}
 
+				/** @var iterable<mixed> $data */
 				$data = call_user_func($this->dataLoader, $this->filters, [], null, 0);
-				assert(is_array($data) || $data instanceof \Countable);
 
 				if ($data instanceof Selection) {
 					$count = $data->count('*');
 
 				} else {
-					$count = count($data);
+					$count = count((array) $data);
 				}
 
 			} else {
 				$count = call_user_func($this->itemCounter, $this->filters);
 			}
 
-			assert(is_int($count));
 			$this->itemCount = max(0, $count);
 		}
 
@@ -720,6 +777,7 @@ class DataGrid extends Control
 
 	// === FORM BUILDING ======================================================
 
+	/** @return Form<T> */
 	protected function createComponentForm(): Form
 	{
 		$form = new Form($this->getRecordHandler());
@@ -738,6 +796,7 @@ class DataGrid extends Control
 	}
 
 
+	/** @return self<T> */
 	public function addFilterCriteria(): self
 	{
 		if ($this->filterFactory !== null) {
@@ -749,6 +808,7 @@ class DataGrid extends Control
 	}
 
 
+	/** @return self<T> */
 	public function addFilterButtons(): self
 	{
 		if ($this->filterFactory !== null) {
@@ -759,6 +819,7 @@ class DataGrid extends Control
 	}
 
 
+	/** @return self<T> */
 	public function addGroupActionCheckboxes(): self
 	{
 		if ($this->getGroupActions() !== null) {
@@ -770,6 +831,7 @@ class DataGrid extends Control
 	}
 
 
+	/** @return self<T> */
 	public function addGroupActionButtons(): self
 	{
 		if ($this->getGroupActions() !== null) {
@@ -780,6 +842,7 @@ class DataGrid extends Control
 	}
 
 
+	/** @return self<T> */
 	public function addInlineEditControls(): self
 	{
 		if ($this->ieContainerSetupCallback !== null) {
@@ -794,6 +857,7 @@ class DataGrid extends Control
 	}
 
 
+	/** @return self<T> */
 	public function addPaginationControls(): self
 	{
 		if ($this->itemsPerPage !== null) {
@@ -885,7 +949,7 @@ class DataGrid extends Control
 
 					if ($values !== null) {
 						if ($this->iePrimary !== null) {
-							if (!$this->ieProcessCallback) {
+							if ($this->ieProcessCallback === null) {
 								throw new \LogicException('Inline edit callback not set.');
 							}
 
@@ -901,7 +965,7 @@ class DataGrid extends Control
 				} else {
 					$primary = $button->getName();
 
-					if ($primary) {
+					if ($primary !== null) {
 						$this->activateInlineEditing($primary);
 					}
 				}
@@ -912,6 +976,7 @@ class DataGrid extends Control
 
 	// === RENDERING ======================================================
 
+	/** @return self<T> */
 	public function setTemplateFile(string $templateFile): self
 	{
 		$this->templateFile = $templateFile;
@@ -919,6 +984,7 @@ class DataGrid extends Control
 	}
 
 
+	/** @return self<T> */
 	public function setRecordVariable(string $name): self
 	{
 		$this->recordVariable = $name;

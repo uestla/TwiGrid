@@ -16,16 +16,19 @@ use Nette\Forms\Container;
 use TwiGrid\Components\Action;
 use Nette\Forms\Controls\Button;
 use Nette\Forms\Controls\Checkbox;
+use Nette\Forms\Controls\TextInput;
 use Nette\Forms\Controls\SubmitButton;
 
 
+/** @template T */
 class Form extends \Nette\Application\UI\Form
 {
 
-	/** @var RecordHandler */
+	/** @var RecordHandler<T> */
 	private $recordHandler;
 
 
+	/** @param  RecordHandler<T> $handler */
 	public function __construct(RecordHandler $handler)
 	{
 		parent::__construct();
@@ -33,7 +36,10 @@ class Form extends \Nette\Application\UI\Form
 	}
 
 
-	/** @param  array<string, mixed> $defaults */
+	/**
+	 * @param  array<string, mixed> $defaults
+	 * @return self<T>
+	 */
 	public function addFilterCriteria(callable $containerSetupCb, array $defaults): self
 	{
 		if ($this->lazyCreateContainer('filters', 'criteria', $criteria)) {
@@ -41,11 +47,15 @@ class Form extends \Nette\Application\UI\Form
 			$criteria->setDefaults($defaults);
 		}
 
-		$this['filters']['buttons']['filter']->setValidationScope([$this['filters']['criteria']]);
+		$this->getSubmitButton(['filters', 'buttons', 'filter'])->setValidationScope(
+			[$this->getContainer(['filters', 'criteria'])]
+		);
+
 		return $this;
 	}
 
 
+	/** @return self<T> */
 	public function addFilterButtons(bool $hasFilters): self
 	{
 		if ($this->lazyCreateContainer('filters', 'buttons', $buttons)) {
@@ -60,11 +70,11 @@ class Form extends \Nette\Application\UI\Form
 	}
 
 
-	/** @return array<string, mixed> */
+	/** @return array<string, mixed>|null */
 	public function getFilterCriteria(): ?array
 	{
 		try {
-			/** @var array{filters: array{criteria: array<string, string>}} $values */
+			/** @var array{filters: array{criteria: array<string, array<string, mixed>|object|scalar>}} $values */
 			$values = $this->getValues('array');
 			return Helpers::filterEmpty($values['filters']['criteria']);
 
@@ -74,12 +84,13 @@ class Form extends \Nette\Application\UI\Form
 	}
 
 
+	/** @return self<T> */
 	public function addGroupActionCheckboxes(): self
 	{
 		if ($this->lazyCreateContainer('actions', 'records', $records)) {
 			$first = true;
 
-			/** @var DataGrid $grid */
+			/** @var DataGrid<T> $grid */
 			$grid = $this->getParent();
 
 			foreach ($grid->getData() as $record) {
@@ -93,15 +104,19 @@ class Form extends \Nette\Application\UI\Form
 			}
 		}
 
-		foreach ($this['actions']['buttons']->getComponents() as $button) {
-			$button->setValidationScope([$this['actions']['records']]);
+		/** @var SubmitButton $button */
+		foreach ($this->getContainer(['actions', 'buttons'])->getComponents() as $button) {
+			$button->setValidationScope([$this->getContainer(['actions', 'records'])]);
 		}
 
 		return $this;
 	}
 
 
-	/** @param  iterable<string, Action> $actions */
+	/**
+	 * @param  iterable<string, Action<T>> $actions
+	 * @return self<T>
+	 */
 	public function addGroupActionButtons(iterable $actions): self
 	{
 		if ($this->lazyCreateContainer('actions', 'buttons', $buttons)) {
@@ -131,8 +146,9 @@ class Form extends \Nette\Application\UI\Form
 
 
 	/**
-	 * @param  iterable<int|string, mixed> $data
+	 * @param  iterable<T> $data
 	 * @param  callable $containerSetupCb
+	 * @return self<T>
 	 */
 	public function addInlineEditControls($data, callable $containerSetupCb, ?string $iePrimary): self
 	{
@@ -145,7 +161,7 @@ class Form extends \Nette\Application\UI\Form
 					$containerSetupCb($inline->addContainer('values'), $record);
 
 					$buttons->addSubmit('edit', 'twigrid.inline.edit_confirm')
-							->setValidationScope([$this['inline']['values']]);
+							->setValidationScope([$this->getContainer(['inline', 'values'])]);
 
 					$buttons->addSubmit('cancel', 'twigrid.inline.cancel')->setValidationScope([]);
 
@@ -176,19 +192,20 @@ class Form extends \Nette\Application\UI\Form
 	}
 
 
+	/** @return self<T> */
 	public function addPaginationControls(int $current, int $pageCount): self
 	{
 		if ($this->lazyCreateContainer('pagination', 'controls', $controls)) {
 			$controls->addText('page', 'twigrid.pagination.page')
 				->setRequired('twigrid.pagination.page_required')
-				->addRule(Form::INTEGER, 'twigrid.pagination.page_integer')
-				->addRule(Form::RANGE, 'twigrid.pagination.page_range', [1, $pageCount])
+				->addRule($this::INTEGER, 'twigrid.pagination.page_integer')
+				->addRule($this::RANGE, 'twigrid.pagination.page_range', [1, $pageCount])
 				->setDefaultValue($current);
 		}
 
 		if ($this->lazyCreateContainer('pagination', 'buttons', $buttons)) {
 			$buttons->addSubmit('change', 'twigrid.pagination.change')
-				->setValidationScope([$this['pagination']['controls']]);
+				->setValidationScope([$this->getContainer(['pagination', 'controls'])]);
 		}
 
 		return $this;
@@ -197,32 +214,78 @@ class Form extends \Nette\Application\UI\Form
 
 	public function getPage(): int
 	{
-		return (int) $this['pagination']['controls']['page']->getValue();
+		/** @var TextInput $pageControl */
+		$pageControl = $this->getContainer(['pagination', 'controls'])->getComponent('page');
+
+		/** @var scalar $value */
+		$value = $pageControl->getValue();
+
+		return (int) $value;
 	}
 
 
 	protected function lazyCreateContainer(string $parent, string $name, Container & $container = null): bool
 	{
-		if (!isset($this[$parent])) {
+		if (!$this->hasContainer([$parent])) {
 			$this->addContainer($parent);
 		}
 
-		if (!isset($this[$parent][$name])) {
-			/** @var Container $parentContainer */
-			$parentContainer = $this[$parent];
-
+		if (!$this->hasContainer([$parent, $name])) {
+			$parentContainer = $this->getContainer([$parent]);
 			$parentContainer->addContainer($name);
 			$created = true;
 		}
 
-		$container = $this[$parent][$name];
+		$container = $this->getContainer([$parent, $name]);
 		return isset($created);
+	}
+
+
+	/** @param  string[] $path */
+	protected function hasContainer(array $path): bool
+	{
+		$current = $this;
+		foreach ($path as $name) {
+			$current = $current->getComponent($name, false);
+
+			if ($current === null) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+
+	/** @param  string[] $path */
+	protected function getContainer(array $path): Container
+	{
+		$current = $this;
+		foreach ($path as $name) {
+			/** @var Container $current */
+			$current = $current->getComponent($name);
+		}
+
+		return $current;
+	}
+
+
+	/** @param  string[] $path */
+	protected function getSubmitButton(array $path): SubmitButton
+	{
+		/** @var string $buttonName */
+		$buttonName = array_pop($path);
+
+		/** @var SubmitButton $button */
+		$button = $this->getContainer($path)->getComponent($buttonName);
+
+		return $button;
 	}
 
 
 	public static function validateCheckedCount(Checkbox $checkbox): bool
 	{
-		/** @var Form $form */
+		/** @var self<T> $form */
 		$form = $checkbox->getForm();
 
 		/** @var Button $button */

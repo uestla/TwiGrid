@@ -3,17 +3,18 @@
 {**
  * Default DataGrid template
  *
- * @param  TwiGrid\DataGrid $grid
+ * @template T
+ * @param  TwiGrid\DataGrid<T> $grid
  * @param  string $defaultTemplate
- * @param  array $flashes
- * @param  TwiGrid\Form $form
- * @param  ArrayIterator $columns
- * @param  callable $dataLoader
+ * @param  array<string, \stdClass> $flashes
+ * @param  TwiGrid\Form<T> $form
+ * @param  iterable<string, Column<T>> $columns
+ * @param  callable(array<string, mixed>, array<string, bool>, int, int): iterable<T> $dataLoader
  * @param  string $recordVariable
  * @param  string $csrfToken
- * @param  \ArrayIterator|null $rowActions
+ * @param  iterable<string, TwiGrid\Components\RowAction<T>>|null $rowActions
  * @param  bool $hasRowActions
- * @param  \ArrayIterator|null $groupActions
+ * @param  iterable<string, TwiGrid\Components\Action<T>>|null $groupActions
  * @param  bool $hasGroupActions
  * @param  bool $hasFilters
  * @param  bool $hasInlineEdit
@@ -564,7 +565,7 @@
  * @param  string $name
  * @param  string $link
  * @param  mixed $$recordVariable
- * @param  TwiGrid\Components\RowAction $action
+ * @param  TwiGrid\Components\RowAction<T> $action
  *}
 {define row-action}
 
@@ -669,7 +670,7 @@
 
 {**
  * @param  string $name
- * @param  TwiGrid\Components\Action $action
+ * @param  TwiGrid\Components\Action<T> $action
  *}
 {define group-action-button}
 	<input n:name="'actions-buttons-' . $name" class="btn btn-default" n:attr="data-tw-confirm => $action->getConfirmation()">

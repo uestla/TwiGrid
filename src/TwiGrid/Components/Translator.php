@@ -55,10 +55,7 @@ class Translator implements ITranslator
 	 */
 	public function translate($message, ...$parameters): string
 	{
-		assert(is_string($message));
-		$s = $this->dictionary[$message] ?? $message;
-
-		return sprintf($s, ...$parameters);
+		return sprintf($this->dictionary[$message] ?? $message, ...$parameters);
 	}
 
 }

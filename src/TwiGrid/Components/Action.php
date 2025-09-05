@@ -13,19 +13,24 @@ declare(strict_types = 1);
 namespace TwiGrid\Components;
 
 
+/**
+ * @template T
+ * @extends Component<T>
+ */
 class Action extends Component
 {
 
 	/** @var string */
 	private $label;
 
-	/** @var callable */
+	/** @var callable(T): void */
 	private $callback;
 
 	/** @var string|null */
 	private $confirmation;
 
 
+	/** @param  callable(T): void $callback */
 	public function __construct(string $label, callable $callback)
 	{
 		$this->label = $label;
@@ -39,12 +44,14 @@ class Action extends Component
 	}
 
 
+	/** @return  callable(T): void */
 	public function getCallback(): callable
 	{
 		return $this->callback;
 	}
 
 
+	/** @return self<T> */
 	public function setConfirmation(string $confirmation = null): self
 	{
 		$this->confirmation = $confirmation === '' ? null : $confirmation;
@@ -69,12 +76,12 @@ class Action extends Component
 
 
 	/**
-	 * @param  mixed $record
-	 * @return mixed
+	 * @param  T $record
+	 * @return void
 	 */
 	public function invoke($record)
 	{
-		return call_user_func($this->callback, $record);
+		call_user_func($this->callback, $record);
 	}
 
 }

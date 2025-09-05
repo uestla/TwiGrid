@@ -23,7 +23,7 @@ abstract class Helpers
 	/** @param  mixed[] $array */
 	public static function recursiveKSort(array & $array): void
 	{
-		if (count($array)) {
+		if ($array !== []) {
 			ksort($array);
 		}
 
@@ -35,12 +35,17 @@ abstract class Helpers
 	}
 
 
+	/**
+	 * @param  array<string, array<string, mixed>|object|scalar> $a
+	 * @return array<string, array<string, mixed>|object|scalar>
+	 */
 	public static function filterEmpty(array $a): array
 	{
 		$ret = [];
 		foreach ($a as $k => $v) {
 			if (is_array($v)) { // recursive
-				if (count($tmp = static::filterEmpty($v))) {
+				/** @var array<string, array<string, mixed>|object|scalar> $v */
+				if (($tmp = static::filterEmpty($v)) !== []) {
 					$ret[$k] = $tmp;
 				}
 
@@ -62,6 +67,11 @@ abstract class Helpers
 	public const SORT_LINK_MULTI = 1;
 
 
+	/**
+	 * @template T
+	 * @param  DataGrid<T> $grid
+	 * @param  Column<T> $column
+	 */
 	public static function createSortLink(DataGrid $grid, Column $column, int $mode = self::SORT_LINK_SINGLE): string
 	{
 		$by = null;

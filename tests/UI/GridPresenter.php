@@ -19,9 +19,11 @@ use Nette\Bridges\ApplicationLatte\ILatteFactory;
 use Nette\Bridges\ApplicationLatte\TemplateFactory;
 
 
-class GridPresenter extends Presenter
+/** @template T */
+final class GridPresenter extends Presenter
 {
 
+	/** @param  DataGrid<T> $grid */
 	public function __construct(DataGrid $grid)
 	{
 		parent::__construct();

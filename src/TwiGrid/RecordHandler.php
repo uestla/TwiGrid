@@ -13,21 +13,27 @@ declare(strict_types = 1);
 namespace TwiGrid;
 
 
-/** @internal */
+/**
+ * @template T
+ * @internal
+ */
 class RecordHandler
 {
 
 	/** @var string[]|null */
 	private $primaryKey;
 
-	/** @var callable|null */
+	/** @var callable(T, string, bool): mixed|null */
 	private $valueGetter;
 
 
 	const PRIMARY_SEPARATOR = '|';
 
 
-	/** @param  string[] $keys */
+	/**
+	 * @param  string[] $keys
+	 * @return self<T>
+	 */
 	public function setPrimaryKey(array $keys): self
 	{
 		$this->primaryKey = $keys;
@@ -42,6 +48,10 @@ class RecordHandler
 	}
 
 
+	/**
+	 * @param  callable(T, string, bool): mixed|null $callback
+	 * @return self<T>
+	 */
 	public function setValueGetter(?callable $callback): self
 	{
 		$this->valueGetter = $callback;
@@ -49,6 +59,7 @@ class RecordHandler
 	}
 
 
+	/** @return callable(T, string, bool): mixed */
 	public function getValueGetter(): callable
 	{
 		if ($this->valueGetter === null) {
@@ -72,7 +83,7 @@ class RecordHandler
 
 
 	/**
-	 * @param  mixed $record
+	 * @param  T $record
 	 * @return mixed
 	 */
 	public function getValue($record, string $column, bool $need = true)
@@ -83,12 +94,12 @@ class RecordHandler
 
 
 	/**
-	 * @param  mixed $record
+	 * @param  T $record
 	 * @return array<string, int|string>
 	 */
 	public function getPrimary($record): array
 	{
-		if (!$this->primaryKey) {
+		if ($this->primaryKey === null) {
 			throw new \LogicException('Primary key not set.');
 		}
 
@@ -104,7 +115,7 @@ class RecordHandler
 	}
 
 
-	/** @param  mixed $record */
+	/** @param  T $record */
 	public function getPrimaryHash($record): string
 	{
 		return substr(sha1(implode(static::PRIMARY_SEPARATOR, $this->getPrimary($record))), 0, 8);
@@ -112,8 +123,8 @@ class RecordHandler
 
 
 	/**
-	 * @param  iterable<int|string, mixed> $data
-	 * @return mixed|null
+	 * @param  iterable<T> $data
+	 * @return T|null
 	 */
 	public function findIn(string $primary, $data)
 	{
@@ -127,7 +138,7 @@ class RecordHandler
 	}
 
 
-	/** @param  mixed $record */
+	/** @param  T $record */
 	public function is($record, ?string $primary): bool
 	{
 		return $this->getPrimaryHash($record) === $primary;

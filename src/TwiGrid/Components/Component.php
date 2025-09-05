@@ -15,12 +15,14 @@ namespace TwiGrid\Components;
 use TwiGrid\DataGrid;
 
 
+/** @template T */
 abstract class Component extends \Nette\ComponentModel\Component
 {
 
+	/** @return DataGrid<T> */
 	final public function getDataGrid(bool $need = true): DataGrid
 	{
-		/** @var DataGrid $datagrid */
+		/** @var DataGrid<T> $datagrid */
 		$datagrid = $this->lookup(DataGrid::class, $need);
 
 		return $datagrid;

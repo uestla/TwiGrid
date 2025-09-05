@@ -39,8 +39,8 @@ class FeaturesTest extends TestCase
 			$grid = $this->createGrid((bool) ($i & 1));
 
 			foreach ($features as $j => $feature) {
-				if ($i & (1 << ($j + 1))) {
-					$this->{'add' . ucFirst($feature)}($grid);
+				if (($i & (1 << ($j + 1))) !== 0) {
+					$this->{'add' . ucfirst($feature)}($grid);
 				}
 			}
 
@@ -49,6 +49,7 @@ class FeaturesTest extends TestCase
 	}
 
 
+	/** @return DataGrid<array<string, mixed>> */
 	private function createGrid(bool $hasData): DataGrid
 	{
 		$grid = new DataGrid;
@@ -56,9 +57,9 @@ class FeaturesTest extends TestCase
 		$grid->addColumn('lastname')->setSortable();
 
 		if ($hasData) {
-			$grid->setDataLoader(static function () {
+			$grid->setDataLoader(static function (): array {
 				return [
-					(object) [
+					[
 						'id' => 1,
 						'firstname' => 'John',
 						'lastname' => 'Doe',
@@ -67,7 +68,7 @@ class FeaturesTest extends TestCase
 			});
 
 		} else {
-			$grid->setDataLoader(static function () {
+			$grid->setDataLoader(static function (): array {
 				return [];
 			});
 		}
@@ -77,11 +78,12 @@ class FeaturesTest extends TestCase
 	}
 
 
+	/** @param  DataGrid<array<string, mixed>> $grid */
 	public function renderGrid(DataGrid $grid): void
 	{
 		new GridPresenter($grid);
 
-		ob_start(static function () {});
+		ob_start(static function (): void {});
 		$grid->render();
 		$s = ob_get_clean();
 
@@ -91,40 +93,45 @@ class FeaturesTest extends TestCase
 
 	// === FEATURES DEFINITIONS =================================
 
+	/** @param  DataGrid<array<string, mixed>> $grid */
 	private function addFiltering(DataGrid $grid): void
 	{
-		$grid->setFilterFactory(static function (Container $c) {
+		$grid->setFilterFactory(static function (Container $c): void {
 			$c->addText('firstname');
 			$c->addText('lastname');
 		});
 	}
 
 
+	/** @param  DataGrid<array<string, mixed>> $grid */
 	private function addRowActions(DataGrid $grid): void
 	{
-		$grid->addRowAction('edit', 'Edit', static function (\stdClass $person) {});
-		$grid->addRowAction('delete', 'Delete', static function (\stdClass $person) {})->setConfirmation('Are you sure?');
+		$grid->addRowAction('edit', 'Edit', static function (array $person): void {});
+		$grid->addRowAction('delete', 'Delete', static function (array $person): void {})->setConfirmation('Are you sure?');
 	}
 
 
+	/** @param  DataGrid<array<string, mixed>> $grid */
 	private function addGroupActions(DataGrid $grid): void
 	{
-		$grid->addGroupAction('export', 'Export', static function (array $persons) {});
-		$grid->addGroupAction('delete', 'Delete', static function (array $persons) {})->setConfirmation('Are you sure?');
+		$grid->addGroupAction('export', 'Export', static function (array $persons): void {});
+		$grid->addGroupAction('delete', 'Delete', static function (array $persons): void {})->setConfirmation('Are you sure?');
 	}
 
 
+	/** @param  DataGrid<array<string, mixed>> $grid */
 	private function addInlineEditing(DataGrid $grid): void
 	{
-		$grid->setInlineEditing(static function (Container $c, \stdClass $person) {
+		$grid->setInlineEditing(static function (Container $c, array $person): void {
 			$c->addText('firstname')->setRequired();
 			$c->addText('lastname')->setRequired();
-			$c->setDefaults((array) $person);
+			$c->setDefaults($person);
 
-		}, static function (\stdClass $person) {});
+		}, static function (array $person, array $values): void {});
 	}
 
 
+	/** @param  DataGrid<array<string, mixed>> $grid */
 	private function addPagination(DataGrid $grid): void
 	{
 		$grid->setPagination(20);
