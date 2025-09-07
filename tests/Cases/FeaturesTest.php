@@ -39,7 +39,7 @@ class FeaturesTest extends TestCase
 			$grid = $this->createGrid((bool) ($i & 1));
 
 			foreach ($features as $j => $feature) {
-				if ($i & (1 << $j)) {
+				if ($i & (1 << ($j + 1))) {
 					$this->{'add' . ucFirst($feature)}($grid);
 				}
 			}
