@@ -53,7 +53,8 @@ class RecordHandler
 	{
 		if ($this->valueGetter === null) {
 			$this->valueGetter = static function ($record, $column, $need) {
-				if (!isset($record->$column)) {
+				if (is_array($record) && !array_key_exists($column, $record)
+						|| (is_object($record) && !isset($record->$column))) {
 					if ($need) {
 						throw new \InvalidArgumentException("Field '$column' not found in record of type "
 							. (is_object($record) ? get_class($record) : gettype($record)) . ".");
@@ -62,7 +63,7 @@ class RecordHandler
 					return null;
 				}
 
-				return $record->$column;
+				return is_array($record) ? $record[$column] : $record->$column;
 			};
 		}
 
