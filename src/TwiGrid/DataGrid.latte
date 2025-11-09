@@ -1,26 +1,28 @@
+{templateType TwiGrid\Template}
+
 {spaceless}
 
 {**
  * Default DataGrid template
  *
  * @template T
- * @param  TwiGrid\DataGrid<T> $grid
- * @param  string $defaultTemplate
- * @param  array<string, \stdClass> $flashes
- * @param  TwiGrid\Form<T> $form
- * @param  iterable<string, Column<T>> $columns
- * @param  callable(array<string, mixed>, array<string, bool>, int, int): iterable<T> $dataLoader
- * @param  string $recordVariable
- * @param  string $csrfToken
- * @param  iterable<string, TwiGrid\Components\RowAction<T>>|null $rowActions
- * @param  bool $hasRowActions
- * @param  iterable<string, TwiGrid\Components\Action<T>>|null $groupActions
- * @param  bool $hasGroupActions
- * @param  bool $hasFilters
- * @param  bool $hasInlineEdit
- * @param  string|null $iePrimary
- * @param  bool $isPaginated
- * @param  int $columnCount total number of columns in grid table
+ * @var  TwiGrid\DataGrid<T> $grid
+ * @var  string $defaultTemplate
+ * @var  array<string, \stdClass> $flashes
+ * @var  TwiGrid\Form<T> $form
+ * @var  iterable<string, Column<T>> $columns
+ * @var  callable(): iterable<T> $dataLoader
+ * @var  string $recordVariable
+ * @var  string $csrfToken
+ * @var  iterable<string, TwiGrid\Components\RowAction<T>>|null $rowActions
+ * @var  bool $hasRowActions
+ * @var  iterable<string, TwiGrid\Components\Action<T>>|null $groupActions
+ * @var  bool $hasGroupActions
+ * @var  bool $hasFilters
+ * @var  bool $hasInlineEdit
+ * @var  string|null $iePrimary
+ * @var  bool $isPaginated
+ * @var  int $columnCount total number of columns in grid table
  *}
 
 

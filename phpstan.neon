@@ -3,8 +3,13 @@ parameters:
 	paths:
 		- src/
 		- tests/
+	reportUnmatchedIgnoredErrors: false
 
 	ignoreErrors:
+		-
+			message: '#^Method Nette\\Application\\UI\\Control::createTemplate\(\) invoked with 1 parameter, 0 required\.$#D'
+			path: src/TwiGrid/DataGrid.php
+
 		-
 			message: '#^Parameter \#\d+ \$\S+ of method Nette\\Application\\UI\\Presenter::injectPrimary\(\) expects \S+, \S+ given\.|Method Nette\\Application\\UI\\Presenter::injectPrimary\(\) invoked with 8 parameters, 2-7 required\.$#D'
 			path: tests/UI/GridPresenter.php

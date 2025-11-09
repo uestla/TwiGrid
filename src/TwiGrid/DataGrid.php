@@ -24,7 +24,6 @@ use Nette\ComponentModel\Container;
 use Nette\Database\Table\Selection;
 use Nette\Localization\ITranslator;
 use Nette\Forms\Controls\SubmitButton;
-use Nette\Bridges\ApplicationLatte\Template;
 
 
 /** @template T */
@@ -994,8 +993,8 @@ class DataGrid extends Control
 
 	public function render(): void
 	{
-		/** @var Template $template */
-		$template = $this->createTemplate();
+		/** @var Template<T> $template */
+		$template = $this->createTemplate(Template::class);
 
 		$template->grid = $this;
 		$template->setTranslator($this->translator);
