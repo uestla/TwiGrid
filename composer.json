@@ -42,7 +42,7 @@
 			"@test"
 		],
 		"phplint": "parallel-lint --colors src/ tests/",
-		"phpstan": "phpstan analyze",
+		"phpstan": "phpstan analyse",
 		"test": "tester -C --colors 1 tests/"
 	},
 	"config": {
