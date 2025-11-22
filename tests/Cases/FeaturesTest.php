@@ -53,7 +53,7 @@ class FeaturesTest extends TestCase
 	private function createGrid(bool $hasData): DataGrid
 	{
 		$grid = new DataGrid;
-		$grid->addColumn('fistname')->setSortable();
+		$grid->addColumn('firstname')->setSortable();
 		$grid->addColumn('lastname')->setSortable();
 
 		if ($hasData) {
