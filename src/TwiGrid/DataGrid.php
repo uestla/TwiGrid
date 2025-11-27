@@ -19,6 +19,7 @@ use TwiGrid\Components\Action;
 use TwiGrid\Components\Column;
 use Nette\Application\UI\Control;
 use TwiGrid\Components\RowAction;
+use TwiGrid\Components\Translator;
 use Nette\Application\UI\Presenter;
 use Nette\ComponentModel\Container;
 use Nette\Database\Table\Selection;
@@ -78,7 +79,7 @@ class DataGrid extends Control
 	/** @var callable(\Nette\Forms\Container, T): void|null */
 	private $ieContainerSetupCallback;
 
-	/** @var callable(mixed, array<string, T>): void|null */
+	/** @var callable(T, array<string, mixed>): void|null */
 	private $ieProcessCallback;
 
 
@@ -114,7 +115,7 @@ class DataGrid extends Control
 	/** @var RecordHandler<T>|null */
 	private $recordHandler;
 
-	/** @var callable(array<string, mixed>, array<string, bool>, int, int): iterable<T>|null */
+	/** @var callable(array<string, mixed>, array<string, bool>, int|null, int): iterable<T>|null */
 	private $dataLoader;
 
 	/** @var iterable<T>|null */
@@ -163,6 +164,7 @@ class DataGrid extends Control
 				];
 			}
 
+			assert($presenter->payload->twiGrid instanceof \stdClass);
 			$this->payload = $presenter->payload->twiGrid;
 		});
 	}
@@ -196,7 +198,7 @@ class DataGrid extends Control
 		$i = 0;
 		foreach ($this->orderBy as $column => $dir) {
 			try {
-				$this['columns']->getComponent($column)->setSortedBy(true, $dir, $i++);
+				$this->getColumn($column)->setSortedBy(true, $dir, $i++);
 
 			} catch (\RuntimeException $e) {
 				unset($this->orderBy[$column]);
@@ -217,10 +219,8 @@ class DataGrid extends Control
 	 */
 	protected static function processParams(array $params): array
 	{
-		if (isset($params['orderBy'])) {
-			foreach ($params['orderBy'] as & $dir) {
-				$dir = (bool) $dir;
-			}
+		foreach ($params['orderBy'] ?? [] as $column => $dir) {
+			$params['orderBy'][$column] = (bool) $dir;
 		}
 
 		return $params;
@@ -279,7 +279,7 @@ class DataGrid extends Control
 	public function getTranslator(): ITranslator
 	{
 		if ($this->translator === null) {
-			$this->translator = new Components\Translator;
+			$this->translator = new Translator;
 		}
 
 		return $this->translator;
@@ -305,12 +305,9 @@ class DataGrid extends Control
 	/** @return Column<T> */
 	public function addColumn(string $name, ?string $label = null): Column
 	{
-		if (!isset($this['columns'])) {
-			$this['columns'] = new Container;
-		}
-
-		$column = new Components\Column($label === null ? $name : $label);
-		$this['columns']->addComponent($column, $name);
+		/** @var Column<T> $column */
+		$column = new Column($label === null ? $name : $label);
+		$this->getColumnsContainer()->addComponent($column, $name);
 
 		return $column;
 	}
@@ -319,7 +316,36 @@ class DataGrid extends Control
 	/** @return iterable<string, Column<T>>|null */
 	public function getColumns(): ?iterable
 	{
-		return isset($this['columns']) ? $this['columns']->getComponents() : null;
+		if (isset($this['columns'])) {
+			/** @var iterable<string, Column<T>> $components */
+			$components = $this->getColumnsContainer()->getComponents();
+
+			return $components;
+		}
+
+		return null;
+	}
+
+
+	/** @return Column<T> */
+	private function getColumn(string $name): Column
+	{
+		$column = $this->getColumnsContainer()->getComponent($name);
+		assert($column instanceof Column);
+		return $column;
+	}
+
+
+	private function getColumnsContainer(): Container
+	{
+		if (!isset($this['columns'])) {
+			$this['columns'] = new Container;
+		}
+
+		$columns = $this['columns'];
+		assert($columns instanceof Container);
+
+		return $columns;
 	}
 
 
@@ -352,7 +378,7 @@ class DataGrid extends Control
 
 	/**
 	 * @param  callable(T): void $callback
-	 * @return RowAction<T>
+	 * @return RowAction<T, T>
 	 */
 	public function addRowAction(string $name, string $label, callable $callback): RowAction
 	{
@@ -360,24 +386,40 @@ class DataGrid extends Control
 			$this['rowActions'] = new Container;
 		}
 
-		$action = new Components\RowAction($label, $callback);
-		$this['rowActions']->addComponent($action, $name);
+		/** @var RowAction<T, T> $action */
+		$action = new RowAction($label, $callback);
+		$this->getRowActionsContainer()->addComponent($action, $name);
 
 		return $action;
 	}
 
 
-	/** @return iterable<string, RowAction<T>>|null */
+	/** @return iterable<string, RowAction<T, T>>|null */
 	public function getRowActions(): ?iterable
 	{
-		return isset($this['rowActions']) ? $this['rowActions']->getComponents() : null;
+		if (isset($this['rowActions'])) {
+			/** @var iterable<string, RowAction<T, T>> $components */
+			$components = $this->getRowActionsContainer()->getComponents();
+
+			return $components;
+		}
+
+		return null;
+	}
+
+
+	private function getRowActionsContainer(): Container
+	{
+		$rowActions = $this['rowActions'];
+		assert($rowActions instanceof Container);
+		return $rowActions;
 	}
 
 
 	public function handleRowAction(string $name, string $primary, ?string $token = null): void
 	{
-		/** @var RowAction<T> $action */
-		$action = $this['rowActions']->getComponent($name);
+		/** @var RowAction<T, T> $action */
+		$action = $this->getRowActionsContainer()->getComponent($name);
 
 		if (!$action->isProtected() || ($token !== null && Helpers::checkCsrfToken($this->session, $token))) {
 			$record = $this->getRecordHandler()->findIn($primary, $this->getData());
@@ -400,7 +442,7 @@ class DataGrid extends Control
 
 	/**
 	 * @param  callable(T[]): void $callback
-	 * @return Action<T>
+	 * @return Action<T, T[]>
 	 */
 	public function addGroupAction(string $name, string $label, callable $callback): Action
 	{
@@ -408,18 +450,42 @@ class DataGrid extends Control
 			$this['groupActions'] = new Container;
 		}
 
-		/** @var Action<T> $action */
-		$action = new Components\Action($label, $callback);
-		$this['groupActions']->addComponent($action, $name);
+		/** @var Action<T, T[]> $action */
+		$action = new Action($label, $callback);
+		$this->getGroupActionsContainer()->addComponent($action, $name);
 
 		return $action;
 	}
 
 
-	/** @return iterable<string, Action<T>>|null */
+	/** @return iterable<string, Action<T, T[]>>|null */
 	public function getGroupActions(): ?iterable
 	{
-		return isset($this['groupActions']) ? $this['groupActions']->getComponents() : null;
+		if (isset($this['groupActions'])) {
+			/** @var iterable<string, Action<T, T[]>> $groupActions */
+			$groupActions = $this->getGroupActionsContainer()->getComponents();
+
+			return $groupActions;
+		}
+
+		return null;
+	}
+
+
+	/** @return Action<T, T[]> */
+	private function getGroupAction(string $name): Action
+	{
+		$action = $this->getGroupActionsContainer()->getComponent($name);
+		assert($action instanceof Action);
+		return $action;
+	}
+
+
+	private function getGroupActionsContainer(): Container
+	{
+		$groupActions = $this['groupActions'];
+		assert($groupActions instanceof Container);
+		return $groupActions;
 	}
 
 
@@ -437,7 +503,7 @@ class DataGrid extends Control
 	 * @param  string|array<string, bool> $column
 	 * @return self<T>
 	 */
-	public function setDefaultOrderBy($column, bool $dir = Components\Column::ASC): self
+	public function setDefaultOrderBy($column, bool $dir = Column::ASC): self
 	{
 		if (is_array($column)) {
 			$this->defaultOrderBy = $column;
@@ -526,7 +592,10 @@ class DataGrid extends Control
 	private function getRecordHandler(): RecordHandler
 	{
 		if ($this->recordHandler === null) {
-			$this->recordHandler = new RecordHandler;
+			/** @var RecordHandler<T> $recordHandler */
+			$recordHandler = new RecordHandler;
+
+			$this->recordHandler = $recordHandler;
 		}
 
 		return $this->recordHandler;
@@ -560,7 +629,7 @@ class DataGrid extends Control
 
 
 	/**
-	 * @param  callable(array<string, mixed>, array<string, bool>, int, int): iterable<T> $loader
+	 * @param  callable(array<string, mixed>, array<string, bool>, int|null, int): iterable<T> $loader
 	 * @return self<T>
 	 */
 	public function setDataLoader(callable $loader): self
@@ -579,7 +648,7 @@ class DataGrid extends Control
 
 		if ($this->data === null) {
 			$order = $this->orderBy;
-			$primaryDir = $order === [] ? Components\Column::ASC : end($order);
+			$primaryDir = $order === [] ? Column::ASC : end($order);
 			$primaryKey = $this->getRecordHandler()->getPrimaryKey();
 
 			if ($primaryKey !== null) {
@@ -883,13 +952,16 @@ class DataGrid extends Control
 		// detect submit button by lazy buttons appending (beginning with the most lazy ones)
 		$this->addFilterButtons();
 
-		if (($button = $form->isSubmitted()) === true) {
+		$button = $form->isSubmitted();
+		if ($button === true) {
 			$this->addGroupActionButtons();
+			$button = $form->isSubmitted();
 
-			if (($button = $form->isSubmitted()) === true) {
+			if ($button === true) {
 				$this->addPaginationControls();
+				$button = $form->isSubmitted();
 
-				if (($button = $form->isSubmitted()) === true) {
+				if ($button === true) {
 					$this->addInlineEditControls();
 					$button = $form->isSubmitted();
 				}
@@ -937,7 +1009,7 @@ class DataGrid extends Control
 						}
 					}
 
-					$this['groupActions']->getComponent($name)->invoke($records);
+					$this->getGroupAction((string) $name)->invoke($records);
 					$this->refreshState();
 					$this->redraw(true, true, ['body', 'footer']);
 				}
@@ -952,7 +1024,11 @@ class DataGrid extends Control
 								throw new \LogicException('Inline edit callback not set.');
 							}
 
-							call_user_func($this->ieProcessCallback, $this->getRecordHandler()->findIn($this->iePrimary, $this->getData()), $values);
+							/** @var T|null $record */
+							$record = $this->getRecordHandler()->findIn($this->iePrimary, $this->getData());
+							assert($record !== null);
+
+							call_user_func($this->ieProcessCallback, $record, $values);
 						}
 
 						$this->deactivateInlineEditing();
@@ -1006,7 +1082,7 @@ class DataGrid extends Control
 		$latte->addFilter('translate', [$this, 'translate']);
 		$latte->addFilter('primaryToString', [$this->getRecordHandler(), 'getPrimaryHash']);
 		$latte->addFilter('getValue', [$this->getRecordHandler(), 'getValue']);
-		$latte->addFilter('sortLink', function (Components\Column $c, $m = Helpers::SORT_LINK_SINGLE) {
+		$latte->addFilter('sortLink', function (Column $c, $m = Helpers::SORT_LINK_SINGLE) {
 			return Helpers::createSortLink($this, $c, $m);
 		});
 
@@ -1025,7 +1101,14 @@ class DataGrid extends Control
 			$action = $form->getAction();
 			assert(is_string($action) || $action instanceof Link);
 
-			$this->payload->forms[$form->getElementPrototype()->id] = (string) $action;
+			if (!is_array($this->payload->forms ?? null)) {
+				$this->payload->forms = [];
+			}
+
+			$formID = $form->getElementPrototype()->id;
+			assert(is_string($formID));
+
+			$this->payload->forms[$formID] = (string) $action;
 
 			$latte->addProvider('formsStack', [$form]);
 		}

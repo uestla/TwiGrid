@@ -37,12 +37,14 @@ class Form extends \Nette\Application\UI\Form
 
 
 	/**
+	 * @param  callable(Container): void $containerSetupCb
 	 * @param  array<string, mixed> $defaults
 	 * @return self<T>
 	 */
 	public function addFilterCriteria(callable $containerSetupCb, array $defaults): self
 	{
 		if ($this->lazyCreateContainer('filters', 'criteria', $criteria)) {
+			assert($criteria instanceof Container);
 			$containerSetupCb($criteria);
 			$criteria->setDefaults($defaults);
 		}
@@ -59,6 +61,7 @@ class Form extends \Nette\Application\UI\Form
 	public function addFilterButtons(bool $hasFilters): self
 	{
 		if ($this->lazyCreateContainer('filters', 'buttons', $buttons)) {
+			assert($buttons instanceof Container);
 			$buttons->addSubmit('filter', 'twigrid.filters.filter');
 
 			if ($hasFilters) {
@@ -114,12 +117,14 @@ class Form extends \Nette\Application\UI\Form
 
 
 	/**
-	 * @param  iterable<string, Action<T>> $actions
+	 * @param  iterable<string, Action<T, T[]>> $actions
 	 * @return self<T>
 	 */
 	public function addGroupActionButtons(iterable $actions): self
 	{
 		if ($this->lazyCreateContainer('actions', 'buttons', $buttons)) {
+			assert($buttons instanceof Container);
+
 			foreach ($actions as $name => $action) {
 				$buttons->addSubmit($name, $action->getLabel());
 			}
@@ -153,6 +158,8 @@ class Form extends \Nette\Application\UI\Form
 	public function addInlineEditControls($data, callable $containerSetupCb, ?string $iePrimary): self
 	{
 		if ($this->lazyCreateContainer('inline', 'buttons', $buttons)) {
+			assert($buttons instanceof Container);
+
 			foreach ($data as $record) {
 				if ($this->recordHandler->is($record, $iePrimary)) {
 					/** @var Container $inline */
@@ -196,14 +203,24 @@ class Form extends \Nette\Application\UI\Form
 	public function addPaginationControls(int $current, int $pageCount): self
 	{
 		if ($this->lazyCreateContainer('pagination', 'controls', $controls)) {
+			assert($controls instanceof Container);
+
+			/** @var string $integerRule */
+			$integerRule = $this::INTEGER;
+
+			/** @var string $rangeRule */
+			$rangeRule = $this::RANGE;
+
 			$controls->addText('page', 'twigrid.pagination.page')
 				->setRequired('twigrid.pagination.page_required')
-				->addRule($this::INTEGER, 'twigrid.pagination.page_integer')
-				->addRule($this::RANGE, 'twigrid.pagination.page_range', [1, $pageCount])
+				->addRule($integerRule, 'twigrid.pagination.page_integer')
+				->addRule($rangeRule, 'twigrid.pagination.page_range', [1, $pageCount])
 				->setDefaultValue($current);
 		}
 
 		if ($this->lazyCreateContainer('pagination', 'buttons', $buttons)) {
+			assert($buttons instanceof Container);
+
 			$buttons->addSubmit('change', 'twigrid.pagination.change')
 				->setValidationScope([$this->getContainer(['pagination', 'controls'])]);
 		}
@@ -246,6 +263,7 @@ class Form extends \Nette\Application\UI\Form
 	{
 		$current = $this;
 		foreach ($path as $name) {
+			/** @var Container|null $current */
 			$current = $current->getComponent($name, false);
 
 			if ($current === null) {

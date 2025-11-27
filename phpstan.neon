@@ -11,5 +11,9 @@ parameters:
 			path: src/TwiGrid/DataGrid.php
 
 		-
+			message: '#^Call to function method_exists\(\) with Latte\\Engine and ''addExtension'' will always evaluate to (true|false)\.$#D'
+			path: tests/UI/GridPresenter.php
+
+		-
 			message: '#^Parameter \#\d+ \$\S+ of method Nette\\Application\\UI\\Presenter::injectPrimary\(\) expects \S+, \S+ given\.|Method Nette\\Application\\UI\\Presenter::injectPrimary\(\) invoked with 8 parameters, 2-7 required\.$#D'
 			path: tests/UI/GridPresenter.php

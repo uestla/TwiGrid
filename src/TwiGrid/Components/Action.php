@@ -15,6 +15,7 @@ namespace TwiGrid\Components;
 
 /**
  * @template T
+ * @template CT
  * @extends Component<T>
  */
 class Action extends Component
@@ -23,14 +24,14 @@ class Action extends Component
 	/** @var string */
 	private $label;
 
-	/** @var callable(T): void */
+	/** @var callable(CT): void */
 	private $callback;
 
 	/** @var string|null */
 	private $confirmation;
 
 
-	/** @param  callable(T): void $callback */
+	/** @param  callable(CT): void $callback */
 	public function __construct(string $label, callable $callback)
 	{
 		$this->label = $label;
@@ -44,14 +45,14 @@ class Action extends Component
 	}
 
 
-	/** @return  callable(T): void */
+	/** @return  callable(CT): void */
 	public function getCallback(): callable
 	{
 		return $this->callback;
 	}
 
 
-	/** @return self<T> */
+	/** @return self<T, CT> */
 	public function setConfirmation(?string $confirmation = null): self
 	{
 		$this->confirmation = $confirmation === '' ? null : $confirmation;
@@ -76,12 +77,12 @@ class Action extends Component
 
 
 	/**
-	 * @param  T $record
+	 * @param  CT $argument
 	 * @return void
 	 */
-	public function invoke($record)
+	public function invoke($argument)
 	{
-		call_user_func($this->callback, $record);
+		call_user_func($this->callback, $argument);
 	}
 
 }

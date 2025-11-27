@@ -15,7 +15,8 @@ namespace TwiGrid\Components;
 
 /**
  * @template T
- * @extends Action<T>
+ * @template CT
+ * @extends Action<T, CT>
  */
 class RowAction extends Action
 {
@@ -24,7 +25,7 @@ class RowAction extends Action
 	protected $protected = true;
 
 
-	/** @return RowAction<T> */
+	/** @return RowAction<T, CT> */
 	public function setProtected(bool $bool = true): self
 	{
 		$this->protected = $bool;

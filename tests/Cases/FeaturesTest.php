@@ -52,7 +52,9 @@ class FeaturesTest extends TestCase
 	/** @return DataGrid<array<string, mixed>> */
 	private function createGrid(bool $hasData): DataGrid
 	{
+		/** @var DataGrid<array<string, mixed>> $grid */
 		$grid = new DataGrid;
+
 		$grid->addColumn('firstname')->setSortable();
 		$grid->addColumn('lastname')->setSortable();
 

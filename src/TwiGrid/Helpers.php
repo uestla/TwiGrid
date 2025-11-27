@@ -20,7 +20,7 @@ use TwiGrid\Components\Column;
 abstract class Helpers
 {
 
-	/** @param  mixed[] $array */
+	/** @param  array<string, mixed> $array */
 	public static function recursiveKSort(array & $array): void
 	{
 		if ($array !== []) {
@@ -29,6 +29,7 @@ abstract class Helpers
 
 		foreach ($array as & $val) {
 			if (is_array($val)) {
+				/** @var array<string, mixed> $val */
 				static::recursiveKSort($val);
 			}
 		}
@@ -71,8 +72,9 @@ abstract class Helpers
 	 * @template T
 	 * @param  DataGrid<T> $grid
 	 * @param  Column<T> $column
+	 * @param  mixed $mode
 	 */
-	public static function createSortLink(DataGrid $grid, Column $column, int $mode = self::SORT_LINK_SINGLE): string
+	public static function createSortLink(DataGrid $grid, Column $column, $mode = self::SORT_LINK_SINGLE): string
 	{
 		$by = null;
 

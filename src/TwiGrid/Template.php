@@ -43,13 +43,13 @@ class Template extends \Nette\Bridges\ApplicationLatte\Template
 	/** @var bool */
 	public $hasFilters;
 
-	/** @var iterable<string, RowAction<T>>|null */
+	/** @var iterable<string, RowAction<T, T>>|null */
 	public $rowActions;
 
 	/** @var bool */
 	public $hasRowActions;
 
-	/** @var iterable<string, Action<T>>|null */
+	/** @var iterable<string, Action<T, T[]>>|null */
 	public $groupActions;
 
 	/** @var bool */

@@ -27,6 +27,7 @@ class RecordHandler
 	private $valueGetter;
 
 
+	/** @var string */
 	const PRIMARY_SEPARATOR = '|';
 
 
@@ -64,6 +65,10 @@ class RecordHandler
 	{
 		if ($this->valueGetter === null) {
 			$this->valueGetter = static function ($record, $column, $need) {
+				/** @var T $record */
+				/** @var string $column */
+				/** @var bool $need */
+
 				if (is_array($record) && !array_key_exists($column, $record)
 						|| (is_object($record) && !isset($record->$column))) {
 					if ($need) {
@@ -74,7 +79,7 @@ class RecordHandler
 					return null;
 				}
 
-				return is_array($record) ? $record[$column] : $record->$column;
+				return is_array($record) ? ($record[$column] ?? null) : $record->$column;
 			};
 		}
 
