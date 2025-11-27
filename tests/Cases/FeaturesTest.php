@@ -106,6 +106,7 @@ class FeaturesTest extends TestCase
 	/** @param  DataGrid<array<string, mixed>> $grid */
 	private function addRowActions(DataGrid $grid): void
 	{
+		$grid->addRowAction('show', 'Show', static function (array $person): void {})->setProtected(false);
 		$grid->addRowAction('edit', 'Edit', static function (array $person): void {});
 		$grid->addRowAction('delete', 'Delete', static function (array $person): void {})->setConfirmation('Are you sure?');
 	}
